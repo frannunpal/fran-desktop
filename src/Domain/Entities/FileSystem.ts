@@ -36,7 +36,7 @@ export const createFile = (
   name: string,
   content: string,
   parentId: string | null = null,
-  mimeType = 'text/plain'
+  mimeType = 'text/plain',
 ): FileNode => ({
   id: crypto.randomUUID(),
   name,
