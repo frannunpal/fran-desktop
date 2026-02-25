@@ -110,4 +110,40 @@ describe('Taskbar component', () => {
     // Assert
     expect(screen.getByLabelText('Notepad')).toHaveAttribute('data-active', 'false');
   });
+
+  it('should render the theme toggle button with moon icon in light mode', () => {
+    // Arrange
+    useDesktopStore.getState().setThemeMode('light');
+
+    // Act
+    render(<Taskbar />, { wrapper });
+
+    // Assert
+    expect(screen.getByLabelText('Switch to dark mode')).toBeInTheDocument();
+    expect(screen.getByLabelText('Switch to dark mode')).toHaveTextContent('🌙');
+  });
+
+  it('should render the theme toggle button with sun icon in dark mode', () => {
+    // Arrange
+    useDesktopStore.getState().setThemeMode('dark');
+
+    // Act
+    render(<Taskbar />, { wrapper });
+
+    // Assert
+    expect(screen.getByLabelText('Switch to light mode')).toBeInTheDocument();
+    expect(screen.getByLabelText('Switch to light mode')).toHaveTextContent('☀️');
+  });
+
+  it('should toggle theme when the theme button is clicked', () => {
+    // Arrange
+    useDesktopStore.getState().setThemeMode('light');
+    render(<Taskbar />, { wrapper });
+
+    // Act
+    fireEvent.click(screen.getByLabelText('Switch to dark mode'));
+
+    // Assert
+    expect(useDesktopStore.getState().theme.mode).toBe('dark');
+  });
 });

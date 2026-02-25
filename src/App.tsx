@@ -9,6 +9,7 @@ import Window from '@presentation/Components/Window/Window';
 import Taskbar from '@presentation/Components/Taskbar/Taskbar';
 import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
 import ContextMenu, { DESKTOP_CONTEXT_MENU_ID } from '@presentation/Components/ContextMenu/ContextMenu';
+import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 
 function App() {
   const theme = useDesktopStore(state => state.theme);
@@ -17,6 +18,8 @@ function App() {
   const openWindow = useDesktopStore(state => state.openWindow);
   const addIcon = useDesktopStore(state => state.addIcon);
   const toggleTheme = useDesktopStore(state => state.toggleTheme);
+
+  useSystemTheme();
 
   const { show: showContextMenu } = useContextMenu({ id: DESKTOP_CONTEXT_MENU_ID });
 

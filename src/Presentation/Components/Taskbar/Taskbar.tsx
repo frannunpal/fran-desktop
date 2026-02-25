@@ -7,10 +7,12 @@ import classes from './Taskbar.module.css';
 
 const Taskbar: FC = () => {
   const taskbar = useDesktopStore(state => state.theme.taskbar);
+  const themeMode = useDesktopStore(state => state.theme.mode);
   const windows = useDesktopStore(state => state.windows);
   const restoreWindow = useDesktopStore(state => state.restoreWindow);
   const minimizeWindow = useDesktopStore(state => state.minimizeWindow);
   const focusWindow = useDesktopStore(state => state.focusWindow);
+  const toggleTheme = useDesktopStore(state => state.toggleTheme);
   const time = useClock();
 
   const openWindows = windows.filter(w => w.isOpen);
@@ -40,9 +42,19 @@ const Taskbar: FC = () => {
           </Text>
         </button>
       ))}
-      <Text size="xs" className={classes.clock} aria-label="clock">
-        {time}
-      </Text>
+      <div className={classes.systemTray}>
+        <button
+          className={classes.themeToggle}
+          onClick={toggleTheme}
+          aria-label={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {themeMode === 'dark' ? '☀️' : '🌙'}
+        </button>
+        <Text size="xs" className={classes.clock} aria-label="clock">
+          {time}
+        </Text>
+      </div>
     </div>
   );
 };
