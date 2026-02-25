@@ -1,11 +1,19 @@
 import type { FC, ReactNode } from 'react';
+import type { Variants } from 'framer-motion';
 import { Rnd } from 'react-rnd';
+import { motion } from 'framer-motion';
 import { ActionIcon, Group, Text } from '@mantine/core';
 import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose } from 'react-icons/vsc';
 import { useShallow } from 'zustand/react/shallow';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import type { WindowEntity } from '@domain/Entities/Window';
 import classes from './Window.module.css';
+
+const windowVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.92, y: 12 },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
+  exit: { opacity: 0, scale: 0.92, y: 12, transition: { duration: 0.4, ease: 'easeIn' as const } },
+};
 
 interface WindowProps {
   window: WindowEntity;
@@ -53,7 +61,14 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
         moveWindow(win.id, position.x, position.y);
       }}
     >
-      <div className={classes.root} style={{ background: windowColor }}>
+      <motion.div
+        className={classes.root}
+        style={{ background: windowColor }}
+        variants={windowVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+      >
         <div className={classes.titleBar}>
           <Text size="sm" fw={500} truncate className={classes.title}>
             {win.title}
@@ -87,7 +102,7 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
           </Group>
         </div>
         <div className={classes.content}>{children}</div>
-      </div>
+      </motion.div>
     </Rnd>
   );
 };

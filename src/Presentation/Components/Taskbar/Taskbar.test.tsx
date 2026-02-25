@@ -7,6 +7,9 @@ import type { ReactNode } from 'react';
 import { createLocalStorageMock } from '@application/__mocks__/localStorage.mock';
 
 vi.mock('@presentation/Hooks/useClock', () => ({ useClock: () => '10:30' }));
+vi.mock('@presentation/Components/Launcher/Launcher', () => ({
+  default: () => <button aria-label="Launcher">⊞</button>,
+}));
 
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);

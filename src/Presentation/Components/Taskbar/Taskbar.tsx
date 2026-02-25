@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { Text } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useClock } from '@presentation/Hooks/useClock';
+import Launcher from '@presentation/Components/Launcher/Launcher';
 import classes from './Taskbar.module.css';
 
 const Taskbar: FC = () => {
@@ -25,6 +26,7 @@ const Taskbar: FC = () => {
 
   return (
     <div className={classes.root} style={{ background: taskbar }} role="toolbar" aria-label="Taskbar">
+      <Launcher />
       {openWindows.map(win => (
         <button
           key={win.id}

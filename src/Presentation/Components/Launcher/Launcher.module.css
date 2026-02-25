@@ -1,0 +1,59 @@
+.trigger {
+  height: 36px;
+  width: 36px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.trigger:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.panel {
+  position: fixed;
+  bottom: 56px;
+  left: 8px;
+  width: 260px;
+  border-radius: 12px;
+  padding: 12px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 9998;
+}
+
+.appButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s;
+  color: inherit;
+  font-size: 14px;
+}
+
+.appButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.appIcon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+}

@@ -8,6 +8,7 @@ import type { WindowEntity } from '@domain/Entities/Window';
 import { createLocalStorageMock } from '@application/__mocks__/localStorage.mock';
 
 vi.mock('react-rnd', () => import('@application/__mocks__/react-rnd.mock'));
+vi.mock('framer-motion', () => import('@application/__mocks__/framer-motion.mock'));
 
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
