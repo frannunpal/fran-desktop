@@ -1,73 +1,125 @@
-# React + TypeScript + Vite
+# Web Desktop Environment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Since a few years back, I wanted to recreate the feeling of a real desktop inside a browser. Not just draggable divs—actual windows that behave like you expect: bring to front when clicked, minimize to a taskbar, snap to edges, etc.
 
-Currently, two official plugins are available:
+Built this with React and TypeScript because I needed the type safety for the window state management. The dragging and resizing comes from react-rnd, which saved me weeks of writing that logic from scratch also zustand, becasuse that's what __we__ the cool guys use nowadays :D.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## What it actually does
 
-## React Compiler
+You get a working desktop in the browser:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Drag windows around** - Click the title bar, move them anywhere
+- **Resize from any edge** - Just like real OS windows  
+- **Click to focus** - Windows stack properly with z-index
+- **Minimize and restore** - They go to the taskbar, not limbo
+- **Right-click menus** - Context menus that actually work
+- **Desktop icons** - Double-click to open apps
 
-## Expanding the ESLint configuration
+It also remembers your layout. Close the tab, come back later—your windows are where you left them (stored in localStorage).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## The apps it includes
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+I built four basic apps to prove the system works:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Notepad** - Plain text editing with auto-save
+- **Terminal** - Fake shell that runs... well, fake commands
+- **File Explorer** - Browse the virtual file system
+- **Browser** - Web view component (mostly for the meta-joke of having a browser inside a browser desktop)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Tech choices
+
+I picked these tools because I've never used many of them before and they don't fight each other (AFAIK):
+
+| What | Why |
+|------|-----|
+| **React 18** | I know it, it works |
+| **TypeScript** | Window state is complex—types catch bugs |
+| **react-rnd** | 170k downloads/week, handles the hard drag/resize math |
+| **Zustand** | State management without the boilerplate |
+| **Mantine** | Good-looking components out of the box |
+| **Framer Motion** | Animations that don't tank performance |
+
+## Architecture
+
+I went with hexagonal ("ports and adapters") just in case I want to be able to swap implementations later. The core logic lives in Domain/Application layers with zero React dependencies. React only exists in the Presentation layer.
+
+```
+Domain (pure logic)
+  ↓
+Application (ports + use cases)
+  ↓
+Infrastructure (react-rnd adapter, localStorage)
+  ↓
+Presentation (React components)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+This means I could theoretically port this to Vue or even native desktop without touching the business logic. Probably won't, but I *could*.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Quick start
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/yourusername/web-desktop.git
+cd web-desktop
+bun install
+bun run dev
 ```
+
+Goes live on `http://localhost:5173`.
+
+## How to use it
+
+**Window controls:**
+- Drag: Grab the title bar
+- Resize: Any edge or corner
+- Focus: Just click anywhere on the window
+- Minimize: Hit the _ button (goes to taskbar)
+- Close: X button or right-click → close
+
+**Shortcuts:**
+| Keys | What happens |
+|------|--------------|
+| `Ctrl + N` | New Notepad |
+| `Ctrl + T` | New Terminal |
+| `Ctrl + O` | Open File Explorer |
+| `Alt + Tab` | Cycle windows |
+| `Win/Meta` | Open app launcher |
+
+## Current state
+
+I'm honestly not sure if anyone should use this for production. It's more of a proof-of-concept for my personal website. That said, here's where we are:
+
+- [x] Project scaffolding done
+- [x] Core domain entities (Window, DesktopIcon, FileSystem)
+- [x] Application layer (ports + use cases)
+- [x] Infrastructure adapters (WindowManagerAdapter, LocalStorageFileSystem, DefaultThemeProvider)
+- [x] Global Zustand store with localStorage persistence
+- [x] ESLint + Prettier configured
+- [x] 111 unit tests passing (Vitest)
+- [ ] UI components
+- [ ] Full feature set
+- [ ] Built-in apps
+
+## Contributing
+
+If you actually want to work on this:
+
+1. Fork it
+2. Make a branch (`git checkout -b fix-whatever`)
+3. Commit (`git commit -m "Fix whatever"`)
+4. Push and open a PR
+
+No bureaucratic process. Just make sure `bun run lint` and `bun run test:run` pass.
+
+## License
+
+MIT. Do whatever you want with it. I'd appreciate credit but won't sue you if you forget.
+
+## Things I stole ideas from
+
+- [react-rnd](https://github.com/bokuweb/react-rnd) - Literally couldn't have built this without it
+- [Alistair Cockburn's Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/) - Made me think harder about code organization
+- [Mantine](https://mantine.dev/) - Made it look okay without design skills
+
+---
+
+Built partly out of curiosity, partly to see if I could. React + TypeScript. That's it.
