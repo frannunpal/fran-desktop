@@ -6,7 +6,7 @@ Built this with React and TypeScript because I needed the type safety for the wi
 
 ## What it actually does
 
-You get a working desktop in the browser:
+You get a working desktop in the browser in which everything works as you expect:
 
 - **Drag windows around** - Click the title bar, move them anywhere
 - **Resize from any edge** - Just like real OS windows  
@@ -15,16 +15,16 @@ You get a working desktop in the browser:
 - **Right-click menus** - Context menus that actually work
 - **Desktop icons** - Double-click to open apps
 
-It also remembers your layout. Close the tab, come back later—your windows are where you left them (stored in localStorage).
+It also remembers your layout and preferences, such as color mode. Close the tab, come back later—your windows are where you left them (stored in localStorage, wihtout cookies or privacy concerns, everything you do, stays in your machine).
 
 ## The apps it includes
 
-I built four basic apps to prove the system works:
+I built four basic apps so far to prove the system works:
 
 - **Notepad** - Plain text editing with auto-save
 - **Terminal** - Fake shell that runs... well, fake commands
 - **File Explorer** - Browse the virtual file system
-- **Browser** - Web view component (mostly for the meta-joke of having a browser inside a browser desktop)
+- **Calendar** - Just a calendar for now
 
 ## Tech choices
 
@@ -74,15 +74,6 @@ Goes live on `http://localhost:5173`.
 - Focus: Just click anywhere on the window
 - Minimize: Hit the _ button (goes to taskbar)
 - Close: X button or right-click → close
-
-**Shortcuts:**
-| Keys | What happens |
-|------|--------------|
-| `Ctrl + N` | New Notepad |
-| `Ctrl + T` | New Terminal |
-| `Ctrl + O` | Open File Explorer |
-| `Alt + Tab` | Cycle windows |
-| `Win/Meta` | Open app launcher |
 
 ## Current state
 
