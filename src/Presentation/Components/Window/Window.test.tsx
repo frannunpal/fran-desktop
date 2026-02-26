@@ -48,6 +48,14 @@ describe('Window component', () => {
     expect(screen.getByText('Test Window')).toBeInTheDocument();
   });
 
+  it('should render the emoji icon in the titlebar when icon is provided', () => {
+    // Act
+    render(<Window window={makeWindow({ icon: '📝' })} />, { wrapper });
+
+    // Assert
+    expect(screen.getByText('📝')).toBeInTheDocument();
+  });
+
   it('should render minimize, maximize and close buttons', () => {
     // Act
     render(<Window window={makeWindow()} />, { wrapper });

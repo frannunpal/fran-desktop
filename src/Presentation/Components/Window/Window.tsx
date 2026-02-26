@@ -1,4 +1,4 @@
-import { type FC, useEffect, useRef } from 'react';
+import { type FC, useEffect, useRef, createElement } from 'react';
 import { Rnd } from 'react-rnd';
 import { motion, useAnimationControls } from 'framer-motion';
 import { ActionIcon, Group, Text } from '@mantine/core';
@@ -11,7 +11,9 @@ import {
 import { useShallow } from 'zustand/react/shallow';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
+import { useFcIcon } from '@presentation/Hooks/useFcIcon';
 import type { WindowProps } from '@shared/Interfaces/ComponentProps';
+import type { WindowEntity } from '@domain/Entities/Window';
 import {
   windowVariants,
   minimizeVariant,
@@ -20,6 +22,13 @@ import {
   EASE_IN,
 } from '@shared/Constants/Animations';
 import classes from './Window.module.css';
+
+const TitleIcon: FC<{ win: WindowEntity }> = ({ win }) => {
+  const FcIcon = useFcIcon(win.fcIcon ?? '');
+  if (FcIcon) return createElement(FcIcon, { size: 14, 'aria-hidden': 'true' });
+  if (win.icon) return <span aria-hidden="true">{win.icon}</span>;
+  return null;
+};
 
 const Window: FC<WindowProps> = ({ window: win, children }) => {
   const {
@@ -130,6 +139,7 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
         transition={maximizeTransition}
       >
         <div className={classes.titleBar}>
+          <TitleIcon win={win} />
           <Text size="sm" fw={500} truncate className={classes.title}>
             {win.title}
           </Text>
