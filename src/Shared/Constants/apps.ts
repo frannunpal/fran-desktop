@@ -46,5 +46,6 @@ export const APPS: AppEntry[] = [
     defaultHeight: 380,
     minWidth: 320,
     minHeight: 360,
+    canMaximize: false,
   },
 ];

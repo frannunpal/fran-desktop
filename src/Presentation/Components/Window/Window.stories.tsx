@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import Window from './Window';
 import type { WindowEntity } from '@domain/Entities/Window';
+import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 
 // Storybook needs a real store for Window — provide a minimal mock via decorators
 import { useDesktopStore } from '@presentation/Store/desktopStore';
@@ -68,4 +69,29 @@ export const NarrowTitle: Story = {
       title: 'A very long window title that should be truncated in the title bar',
     }),
   },
+};
+
+export const NoMaximize: Story = {
+  args: { window: makeWindow({ canMaximize: false }) },
+};
+
+export const CalendarWindow: Story = {
+  args: {
+    window: makeWindow({
+      title: 'Calendar',
+      content: 'calendar',
+      icon: '📅',
+      fcIcon: 'FcCalendar',
+      canMaximize: false,
+      width: 340,
+      height: 380,
+      minWidth: 320,
+      minHeight: 360,
+    }),
+  },
+  render: args => (
+    <Window {...args}>
+      <CalendarApp />
+    </Window>
+  ),
 };

@@ -35,6 +35,7 @@ const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
         content: appId,
         icon: app?.icon,
         fcIcon: app?.fcIcon,
+        canMaximize: app?.canMaximize,
         x,
         y,
         width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,

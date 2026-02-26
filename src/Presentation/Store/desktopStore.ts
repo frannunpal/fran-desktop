@@ -149,9 +149,13 @@ export const useDesktopStore = create<DesktopState>()(
           ...current,
           ...p,
           windows: (p.windows ?? []).map(w => {
-            if (w.icon && w.fcIcon) return w;
             const app = APPS.find(a => a.id === w.content);
-            return { ...w, icon: w.icon ?? app?.icon, fcIcon: w.fcIcon ?? app?.fcIcon };
+            return {
+              ...w,
+              icon: w.icon ?? app?.icon,
+              fcIcon: w.fcIcon ?? app?.fcIcon,
+              canMaximize: app?.canMaximize,
+            };
           }),
         };
       },

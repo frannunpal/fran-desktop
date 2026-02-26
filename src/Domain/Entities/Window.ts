@@ -15,6 +15,7 @@ export interface WindowEntity {
   zIndex: number;
   icon?: string;
   fcIcon?: string;
+  canMaximize?: boolean;
 }
 
 export type WindowInput = Omit<WindowEntity, 'id' | 'isOpen' | 'state' | 'zIndex'>;

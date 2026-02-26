@@ -28,6 +28,7 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
   if (!win.isOpen || win.state === 'minimized') return null;
 
   const isMaximized = win.state === 'maximized';
+  const canMaximize = win.canMaximize !== false;
 
   return (
     <Rnd
@@ -71,14 +72,16 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
             >
               <VscChromeMinimize />
             </ActionIcon>
-            <ActionIcon
-              size="xs"
-              variant="subtle"
-              aria-label={isMaximized ? 'Restore' : 'Maximize'}
-              onClick={() => (isMaximized ? restoreWindow(win.id) : maximizeWindow(win.id))}
-            >
-              {isMaximized ? <VscChromeRestore /> : <VscChromeMaximize />}
-            </ActionIcon>
+            {canMaximize && (
+              <ActionIcon
+                size="xs"
+                variant="subtle"
+                aria-label={isMaximized ? 'Restore' : 'Maximize'}
+                onClick={() => (isMaximized ? restoreWindow(win.id) : maximizeWindow(win.id))}
+              >
+                {isMaximized ? <VscChromeRestore /> : <VscChromeMaximize />}
+              </ActionIcon>
+            )}
             <ActionIcon
               size="xs"
               variant="subtle"

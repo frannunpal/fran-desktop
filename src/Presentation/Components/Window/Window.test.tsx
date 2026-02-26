@@ -137,6 +137,24 @@ describe('Window component', () => {
     expect(useDesktopStore.getState().windows[0].state).toBe('minimized');
   });
 
+  it('should not render maximize button when canMaximize is false', () => {
+    // Act
+    render(<Window window={makeWindow({ canMaximize: false })} />, { wrapper });
+
+    // Assert
+    expect(screen.queryByLabelText('Maximize')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Minimize')).toBeInTheDocument();
+    expect(screen.getByLabelText('Close')).toBeInTheDocument();
+  });
+
+  it('should render maximize button when canMaximize is true', () => {
+    // Act
+    render(<Window window={makeWindow({ canMaximize: true })} />, { wrapper });
+
+    // Assert
+    expect(screen.getByLabelText('Maximize')).toBeInTheDocument();
+  });
+
   it('should focus window on mouse down', () => {
     // Arrange — open through the store so windowManager tracks zIndex
     const baseInput = {

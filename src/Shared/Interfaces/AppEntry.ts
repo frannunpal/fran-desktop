@@ -7,4 +7,5 @@ export interface AppEntry {
   defaultHeight?: number;
   minWidth?: number;
   minHeight?: number;
+  canMaximize?: boolean;
 }
