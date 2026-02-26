@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { useState } from 'react';
 import TaskbarContextMenu from './TaskbarContextMenu';
 
@@ -96,7 +95,7 @@ const InteractiveRender = () => {
         panelMenuOpened={panelMenuOpened}
         menuPosition={menuPosition}
         targetWindowId="win-1"
-        onCloseWindow={fn()}
+        onCloseWindow={() => {}}
         onWindowMenuClose={() => setWindowMenuOpened(false)}
         onPanelMenuClose={() => setPanelMenuOpened(false)}
       />
