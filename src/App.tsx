@@ -1,5 +1,5 @@
 import '@mantine/core/styles.css';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { MantineProvider } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { toMantineTheme } from '@infrastructure/Adapters/MantineThemeAdapter';
@@ -10,6 +10,7 @@ import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
 import ContextMenu from '@presentation/Components/ContextMenu/ContextMenu';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
+import { useContextMenu } from '@presentation/Hooks/useContextMenu';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import { randomWindowPosition } from '@shared/Constants/Animations';
 
@@ -29,8 +30,7 @@ function App() {
 
   useSystemTheme();
 
-  const [contextMenuOpened, setContextMenuOpened] = useState(false);
-  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
+  const desktopMenu = useContextMenu();
 
   // Seed demo data on first mount
   useEffect(() => {
@@ -77,13 +77,7 @@ function App() {
 
   return (
     <MantineProvider theme={toMantineTheme(theme)} forceColorScheme={theme.mode}>
-      <DesktopArea
-        onContextMenu={e => {
-          e.preventDefault();
-          setContextMenuPos({ x: e.clientX, y: e.clientY });
-          setContextMenuOpened(true);
-        }}
-      >
+      <DesktopArea onContextMenu={desktopMenu.open}>
         {icons.map(icon => (
           <DesktopIcon key={icon.id} icon={icon} onDoubleClick={handleOpenApp} />
         ))}
@@ -95,9 +89,9 @@ function App() {
       </DesktopArea>
       <Taskbar />
       <ContextMenu
-        opened={contextMenuOpened}
-        position={contextMenuPos}
-        onClose={() => setContextMenuOpened(false)}
+        opened={desktopMenu.opened}
+        position={desktopMenu.position}
+        onClose={desktopMenu.close}
         onOpenApp={handleOpenApp}
         onToggleTheme={toggleTheme}
       />

@@ -1,22 +1,7 @@
 import type { FC } from 'react';
 import { Menu } from '@mantine/core';
 import type { TaskbarContextMenuProps } from '@shared/Interfaces/ComponentProps';
-
-const ContextMenuAnchor: FC<{ x: number; y: number }> = ({ x, y }) => (
-  <Menu.Target>
-    <div
-      aria-hidden="true"
-      style={{
-        position: 'fixed',
-        left: x,
-        top: y,
-        width: 0,
-        height: 0,
-        pointerEvents: 'none',
-      }}
-    />
-  </Menu.Target>
-);
+import ContextMenuAnchor from '@presentation/Components/ContextMenu/ContextMenuAnchor';
 
 const TaskbarContextMenu: FC<TaskbarContextMenuProps> = ({
   windowMenuOpened,

@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { Menu } from '@mantine/core';
 import type { DesktopContextMenuProps } from '@shared/Interfaces/ComponentProps';
 import { APPS } from '@shared/Constants/apps';
+import ContextMenuAnchor from './ContextMenuAnchor';
 
 const CONTEXT_MENU_APPS = APPS.filter(a => a.id !== 'settings');
 
@@ -21,19 +22,7 @@ const ContextMenu: FC<DesktopContextMenuProps> = ({
       closeOnItemClick
       withinPortal
     >
-      <Menu.Target>
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'fixed',
-            left: position.x,
-            top: position.y,
-            width: 0,
-            height: 0,
-            pointerEvents: 'none',
-          }}
-        />
-      </Menu.Target>
+      <ContextMenuAnchor x={position.x} y={position.y} />
       <Menu.Dropdown>
         {CONTEXT_MENU_APPS.map(app => (
           <Menu.Item key={app.id} onClick={() => onOpenApp(app.id)}>
