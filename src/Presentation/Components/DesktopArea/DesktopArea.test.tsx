@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
-import '@application/__mocks__/jsdom-setup';
+import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { createLocalStorageMock } from '@application/__mocks__/localStorage.mock';
+import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
+import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
 
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
@@ -12,10 +13,7 @@ const { default: DesktopArea } = await import('./DesktopArea');
 
 describe('DesktopArea', () => {
   beforeEach(() => {
-    localStorageMock.clear();
-    vi.clearAllMocks();
-    useDesktopStore.getState().setThemeMode('light');
-    useDesktopStore.setState({ windows: [], icons: [], fsNodes: [] });
+    resetDesktopStore(useDesktopStore, localStorageMock);
   });
 
   it('should render its children', () => {

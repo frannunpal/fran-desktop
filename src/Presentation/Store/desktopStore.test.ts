@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createLocalStorageMock } from '@application/__mocks__/localStorage.mock';
+import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
+import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
 
 // Mock localStorage before importing the store
 const localStorageMock = createLocalStorageMock();
@@ -29,15 +30,7 @@ const baseIconInput = {
 
 describe('desktopStore', () => {
   beforeEach(() => {
-    localStorageMock.clear();
-    vi.clearAllMocks();
-    // Reset theme adapter to light before resetting store state
-    useDesktopStore.getState().setThemeMode('light');
-    useDesktopStore.setState({
-      windows: [],
-      icons: [],
-      fsNodes: [],
-    });
+    resetDesktopStore(useDesktopStore, localStorageMock);
   });
 
   // ── Windows ────────────────────────────────────────────────────────────────

@@ -1,15 +1,15 @@
 .trigger {
   height: 36px;
   width: 36px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   border: none;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--color-surface-hover);
   cursor: pointer;
   font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  transition: var(--transition-bg);
   flex-shrink: 0;
   overflow: visible;
   padding: 0;
@@ -17,7 +17,7 @@
 }
 
 .trigger:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: var(--color-surface-active);
 }
 
 .panel {
@@ -25,7 +25,7 @@
   bottom: 56px;
   left: 8px;
   width: 260px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 12px;
   backdrop-filter: blur(20px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -40,19 +40,19 @@
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   border: none;
   background: transparent;
   cursor: pointer;
   width: 100%;
   text-align: left;
-  transition: background 0.15s;
+  transition: var(--transition-bg);
   color: inherit;
   font-size: 14px;
 }
 
 .appButton:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--color-surface-hover);
 }
 
 .appIcon {

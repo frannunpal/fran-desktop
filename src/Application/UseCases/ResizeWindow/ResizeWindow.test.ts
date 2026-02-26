@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { resizeWindow } from './ResizeWindow';
-import { createMockWindowManager } from '@application/__mocks__/IWindowManager.mock';
+import { createMockWindowManager } from '@/Shared/Testing/__mocks__/IWindowManager.mock';
 import type { IWindowManager } from '@application/Ports/IWindowManager';
 
 describe('resizeWindow use case', () => {

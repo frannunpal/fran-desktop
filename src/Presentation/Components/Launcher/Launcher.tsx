@@ -5,6 +5,7 @@ import { FcDebian } from 'react-icons/fc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { APPS } from '@shared/Constants/apps';
 import type { LauncherProps } from '@shared/Interfaces/ComponentProps';
+import { panelVariants } from '@shared/Constants/Animations';
 import classes from './Launcher.module.css';
 
 const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
@@ -48,9 +49,9 @@ const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
             style={{ background: taskbar }}
             role="menu"
             aria-label="App launcher"
-            initial={{ opacity: 0, y: 8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: 'easeOut' as const } }}
-            exit={{ opacity: 0, y: 8, scale: 0.96, transition: { duration: 0.4, ease: 'easeIn' as const } }}
+            initial={panelVariants.initial}
+            animate={panelVariants.animate}
+            exit={panelVariants.exit}
           >
             {APPS.map(app => (
               <button

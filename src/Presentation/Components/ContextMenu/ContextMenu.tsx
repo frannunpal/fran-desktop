@@ -2,15 +2,18 @@ import type { FC } from 'react';
 import { Menu, Item, Separator } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.css';
 import type { DesktopContextMenuProps } from '@shared/Interfaces/ComponentProps';
+import { APPS } from '@shared/Constants/apps';
 
 export const DESKTOP_CONTEXT_MENU_ID = 'desktop-context-menu';
+
+const CONTEXT_MENU_APPS = APPS.filter(a => a.id !== 'settings');
 
 const ContextMenu: FC<DesktopContextMenuProps> = ({ onOpenApp, onToggleTheme }) => {
   return (
     <Menu id={DESKTOP_CONTEXT_MENU_ID}>
-      <Item onClick={() => onOpenApp('notepad')}>Open Notepad</Item>
-      <Item onClick={() => onOpenApp('terminal')}>Open Terminal</Item>
-      <Item onClick={() => onOpenApp('files')}>Open Files</Item>
+      {CONTEXT_MENU_APPS.map(app => (
+        <Item key={app.id} onClick={() => onOpenApp(app.id)}>Open {app.name}</Item>
+      ))}
       <Separator />
       <Item onClick={onToggleTheme}>Toggle Theme</Item>
     </Menu>

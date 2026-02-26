@@ -1,24 +1,20 @@
 // @vitest-environment jsdom
-import '@application/__mocks__/jsdom-setup';
+import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MantineProvider } from '@mantine/core';
-import type { ReactNode } from 'react';
 import type { WindowEntity } from '@domain/Entities/Window';
-import { createLocalStorageMock } from '@application/__mocks__/localStorage.mock';
+import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
+import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
+import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
 
-vi.mock('react-rnd', () => import('@application/__mocks__/react-rnd.mock'));
-vi.mock('framer-motion', () => import('@application/__mocks__/framer-motion.mock'));
+vi.mock('react-rnd', () => import('@/Shared/Testing/__mocks__/react-rnd.mock'));
+vi.mock('framer-motion', () => import('@/Shared/Testing/__mocks__/framer-motion.mock'));
 
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
 
 const { useDesktopStore } = await import('@presentation/Store/desktopStore');
 const { default: Window } = await import('./Window');
-
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <MantineProvider>{children}</MantineProvider>
-);
 
 const makeWindow = (overrides: Partial<WindowEntity> = {}): WindowEntity => ({
   id: 'win-1',
@@ -38,10 +34,7 @@ const makeWindow = (overrides: Partial<WindowEntity> = {}): WindowEntity => ({
 
 describe('Window component', () => {
   beforeEach(() => {
-    localStorageMock.clear();
-    vi.clearAllMocks();
-    useDesktopStore.getState().setThemeMode('light');
-    useDesktopStore.setState({ windows: [], icons: [], fsNodes: [] });
+    resetDesktopStore(useDesktopStore, localStorageMock);
   });
 
   it('should render the window title', () => {

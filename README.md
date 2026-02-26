@@ -94,7 +94,7 @@ I'm honestly not sure if anyone should use this for production. It's more of a p
 - [x] Infrastructure adapters (WindowManagerAdapter, LocalStorageFileSystem, DefaultThemeProvider)
 - [x] Global Zustand store with localStorage persistence
 - [x] ESLint + Prettier configured
-- [x] 111 unit tests passing (Vitest)
+- [x] unit tests passing (Vitest)
 - [ ] UI components
 - [ ] Full feature set
 - [ ] Built-in apps

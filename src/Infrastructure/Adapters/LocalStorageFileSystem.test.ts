@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LocalStorageFileSystem } from './LocalStorageFileSystem';
-import { createLocalStorageMock } from '@application/__mocks__/localStorage.mock';
+import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
 
 const localStorageMock = createLocalStorageMock();
 

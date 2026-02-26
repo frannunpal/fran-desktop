@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { openWindow } from './OpenWindow';
-import { createMockWindowManager } from '@application/__mocks__/IWindowManager.mock';
+import { createMockWindowManager } from '@/Shared/Testing/__mocks__/IWindowManager.mock';
 import type { IWindowManager } from '@application/Ports/IWindowManager';
 import type { WindowEntity, WindowInput } from '@domain/Entities/Window';
 

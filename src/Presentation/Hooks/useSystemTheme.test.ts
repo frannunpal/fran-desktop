@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import '@application/__mocks__/jsdom-setup';
+import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { createLocalStorageMock } from '@application/__mocks__/localStorage.mock';
+import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
 
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);

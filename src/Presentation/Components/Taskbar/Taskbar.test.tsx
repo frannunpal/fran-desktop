@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import '@application/__mocks__/jsdom-setup';
+import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MantineProvider } from '@mantine/core';
-import type { ReactNode } from 'react';
-import { createLocalStorageMock } from '@application/__mocks__/localStorage.mock';
+import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
+import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
+import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
 
 vi.mock('@presentation/Hooks/useClock', () => ({ useClock: () => '10:30' }));
 vi.mock('@presentation/Components/Launcher/Launcher', () => ({
@@ -16,10 +16,6 @@ vi.stubGlobal('localStorage', localStorageMock);
 
 const { useDesktopStore } = await import('@presentation/Store/desktopStore');
 const { default: Taskbar } = await import('./Taskbar');
-
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <MantineProvider>{children}</MantineProvider>
-);
 
 const baseInput = {
   title: 'Notepad',
@@ -34,10 +30,7 @@ const baseInput = {
 
 describe('Taskbar component', () => {
   beforeEach(() => {
-    localStorageMock.clear();
-    vi.clearAllMocks();
-    useDesktopStore.getState().setThemeMode('light');
-    useDesktopStore.setState({ windows: [], icons: [], fsNodes: [] });
+    resetDesktopStore(useDesktopStore, localStorageMock);
   });
 
   it('should render the clock', () => {

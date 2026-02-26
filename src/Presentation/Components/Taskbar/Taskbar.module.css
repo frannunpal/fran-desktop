@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   border: none;
   background: rgba(255, 255, 255, 0.12);
@@ -29,7 +29,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: background 0.15s;
+  transition: var(--transition-bg);
 }
 
 .windowButton:hover {
@@ -37,7 +37,7 @@
 }
 
 .windowButton[data-active='true'] {
-  background: rgba(255, 255, 255, 0.28);
+  background: var(--color-surface-active);
   box-shadow: inset 0 -2px 0 var(--mantine-color-blue-4);
 }
 
@@ -51,7 +51,7 @@
 .themeToggle {
   height: 28px;
   width: 28px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   border: none;
   background: transparent;
   cursor: pointer;
@@ -59,12 +59,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  transition: var(--transition-bg);
   color: inherit;
 }
 
 .themeToggle:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--color-surface-hover);
 }
 
 .clock {

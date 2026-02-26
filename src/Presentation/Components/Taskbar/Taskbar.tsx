@@ -28,7 +28,12 @@ const Taskbar: FC = () => {
   };
 
   return (
-    <div className={classes.root} style={{ background: taskbar }} role="toolbar" aria-label="Taskbar">
+    <div
+      className={classes.root}
+      style={{ background: taskbar }}
+      role="toolbar"
+      aria-label="Taskbar"
+    >
       <Launcher icon={FcElectronics} />
       {openWindows.map(win => (
         <button

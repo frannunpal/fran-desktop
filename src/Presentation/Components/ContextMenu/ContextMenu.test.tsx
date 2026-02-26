@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import '@application/__mocks__/jsdom-setup';
+import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
-vi.mock('react-contexify', () => import('@application/__mocks__/react-contexify.mock'));
+vi.mock('react-contexify', () => import('@/Shared/Testing/__mocks__/react-contexify.mock'));
 
 const { default: ContextMenu, DESKTOP_CONTEXT_MENU_ID } = await import('./ContextMenu');
 
