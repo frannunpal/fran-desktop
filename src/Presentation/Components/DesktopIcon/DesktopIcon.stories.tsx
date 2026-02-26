@@ -7,7 +7,7 @@ const meta: Meta<typeof DesktopIcon> = {
   component: DesktopIcon,
   decorators: [
     Story => (
-      <div style={{ position: 'relative', width: 200, height: 200, background: '#1a1b1e' }}>
+      <div style={{ position: 'relative', width: 200, height: 200, background: 'var(--mantine-color-body)' }}>
         <Story />
       </div>
     ),

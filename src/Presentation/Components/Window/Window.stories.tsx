@@ -10,6 +10,8 @@ const makeWindow = (overrides: Partial<WindowEntity> = {}): WindowEntity => ({
   id: 'win-story',
   title: 'My Window',
   content: 'notepad',
+  icon: '📝',
+  fcIcon: 'FcEditImage',
   x: 60,
   y: 60,
   width: 600,
@@ -36,7 +38,9 @@ const meta: Meta<typeof Window> = {
     (Story, ctx) => (
       <>
         <StoreSeeder win={ctx.args.window as WindowEntity} />
-        <div style={{ position: 'relative', width: '100vw', height: '100vh', background: '#f0f4f8' }}>
+        <div
+          style={{ position: 'relative', width: '100vw', height: '100vh', background: 'var(--mantine-color-body)' }}
+        >
           <Story />
         </div>
       </>
@@ -59,5 +63,9 @@ export const Maximized: Story = {
 };
 
 export const NarrowTitle: Story = {
-  args: { window: makeWindow({ title: 'A very long window title that should be truncated in the title bar' }) },
+  args: {
+    window: makeWindow({
+      title: 'A very long window title that should be truncated in the title bar',
+    }),
+  },
 };
