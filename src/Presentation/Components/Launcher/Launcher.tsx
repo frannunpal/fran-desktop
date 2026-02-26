@@ -70,20 +70,22 @@ const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
             animate={panelVariants.animate}
             exit={panelVariants.exit}
           >
-            {APPS.map(app => (
-              <button
-                key={app.id}
-                className={classes.appButton}
-                onClick={() => handleOpen(app.id)}
-                role="menuitem"
-                aria-label={app.name}
-              >
-                <span className={classes.appIcon}>
-                  <AppIcon fcIcon={app.fcIcon} fallback={app.icon} />
-                </span>
-                <Text size="sm">{app.name}</Text>
-              </button>
-            ))}
+            {[...APPS]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(app => (
+                <button
+                  key={app.id}
+                  className={classes.appButton}
+                  onClick={() => handleOpen(app.id)}
+                  role="menuitem"
+                  aria-label={app.name}
+                >
+                  <span className={classes.appIcon}>
+                    <AppIcon fcIcon={app.fcIcon} fallback={app.icon} />
+                  </span>
+                  <Text size="sm">{app.name}</Text>
+                </button>
+              ))}
           </motion.div>
         )}
       </AnimatePresence>

@@ -38,6 +38,16 @@ export const APPS: AppEntry[] = [
     ...DEFAULT_WINDOW_DIMENSIONS,
   },
   {
+    id: 'pdf',
+    name: 'CV',
+    icon: '📄',
+    fcIcon: 'FcDocument',
+    defaultWidth: 780,
+    defaultHeight: 580,
+    minWidth: 500,
+    minHeight: 400,
+  },
+  {
     id: 'calendar',
     name: 'Calendar',
     icon: '📅',

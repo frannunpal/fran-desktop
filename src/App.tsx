@@ -10,6 +10,7 @@ import Taskbar from '@presentation/Components/Taskbar/Taskbar';
 import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
 import ContextMenu from '@presentation/Components/ContextMenu/ContextMenu';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
+import PdfApp from '@presentation/Components/PdfApp/PdfApp';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { useContextMenu } from '@presentation/Hooks/useContextMenu';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
@@ -89,6 +90,7 @@ function App() {
             {windows.map(win => (
               <Window key={win.id} window={win}>
                 {win.content === 'calendar' && <CalendarApp />}
+                {win.content === 'pdf' && <PdfApp />}
               </Window>
             ))}
           </AnimatePresence>

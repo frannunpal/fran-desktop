@@ -9,7 +9,8 @@ describe('APPS constant', () => {
     expect(ids).toContain('files');
     expect(ids).toContain('settings');
     expect(ids).toContain('calendar');
-    expect(ids).toHaveLength(5);
+    expect(ids).toContain('pdf');
+    expect(ids).toHaveLength(6);
   });
 
   it('should have unique ids', () => {
