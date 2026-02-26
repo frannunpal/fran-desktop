@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import DesktopIcon from './DesktopIcon';
 
 const meta: Meta<typeof DesktopIcon> = {
@@ -7,14 +6,18 @@ const meta: Meta<typeof DesktopIcon> = {
   component: DesktopIcon,
   decorators: [
     Story => (
-      <div style={{ position: 'relative', width: 200, height: 200, background: 'var(--mantine-color-body)' }}>
+      <div
+        style={{
+          position: 'relative',
+          width: 200,
+          height: 200,
+          background: 'var(--mantine-color-body)',
+        }}
+      >
         <Story />
       </div>
     ),
   ],
-  args: {
-    onDoubleClick: fn(),
-  },
 };
 
 export default meta;

@@ -10,9 +10,9 @@ const meta: Meta<typeof TaskbarContextMenu> = {
   args: {
     menuPosition: { x: 200, y: 350 },
     targetWindowId: 'win-1',
-    onCloseWindow: fn(),
-    onWindowMenuClose: fn(),
-    onPanelMenuClose: fn(),
+    onCloseWindow: () => {},
+    onWindowMenuClose: () => {},
+    onPanelMenuClose: () => {},
   },
 };
 

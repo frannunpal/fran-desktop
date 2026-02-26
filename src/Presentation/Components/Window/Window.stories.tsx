@@ -5,6 +5,7 @@ import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 
 // Storybook needs a real store for Window — provide a minimal mock via decorators
 import { useDesktopStore } from '@presentation/Store/desktopStore';
+import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
 import { useEffect } from 'react';
 
 const makeWindow = (overrides: Partial<WindowEntity> = {}): WindowEntity => ({
@@ -37,14 +38,14 @@ const meta: Meta<typeof Window> = {
   component: Window,
   decorators: [
     (Story, ctx) => (
-      <>
+      <WindowButtonRegistryProvider>
         <StoreSeeder win={ctx.args.window as WindowEntity} />
         <div
           style={{ position: 'relative', width: '100vw', height: '100vh', background: 'var(--mantine-color-body)' }}
         >
           <Story />
         </div>
-      </>
+      </WindowButtonRegistryProvider>
     ),
   ],
   args: {

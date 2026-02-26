@@ -10,6 +10,9 @@ vi.mock('@presentation/Hooks/useClock', () => ({ useClock: () => '10:30' }));
 vi.mock('@presentation/Components/Launcher/Launcher', () => ({
   default: () => <button aria-label="Launcher">⊞</button>,
 }));
+vi.mock('@presentation/Hooks/useWindowButtonRegistry', () => ({
+  useWindowButtonRegistry: () => ({ register: vi.fn(), unregister: vi.fn(), getRect: () => undefined }),
+}));
 
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);

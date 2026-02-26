@@ -1,5 +1,6 @@
 import '@mantine/core/styles.css';
 import { useEffect } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { MantineProvider } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { toMantineTheme } from '@infrastructure/Adapters/MantineThemeAdapter';
@@ -11,6 +12,7 @@ import ContextMenu from '@presentation/Components/ContextMenu/ContextMenu';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { useContextMenu } from '@presentation/Hooks/useContextMenu';
+import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import { randomWindowPosition } from '@shared/Constants/Animations';
 
@@ -77,26 +79,30 @@ function App() {
   };
 
   return (
-    <MantineProvider theme={toMantineTheme(theme)} forceColorScheme={theme.mode}>
-      <DesktopArea onContextMenu={desktopMenu.open}>
-        {icons.map(icon => (
-          <DesktopIcon key={icon.id} icon={icon} onDoubleClick={handleOpenApp} />
-        ))}
-        {windows.map(win => (
-          <Window key={win.id} window={win}>
-            {win.content === 'calendar' && <CalendarApp />}
-          </Window>
-        ))}
-      </DesktopArea>
-      <Taskbar />
-      <ContextMenu
-        opened={desktopMenu.opened}
-        position={desktopMenu.position}
-        onClose={desktopMenu.close}
-        onOpenApp={handleOpenApp}
-        onToggleTheme={toggleTheme}
-      />
-    </MantineProvider>
+    <WindowButtonRegistryProvider>
+      <MantineProvider theme={toMantineTheme(theme)} forceColorScheme={theme.mode}>
+        <DesktopArea onContextMenu={desktopMenu.open}>
+          {icons.map(icon => (
+            <DesktopIcon key={icon.id} icon={icon} onDoubleClick={handleOpenApp} />
+          ))}
+          <AnimatePresence>
+            {windows.map(win => (
+              <Window key={win.id} window={win}>
+                {win.content === 'calendar' && <CalendarApp />}
+              </Window>
+            ))}
+          </AnimatePresence>
+        </DesktopArea>
+        <Taskbar />
+        <ContextMenu
+          opened={desktopMenu.opened}
+          position={desktopMenu.position}
+          onClose={desktopMenu.close}
+          onOpenApp={handleOpenApp}
+          onToggleTheme={toggleTheme}
+        />
+      </MantineProvider>
+    </WindowButtonRegistryProvider>
   );
 }
 

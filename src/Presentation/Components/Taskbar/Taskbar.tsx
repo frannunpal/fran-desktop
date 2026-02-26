@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/static-components */
-import type { FC } from 'react';
-import { useState } from 'react';
+import { type FC, useState, useRef, useEffect } from 'react';
 import { Text, Popover } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useClock } from '@presentation/Hooks/useClock';
 import { useFcIcon } from '@presentation/Hooks/useFcIcon';
 import { useContextMenu } from '@presentation/Hooks/useContextMenu';
+import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
 import Launcher from '@presentation/Components/Launcher/Launcher';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import TaskbarContextMenu from '@presentation/Components/TaskbarContextMenu/TaskbarContextMenu';
@@ -22,6 +22,41 @@ const WindowButtonIcon: FC<WindowButtonIconProps> = ({ win }) => {
   if (FcIcon) return <FcIcon size={14} />;
   if (win.icon) return <span aria-hidden="true">{win.icon}</span>;
   return null;
+};
+
+interface WindowButtonProps {
+  win: WindowEntity;
+  onClick: () => void;
+  onContextMenu: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+const WindowButton: FC<WindowButtonProps> = ({ win, onClick, onContextMenu }) => {
+  const ref = useRef<HTMLButtonElement>(null);
+  const { register, unregister } = useWindowButtonRegistry();
+
+  useEffect(() => {
+    if (ref.current) {
+      register(win.id, ref.current.getBoundingClientRect());
+    }
+    return () => unregister(win.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [win.id]);
+
+  return (
+    <button
+      ref={ref}
+      className={classes.windowButton}
+      data-active={win.state !== 'minimized' ? 'true' : 'false'}
+      onClick={onClick}
+      onContextMenu={onContextMenu}
+      aria-label={win.title}
+    >
+      <WindowButtonIcon win={win} />
+      <Text size="xs" truncate>
+        {win.title}
+      </Text>
+    </button>
+  );
 };
 
 const Taskbar: FC = () => {
@@ -62,23 +97,16 @@ const Taskbar: FC = () => {
       >
         <Launcher icon={FcElectronics} />
         {openWindows.map(win => (
-          <button
+          <WindowButton
             key={win.id}
-            className={classes.windowButton}
-            data-active={win.state !== 'minimized' ? 'true' : 'false'}
+            win={win}
             onClick={() => handleClick(win.id, win.state)}
             onContextMenu={e => {
               e.stopPropagation();
               setTargetWindowId(win.id);
               windowMenu.open(e);
             }}
-            aria-label={win.title}
-          >
-            <WindowButtonIcon win={win} />
-            <Text size="xs" truncate>
-              {win.title}
-            </Text>
-          </button>
+          />
         ))}
         <div className={classes.systemTray}>
           <button

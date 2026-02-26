@@ -1,14 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import DesktopArea from './DesktopArea';
 
 const meta: Meta<typeof DesktopArea> = {
   title: 'Presentation/DesktopArea',
   component: DesktopArea,
   parameters: { layout: 'fullscreen' },
-  args: {
-    onContextMenu: fn(),
-  },
 };
 
 export default meta;

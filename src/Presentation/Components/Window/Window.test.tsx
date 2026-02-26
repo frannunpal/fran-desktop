@@ -9,6 +9,9 @@ import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
 
 vi.mock('react-rnd', () => import('@/Shared/Testing/__mocks__/react-rnd.mock'));
 vi.mock('framer-motion', () => import('@/Shared/Testing/__mocks__/framer-motion.mock'));
+vi.mock('@presentation/Hooks/useWindowButtonRegistry', () => ({
+  useWindowButtonRegistry: () => ({ getRect: () => undefined }),
+}));
 
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
@@ -76,12 +79,13 @@ describe('Window component', () => {
     expect(screen.queryByText('Test Window')).not.toBeInTheDocument();
   });
 
-  it('should not render when state is minimized', () => {
+  it('should be hidden (not visible) when state is minimized', () => {
     // Act
     render(<Window window={makeWindow({ state: 'minimized' })} />, { wrapper });
 
-    // Assert
-    expect(screen.queryByText('Test Window')).not.toBeInTheDocument();
+    // Assert — window stays in DOM but the Rnd wrapper is hidden via visibility:hidden
+    const rndContainer = screen.getByTestId('rnd-container');
+    expect(rndContainer).toHaveStyle({ visibility: 'hidden' });
   });
 
   it('should show Restore button when maximized', () => {
@@ -93,7 +97,7 @@ describe('Window component', () => {
     expect(screen.queryByLabelText('Maximize')).not.toBeInTheDocument();
   });
 
-  it('should call closeWindow when close button is clicked', () => {
+  it('should call closeWindow when close button is clicked', async () => {
     // Arrange
     useDesktopStore.getState().openWindow({
       title: 'Test Window',
@@ -111,11 +115,13 @@ describe('Window component', () => {
     // Act
     fireEvent.click(screen.getByLabelText('Close'));
 
-    // Assert
-    expect(useDesktopStore.getState().windows).toHaveLength(0);
+    // Assert — animation is mocked (controls.start resolves instantly)
+    await vi.waitFor(() => {
+      expect(useDesktopStore.getState().windows).toHaveLength(0);
+    });
   });
 
-  it('should minimize window when minimize button is clicked', () => {
+  it('should minimize window when minimize button is clicked', async () => {
     // Arrange
     useDesktopStore.getState().openWindow({
       title: 'Test Window',
@@ -134,7 +140,9 @@ describe('Window component', () => {
     fireEvent.click(screen.getByLabelText('Minimize'));
 
     // Assert
-    expect(useDesktopStore.getState().windows[0].state).toBe('minimized');
+    await vi.waitFor(() => {
+      expect(useDesktopStore.getState().windows[0].state).toBe('minimized');
+    });
   });
 
   it('should not render maximize button when canMaximize is false', () => {

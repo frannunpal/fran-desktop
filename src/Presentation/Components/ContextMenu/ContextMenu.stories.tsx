@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { Button } from '@mantine/core';
 import ContextMenu from './ContextMenu';
@@ -8,11 +7,6 @@ const meta: Meta<typeof ContextMenu> = {
   title: 'Presentation/ContextMenu',
   component: ContextMenu,
   parameters: { layout: 'centered' },
-  args: {
-    onOpenApp: fn(),
-    onToggleTheme: fn(),
-    onClose: fn(),
-  },
 };
 
 export default meta;
@@ -60,8 +54,8 @@ const InteractiveRender = () => {
         opened={opened}
         position={position}
         onClose={() => setOpened(false)}
-        onOpenApp={fn()}
-        onToggleTheme={fn()}
+        onOpenApp={() => {}}
+        onToggleTheme={() => {}}
       />
     </div>
   );
