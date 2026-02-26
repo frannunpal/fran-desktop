@@ -8,9 +8,12 @@ import DesktopArea from '@presentation/Components/DesktopArea/DesktopArea';
 import Window from '@presentation/Components/Window/Window';
 import Taskbar from '@presentation/Components/Taskbar/Taskbar';
 import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
-import ContextMenu, { DESKTOP_CONTEXT_MENU_ID } from '@presentation/Components/ContextMenu/ContextMenu';
+import ContextMenu, {
+  DESKTOP_CONTEXT_MENU_ID,
+} from '@presentation/Components/ContextMenu/ContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
-import { APPS } from '@shared/Constants/apps';
+import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
+import { randomWindowPosition } from '@shared/Constants/Animations';
 
 const DESKTOP_ICON_POSITIONS: Record<string, { x: number; y: number }> = {
   notepad: { x: 20, y: 20 },
@@ -39,10 +42,10 @@ function App() {
         content: notepad.id,
         x: 120,
         y: 80,
-        width: notepad.defaultWidth ?? 600,
-        height: notepad.defaultHeight ?? 400,
-        minWidth: notepad.minWidth ?? 300,
-        minHeight: notepad.minHeight ?? 200,
+        width: notepad.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
+        height: notepad.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
+        minWidth: notepad.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
+        minHeight: notepad.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
       });
     }
     if (icons.length === 0) {
@@ -56,21 +59,27 @@ function App() {
 
   const handleOpenApp = (appId: string) => {
     const app = APPS.find(a => a.id === appId);
+    const { x, y } = randomWindowPosition();
     openWindow({
       title: app?.name ?? appId.charAt(0).toUpperCase() + appId.slice(1),
       content: appId,
-      x: 150 + Math.random() * 200,
-      y: 80 + Math.random() * 100,
-      width: app?.defaultWidth ?? 600,
-      height: app?.defaultHeight ?? 400,
-      minWidth: app?.minWidth ?? 300,
-      minHeight: app?.minHeight ?? 200,
+      x,
+      y,
+      width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
+      height: app?.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
+      minWidth: app?.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
+      minHeight: app?.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
     });
   };
 
   return (
     <MantineProvider theme={toMantineTheme(theme)} forceColorScheme={theme.mode}>
-      <DesktopArea onContextMenu={e => { e.preventDefault(); showContextMenu({ event: e }); }}>
+      <DesktopArea
+        onContextMenu={e => {
+          e.preventDefault();
+          showContextMenu({ event: e });
+        }}
+      >
         {icons.map(icon => (
           <DesktopIcon key={icon.id} icon={icon} onDoubleClick={handleOpenApp} />
         ))}

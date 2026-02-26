@@ -16,3 +16,8 @@ export const panelVariants = {
   animate: { opacity: 1, y: 0, scale: 1, transition: EASE_OUT },
   exit: { opacity: 0, y: 8, scale: 0.96, transition: EASE_IN },
 };
+
+export const randomWindowPosition = (): { x: number; y: number } => ({
+  x: 150 + Math.random() * 200,
+  y: 80 + Math.random() * 100,
+});

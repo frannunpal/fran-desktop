@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ANIMATION_DURATION, EASE_IN, EASE_OUT, windowVariants, panelVariants } from './Animations';
+import { ANIMATION_DURATION, EASE_IN, EASE_OUT, windowVariants, panelVariants, randomWindowPosition } from './Animations';
 
 describe('Animations constants', () => {
   describe('ANIMATION_DURATION', () => {
@@ -63,6 +63,30 @@ describe('Animations constants', () => {
     it('exit state should use EASE_IN transition', () => {
       expect(panelVariants.exit.transition.ease).toBe('easeIn');
       expect(panelVariants.exit.transition.duration).toBe(ANIMATION_DURATION);
+    });
+  });
+
+  describe('randomWindowPosition', () => {
+    it('should return x within expected range', () => {
+      for (let i = 0; i < 20; i++) {
+        const { x } = randomWindowPosition();
+        expect(x).toBeGreaterThanOrEqual(150);
+        expect(x).toBeLessThan(350);
+      }
+    });
+
+    it('should return y within expected range', () => {
+      for (let i = 0; i < 20; i++) {
+        const { y } = randomWindowPosition();
+        expect(y).toBeGreaterThanOrEqual(80);
+        expect(y).toBeLessThan(180);
+      }
+    });
+
+    it('should return different values on successive calls', () => {
+      const results = Array.from({ length: 10 }, () => randomWindowPosition());
+      const uniqueX = new Set(results.map(r => r.x));
+      expect(uniqueX.size).toBeGreaterThan(1);
     });
   });
 });

@@ -3,9 +3,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@mantine/core';
 import { FcDebian } from 'react-icons/fc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
-import { APPS } from '@shared/Constants/apps';
+import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import type { LauncherProps } from '@shared/Interfaces/ComponentProps';
-import { panelVariants } from '@shared/Constants/Animations';
+import { panelVariants, randomWindowPosition } from '@shared/Constants/Animations';
 import classes from './Launcher.module.css';
 
 const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
@@ -16,15 +16,16 @@ const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
   const handleOpen = useCallback(
     (appId: string) => {
       const app = APPS.find(a => a.id === appId);
+      const { x, y } = randomWindowPosition();
       openWindow({
         title: app?.name ?? appId,
         content: appId,
-        x: 150 + Math.random() * 200,
-        y: 80 + Math.random() * 100,
-        width: app?.defaultWidth ?? 600,
-        height: app?.defaultHeight ?? 400,
-        minWidth: app?.minWidth ?? 300,
-        minHeight: app?.minHeight ?? 200,
+        x,
+        y,
+        width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
+        height: app?.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
+        minWidth: app?.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
+        minHeight: app?.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
       });
       setOpen(false);
     },
