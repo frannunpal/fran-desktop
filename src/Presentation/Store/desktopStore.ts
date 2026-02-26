@@ -3,8 +3,6 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { WindowManagerAdapter } from '@infrastructure/Adapters/WindowManagerAdapter';
 import { LocalStorageFileSystem } from '@infrastructure/Adapters/LocalStorageFileSystem';
 import { DefaultThemeProvider } from '@infrastructure/Adapters/DefaultThemeProvider';
-import type { WindowInput } from '@domain/Entities/Window';
-import type { DesktopIconInput } from '@domain/Entities/DesktopIcon';
 import { createDesktopIcon } from '@domain/Entities/DesktopIcon';
 import type { DesktopState } from '@shared/Interfaces/DesktopState';
 
