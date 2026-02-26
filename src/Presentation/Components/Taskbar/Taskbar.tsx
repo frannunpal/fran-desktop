@@ -4,6 +4,7 @@ import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useClock } from '@presentation/Hooks/useClock';
 import Launcher from '@presentation/Components/Launcher/Launcher';
 import classes from './Taskbar.module.css';
+import { FcElectronics } from 'react-icons/fc';
 
 const Taskbar: FC = () => {
   const taskbar = useDesktopStore(state => state.theme.taskbar);
@@ -28,7 +29,7 @@ const Taskbar: FC = () => {
 
   return (
     <div className={classes.root} style={{ background: taskbar }} role="toolbar" aria-label="Taskbar">
-      <Launcher />
+      <Launcher icon={FcElectronics} />
       {openWindows.map(win => (
         <button
           key={win.id}

@@ -1,6 +1,8 @@
 import { type FC, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@mantine/core';
+import type { IconType } from 'react-icons';
+import { FcDebian } from 'react-icons/fc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import classes from './Launcher.module.css';
 
@@ -17,7 +19,11 @@ const APPS: AppEntry[] = [
   { id: 'settings', name: 'Settings', icon: '⚙️' },
 ];
 
-const Launcher: FC = () => {
+interface LauncherProps {
+  icon?: IconType;
+}
+
+const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
   const [open, setOpen] = useState(false);
   const openWindow = useDesktopStore(state => state.openWindow);
   const taskbar = useDesktopStore(state => state.theme.taskbar);
@@ -48,7 +54,7 @@ const Launcher: FC = () => {
         aria-label="Launcher"
         aria-expanded={open}
       >
-        ⊞
+        <Icon size={22} style={{ display: 'block' }} />
       </button>
 
       <AnimatePresence>

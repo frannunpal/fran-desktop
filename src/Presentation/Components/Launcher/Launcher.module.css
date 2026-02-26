@@ -11,6 +11,9 @@
   justify-content: center;
   transition: background 0.15s;
   flex-shrink: 0;
+  overflow: visible;
+  padding: 0;
+  line-height: 0;
 }
 
 .trigger:hover {

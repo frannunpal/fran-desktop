@@ -34,6 +34,17 @@ describe('Launcher component', () => {
     expect(screen.getByLabelText('Launcher')).toBeInTheDocument();
   });
 
+  it('should render a custom icon when icon prop is provided', () => {
+    // Arrange
+    const CustomIcon = () => <svg data-testid="custom-icon" />;
+
+    // Act
+    render(<Launcher icon={CustomIcon} />, { wrapper });
+
+    // Assert
+    expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
+  });
+
   it('should not show the app panel by default', () => {
     // Act
     render(<Launcher />, { wrapper });
