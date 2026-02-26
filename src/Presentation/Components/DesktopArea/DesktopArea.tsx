@@ -11,7 +11,11 @@ const DesktopArea: FC<DesktopAreaProps> = ({ children, onContextMenu }) => {
   const desktop = useDesktopStore(state => state.theme.desktop);
 
   return (
-    <div className={classes.root} style={{ background: desktop }} onContextMenu={onContextMenu}>
+    <div
+      className={classes.root}
+      style={{ backgroundColor: desktop, backgroundImage: 'url(/wallpaper.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+      onContextMenu={onContextMenu}
+    >
       {children}
     </div>
   );

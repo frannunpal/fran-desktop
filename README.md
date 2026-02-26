@@ -119,6 +119,7 @@ MIT. Do whatever you want with it. I'd appreciate credit but won't sue you if yo
 - [react-rnd](https://github.com/bokuweb/react-rnd) - Literally couldn't have built this without it
 - [Alistair Cockburn's Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/) - Made me think harder about code organization
 - [Mantine](https://mantine.dev/) - Made it look okay without design skills
+- [Wallpaper](https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg&w=5363&h=3575) 
 
 ---
 

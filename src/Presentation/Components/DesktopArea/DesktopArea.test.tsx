@@ -30,7 +30,7 @@ describe('DesktopArea', () => {
     expect(screen.getByText('child content')).toBeInTheDocument();
   });
 
-  it('should apply the desktop background color from the store theme', () => {
+  it('should apply the wallpaper and desktop color from the store theme in light mode', () => {
     // Arrange
     useDesktopStore.getState().setThemeMode('light');
 
@@ -39,10 +39,11 @@ describe('DesktopArea', () => {
     const root = container.firstChild as HTMLElement;
 
     // Assert
-    expect(root.style.background).toBe('rgb(240, 244, 248)');
+    expect(root.style.backgroundImage).toBe('url("/wallpaper.jpg")');
+    expect(root.style.backgroundColor).toBe('rgb(240, 244, 248)');
   });
 
-  it('should update background when theme switches to dark', () => {
+  it('should apply the wallpaper and desktop color from the store theme in dark mode', () => {
     // Arrange
     useDesktopStore.getState().setThemeMode('dark');
 
@@ -51,6 +52,7 @@ describe('DesktopArea', () => {
     const root = container.firstChild as HTMLElement;
 
     // Assert
-    expect(root.style.background).toBe('rgb(26, 27, 30)');
+    expect(root.style.backgroundImage).toBe('url("/wallpaper.jpg")');
+    expect(root.style.backgroundColor).toBe('rgb(26, 27, 30)');
   });
 });
