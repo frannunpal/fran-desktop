@@ -1,11 +1,7 @@
-import type { FC, ReactNode, MouseEvent } from 'react';
+import type { FC } from 'react';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
+import type { DesktopAreaProps } from '@shared/Interfaces/ComponentProps';
 import classes from './DesktopArea.module.css';
-
-interface DesktopAreaProps {
-  children?: ReactNode;
-  onContextMenu?: (e: MouseEvent<HTMLDivElement>) => void;
-}
 
 const DesktopArea: FC<DesktopAreaProps> = ({ children, onContextMenu }) => {
   const desktop = useDesktopStore(state => state.theme.desktop);

@@ -10,6 +10,13 @@ import Taskbar from '@presentation/Components/Taskbar/Taskbar';
 import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
 import ContextMenu, { DESKTOP_CONTEXT_MENU_ID } from '@presentation/Components/ContextMenu/ContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
+import { APPS } from '@shared/Constants/apps';
+
+const DESKTOP_ICON_POSITIONS: Record<string, { x: number; y: number }> = {
+  notepad: { x: 20, y: 20 },
+  terminal: { x: 20, y: 120 },
+  files: { x: 20, y: 220 },
+};
 
 function App() {
   const theme = useDesktopStore(state => state.theme);
@@ -25,36 +32,39 @@ function App() {
 
   // Seed demo data on first mount
   useEffect(() => {
+    const notepad = APPS.find(a => a.id === 'notepad')!;
     if (windows.length === 0) {
       openWindow({
-        title: 'Notepad',
-        content: 'notepad',
+        title: notepad.name,
+        content: notepad.id,
         x: 120,
         y: 80,
-        width: 600,
-        height: 400,
-        minWidth: 300,
-        minHeight: 200,
+        width: notepad.defaultWidth ?? 600,
+        height: notepad.defaultHeight ?? 400,
+        minWidth: notepad.minWidth ?? 300,
+        minHeight: notepad.minHeight ?? 200,
       });
     }
     if (icons.length === 0) {
-      addIcon({ name: 'Notepad', icon: '📝', x: 20, y: 20, appId: 'notepad' });
-      addIcon({ name: 'Terminal', icon: '💻', x: 20, y: 120, appId: 'terminal' });
-      addIcon({ name: 'Files', icon: '📁', x: 20, y: 220, appId: 'files' });
+      APPS.filter(a => DESKTOP_ICON_POSITIONS[a.id]).forEach(a => {
+        const pos = DESKTOP_ICON_POSITIONS[a.id];
+        addIcon({ name: a.name, icon: a.icon, x: pos.x, y: pos.y, appId: a.id });
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleOpenApp = (appId: string) => {
+    const app = APPS.find(a => a.id === appId);
     openWindow({
-      title: appId.charAt(0).toUpperCase() + appId.slice(1),
+      title: app?.name ?? appId.charAt(0).toUpperCase() + appId.slice(1),
       content: appId,
       x: 150 + Math.random() * 200,
       y: 80 + Math.random() * 100,
-      width: 600,
-      height: 400,
-      minWidth: 300,
-      minHeight: 200,
+      width: app?.defaultWidth ?? 600,
+      height: app?.defaultHeight ?? 400,
+      minWidth: app?.minWidth ?? 300,
+      minHeight: app?.minHeight ?? 200,
     });
   };
 

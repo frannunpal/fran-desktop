@@ -1,27 +1,11 @@
 import { type FC, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@mantine/core';
-import type { IconType } from 'react-icons';
 import { FcDebian } from 'react-icons/fc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
+import { APPS } from '@shared/Constants/apps';
+import type { LauncherProps } from '@shared/Interfaces/ComponentProps';
 import classes from './Launcher.module.css';
-
-interface AppEntry {
-  id: string;
-  name: string;
-  icon: string;
-}
-
-const APPS: AppEntry[] = [
-  { id: 'notepad', name: 'Notepad', icon: '📝' },
-  { id: 'terminal', name: 'Terminal', icon: '💻' },
-  { id: 'files', name: 'Files', icon: '📁' },
-  { id: 'settings', name: 'Settings', icon: '⚙️' },
-];
-
-interface LauncherProps {
-  icon?: IconType;
-}
 
 const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
   const [open, setOpen] = useState(false);
@@ -36,10 +20,10 @@ const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
         content: appId,
         x: 150 + Math.random() * 200,
         y: 80 + Math.random() * 100,
-        width: 600,
-        height: 400,
-        minWidth: 300,
-        minHeight: 200,
+        width: app?.defaultWidth ?? 600,
+        height: app?.defaultHeight ?? 400,
+        minWidth: app?.minWidth ?? 300,
+        minHeight: app?.minHeight ?? 200,
       });
       setOpen(false);
     },

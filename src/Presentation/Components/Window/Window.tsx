@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { FC } from 'react';
 import type { Variants } from 'framer-motion';
 import { Rnd } from 'react-rnd';
 import { motion } from 'framer-motion';
@@ -6,7 +6,7 @@ import { ActionIcon, Group, Text } from '@mantine/core';
 import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose } from 'react-icons/vsc';
 import { useShallow } from 'zustand/react/shallow';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
-import type { WindowEntity } from '@domain/Entities/Window';
+import type { WindowProps } from '@shared/Interfaces/ComponentProps';
 import classes from './Window.module.css';
 
 const windowVariants: Variants = {
@@ -14,11 +14,6 @@ const windowVariants: Variants = {
   visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
   exit: { opacity: 0, scale: 0.92, y: 12, transition: { duration: 0.4, ease: 'easeIn' as const } },
 };
-
-interface WindowProps {
-  window: WindowEntity;
-  children?: ReactNode;
-}
 
 const Window: FC<WindowProps> = ({ window: win, children }) => {
   const { focusWindow, closeWindow, minimizeWindow, maximizeWindow, restoreWindow, moveWindow, resizeWindow } =

@@ -3,47 +3,15 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { WindowManagerAdapter } from '@infrastructure/Adapters/WindowManagerAdapter';
 import { LocalStorageFileSystem } from '@infrastructure/Adapters/LocalStorageFileSystem';
 import { DefaultThemeProvider } from '@infrastructure/Adapters/DefaultThemeProvider';
-import type { WindowEntity, WindowInput } from '@domain/Entities/Window';
-import type { FSNode, FileNode, FolderNode } from '@domain/Entities/FileSystem';
-import type { Theme, ThemeMode } from '@application/Ports/IThemeProvider';
-import type { DesktopIconEntity, DesktopIconInput } from '@domain/Entities/DesktopIcon';
+import type { WindowInput } from '@domain/Entities/Window';
+import type { DesktopIconInput } from '@domain/Entities/DesktopIcon';
 import { createDesktopIcon } from '@domain/Entities/DesktopIcon';
+import type { DesktopState } from '@shared/Interfaces/DesktopState';
 
 // ─── Adapters (singleton, not persisted) ────────────────────────────────────
 const windowManager = new WindowManagerAdapter();
 const fileSystem = new LocalStorageFileSystem();
 const themeProvider = new DefaultThemeProvider();
-
-// ─── State shape ─────────────────────────────────────────────────────────────
-interface DesktopState {
-  // Window slice
-  windows: WindowEntity[];
-  openWindow: (input: WindowInput) => void;
-  closeWindow: (id: string) => void;
-  minimizeWindow: (id: string) => void;
-  maximizeWindow: (id: string) => void;
-  restoreWindow: (id: string) => void;
-  focusWindow: (id: string) => void;
-  moveWindow: (id: string, x: number, y: number) => void;
-  resizeWindow: (id: string, width: number, height: number) => void;
-
-  // Desktop icons slice
-  icons: DesktopIconEntity[];
-  addIcon: (input: DesktopIconInput) => void;
-  removeIcon: (id: string) => void;
-
-  // FileSystem slice
-  fsNodes: FSNode[];
-  createFile: (name: string, content: string, parentId: string | null) => FileNode;
-  createFolder: (name: string, parentId: string | null) => FolderNode;
-  updateFile: (id: string, content: string) => void;
-  deleteNode: (id: string) => void;
-
-  // Theme slice
-  theme: Theme;
-  setThemeMode: (mode: ThemeMode) => void;
-  toggleTheme: () => void;
-}
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 export const useDesktopStore = create<DesktopState>()(

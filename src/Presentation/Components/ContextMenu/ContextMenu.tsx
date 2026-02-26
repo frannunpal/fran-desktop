@@ -1,13 +1,9 @@
 import type { FC } from 'react';
 import { Menu, Item, Separator } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.css';
+import type { DesktopContextMenuProps } from '@shared/Interfaces/ComponentProps';
 
 export const DESKTOP_CONTEXT_MENU_ID = 'desktop-context-menu';
-
-interface DesktopContextMenuProps {
-  onOpenApp: (appId: string) => void;
-  onToggleTheme: () => void;
-}
 
 const ContextMenu: FC<DesktopContextMenuProps> = ({ onOpenApp, onToggleTheme }) => {
   return (
