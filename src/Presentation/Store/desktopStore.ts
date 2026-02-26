@@ -5,11 +5,22 @@ import { LocalStorageFileSystem } from '@infrastructure/Adapters/LocalStorageFil
 import { DefaultThemeProvider } from '@infrastructure/Adapters/DefaultThemeProvider';
 import { createDesktopIcon } from '@domain/Entities/DesktopIcon';
 import type { DesktopState } from '@shared/Interfaces/DesktopState';
+import type { ThemeMode } from '@application/Ports/IThemeProvider';
+import { APPS } from '@shared/Constants/apps';
 
 // ─── Adapters (singleton, not persisted) ────────────────────────────────────
 const windowManager = new WindowManagerAdapter();
 const fileSystem = new LocalStorageFileSystem();
-const themeProvider = new DefaultThemeProvider();
+
+const persistedMode = (() => {
+  try {
+    return (JSON.parse(localStorage.getItem('fran-desktop') ?? '{}')?.state?.theme?.mode ??
+      null) as ThemeMode | null;
+  } catch {
+    return null;
+  }
+})();
+const themeProvider = new DefaultThemeProvider(persistedMode ?? 'light');
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 export const useDesktopStore = create<DesktopState>()(
@@ -111,6 +122,7 @@ export const useDesktopStore = create<DesktopState>()(
 
       // ── Theme ─────────────────────────────────────────────────────────────
       theme: themeProvider.getTheme(),
+      themeSetManually: persistedMode !== null,
 
       setThemeMode: mode => {
         themeProvider.setMode(mode);
@@ -119,7 +131,7 @@ export const useDesktopStore = create<DesktopState>()(
 
       toggleTheme: () => {
         themeProvider.toggle();
-        set({ theme: themeProvider.getTheme() });
+        set({ theme: themeProvider.getTheme(), themeSetManually: true });
       },
     }),
     {
@@ -129,7 +141,20 @@ export const useDesktopStore = create<DesktopState>()(
         windows: state.windows,
         icons: state.icons,
         theme: state.theme,
+        themeSetManually: state.themeSetManually,
       }),
+      merge: (persisted, current) => {
+        const p = persisted as Partial<DesktopState>;
+        return {
+          ...current,
+          ...p,
+          windows: (p.windows ?? []).map(w => {
+            if (w.icon && w.fcIcon) return w;
+            const app = APPS.find(a => a.id === w.content);
+            return { ...w, icon: w.icon ?? app?.icon, fcIcon: w.fcIcon ?? app?.fcIcon };
+          }),
+        };
+      },
     },
   ),
 );

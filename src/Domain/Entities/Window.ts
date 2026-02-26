@@ -14,6 +14,7 @@ export interface WindowEntity {
   state: WindowState;
   zIndex: number;
   icon?: string;
+  fcIcon?: string;
 }
 
 export type WindowInput = Omit<WindowEntity, 'id' | 'isOpen' | 'state' | 'zIndex'>;

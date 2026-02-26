@@ -8,6 +8,8 @@ describe('APPS constant', () => {
     expect(ids).toContain('terminal');
     expect(ids).toContain('files');
     expect(ids).toContain('settings');
+    expect(ids).toContain('calendar');
+    expect(ids).toHaveLength(5);
   });
 
   it('should have unique ids', () => {

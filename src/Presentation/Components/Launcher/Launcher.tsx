@@ -6,7 +6,20 @@ import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import type { LauncherProps } from '@shared/Interfaces/ComponentProps';
 import { panelVariants, randomWindowPosition } from '@shared/Constants/Animations';
+import { useFcIcon } from '@presentation/Hooks/useFcIcon';
 import classes from './Launcher.module.css';
+
+interface AppIconProps {
+  fcIcon?: string;
+  fallback: string;
+}
+
+const AppIcon: FC<AppIconProps> = ({ fcIcon, fallback }) => {
+  const FcIcon = useFcIcon(fcIcon ?? '');
+  // eslint-disable-next-line react-hooks/static-components
+  if (FcIcon) return <FcIcon size={20} />;
+  return <span aria-hidden="true">{fallback}</span>;
+};
 
 const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
   const [open, setOpen] = useState(false);
@@ -20,6 +33,8 @@ const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
       openWindow({
         title: app?.name ?? appId,
         content: appId,
+        icon: app?.icon,
+        fcIcon: app?.fcIcon,
         x,
         y,
         width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
@@ -62,8 +77,8 @@ const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
                 role="menuitem"
                 aria-label={app.name}
               >
-                <span className={classes.appIcon} aria-hidden="true">
-                  {app.icon}
+                <span className={classes.appIcon}>
+                  <AppIcon fcIcon={app.fcIcon} fallback={app.icon} />
                 </span>
                 <Text size="sm">{app.name}</Text>
               </button>

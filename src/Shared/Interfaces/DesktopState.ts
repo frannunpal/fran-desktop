@@ -29,6 +29,7 @@ export interface DesktopState {
 
   // Theme slice
   theme: Theme;
+  themeSetManually: boolean;
   setThemeMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
 }

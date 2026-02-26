@@ -11,6 +11,7 @@ import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
 import ContextMenu, {
   DESKTOP_CONTEXT_MENU_ID,
 } from '@presentation/Components/ContextMenu/ContextMenu';
+import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import { randomWindowPosition } from '@shared/Constants/Animations';
@@ -40,6 +41,8 @@ function App() {
       openWindow({
         title: notepad.name,
         content: notepad.id,
+        icon: notepad.icon,
+        fcIcon: notepad.fcIcon,
         x: 120,
         y: 80,
         width: notepad.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
@@ -63,6 +66,8 @@ function App() {
     openWindow({
       title: app?.name ?? appId.charAt(0).toUpperCase() + appId.slice(1),
       content: appId,
+      icon: app?.icon,
+      fcIcon: app?.fcIcon,
       x,
       y,
       width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
@@ -84,7 +89,9 @@ function App() {
           <DesktopIcon key={icon.id} icon={icon} onDoubleClick={handleOpenApp} />
         ))}
         {windows.map(win => (
-          <Window key={win.id} window={win} />
+          <Window key={win.id} window={win}>
+            {win.content === 'calendar' && <CalendarApp />}
+          </Window>
         ))}
       </DesktopArea>
       <Taskbar />

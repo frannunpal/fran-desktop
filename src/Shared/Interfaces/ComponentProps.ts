@@ -26,3 +26,7 @@ export interface DesktopAreaProps {
   children?: ReactNode;
   onContextMenu?: (e: MouseEvent<HTMLDivElement>) => void;
 }
+
+export interface TaskbarContextMenuProps {
+  onCloseWindow: (id: string) => void;
+}

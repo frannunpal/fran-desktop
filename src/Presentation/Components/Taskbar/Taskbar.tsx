@@ -1,10 +1,31 @@
+/* eslint-disable react-hooks/static-components */
 import type { FC } from 'react';
-import { Text } from '@mantine/core';
+import { useState } from 'react';
+import { Text, Popover } from '@mantine/core';
+import { useContextMenu } from 'react-contexify';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useClock } from '@presentation/Hooks/useClock';
+import { useFcIcon } from '@presentation/Hooks/useFcIcon';
 import Launcher from '@presentation/Components/Launcher/Launcher';
+import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
+import TaskbarContextMenu, {
+  TASKBAR_WINDOW_MENU_ID,
+  TASKBAR_PANEL_MENU_ID,
+} from '@presentation/Components/TaskbarContextMenu/TaskbarContextMenu';
 import classes from './Taskbar.module.css';
 import { FcElectronics } from 'react-icons/fc';
+import type { WindowEntity } from '@domain/Entities/Window';
+
+interface WindowButtonIconProps {
+  win: WindowEntity;
+}
+
+const WindowButtonIcon: FC<WindowButtonIconProps> = ({ win }) => {
+  const FcIcon = useFcIcon(win.fcIcon ?? '');
+  if (FcIcon) return <FcIcon size={14} />;
+  if (win.icon) return <span aria-hidden="true">{win.icon}</span>;
+  return null;
+};
 
 const Taskbar: FC = () => {
   const taskbar = useDesktopStore(state => state.theme.taskbar);
@@ -13,8 +34,13 @@ const Taskbar: FC = () => {
   const restoreWindow = useDesktopStore(state => state.restoreWindow);
   const minimizeWindow = useDesktopStore(state => state.minimizeWindow);
   const focusWindow = useDesktopStore(state => state.focusWindow);
+  const closeWindow = useDesktopStore(state => state.closeWindow);
   const toggleTheme = useDesktopStore(state => state.toggleTheme);
   const time = useClock();
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  const { show: showWindowMenu } = useContextMenu({ id: TASKBAR_WINDOW_MENU_ID });
+  const { show: showPanelMenu } = useContextMenu({ id: TASKBAR_PANEL_MENU_ID });
 
   const openWindows = windows.filter(w => w.isOpen);
 
@@ -28,40 +54,71 @@ const Taskbar: FC = () => {
   };
 
   return (
-    <div
-      className={classes.root}
-      style={{ background: taskbar }}
-      role="toolbar"
-      aria-label="Taskbar"
-    >
-      <Launcher icon={FcElectronics} />
-      {openWindows.map(win => (
-        <button
-          key={win.id}
-          className={classes.windowButton}
-          data-active={win.state !== 'minimized' ? 'true' : 'false'}
-          onClick={() => handleClick(win.id, win.state)}
-          aria-label={win.title}
-        >
-          <Text size="xs" truncate>
-            {win.title}
-          </Text>
-        </button>
-      ))}
-      <div className={classes.systemTray}>
-        <button
-          className={classes.themeToggle}
-          onClick={toggleTheme}
-          aria-label={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          title={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-          {themeMode === 'dark' ? '☀️' : '🌙'}
-        </button>
-        <Text size="xs" className={classes.clock} aria-label="clock">
-          {time}
-        </Text>
+    <>
+      <div
+        className={classes.root}
+        style={{ background: taskbar }}
+        role="toolbar"
+        aria-label="Taskbar"
+        onContextMenu={e => {
+          e.preventDefault();
+          showPanelMenu({ event: e });
+        }}
+      >
+        <Launcher icon={FcElectronics} />
+        {openWindows.map(win => (
+          <button
+            key={win.id}
+            className={classes.windowButton}
+            data-active={win.state !== 'minimized' ? 'true' : 'false'}
+            onClick={() => handleClick(win.id, win.state)}
+            onContextMenu={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              showWindowMenu({ event: e, props: { windowId: win.id } });
+            }}
+            aria-label={win.title}
+          >
+            <WindowButtonIcon win={win} />
+            <Text size="xs" truncate>
+              {win.title}
+            </Text>
+          </button>
+        ))}
+        <div className={classes.systemTray}>
+          <button
+            className={classes.themeToggle}
+            onClick={toggleTheme}
+            aria-label={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {themeMode === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <Popover
+            opened={calendarOpen}
+            onChange={setCalendarOpen}
+            position="top-end"
+            shadow="md"
+            withArrow
+          >
+            <Popover.Target>
+              <button
+                className={classes.clock}
+                onClick={() => setCalendarOpen(o => !o)}
+                aria-label="clock"
+                aria-expanded={calendarOpen}
+              >
+                <Text size="xs">{time}</Text>
+              </button>
+            </Popover.Target>
+            <Popover.Dropdown>
+              <CalendarApp />
+            </Popover.Dropdown>
+          </Popover>
+        </div>
       </div>
-    </div>
+      <TaskbarContextMenu onCloseWindow={closeWindow} />
+    </>
   );
 };
 

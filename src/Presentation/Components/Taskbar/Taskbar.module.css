@@ -68,7 +68,19 @@
 }
 
 .clock {
-  font-size: 13px;
+  height: 36px;
   padding: 0 8px;
   white-space: nowrap;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  color: inherit;
+  transition: var(--transition-bg);
+}
+
+.clock:hover {
+  background: var(--color-surface-hover);
 }

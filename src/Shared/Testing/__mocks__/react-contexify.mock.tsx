@@ -3,15 +3,19 @@ import { vi } from 'vitest';
 
 interface ItemProps {
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: (params: { props?: Record<string, unknown> }) => void;
+  disabled?: boolean;
+  'data-windowid'?: string;
 }
 
 export const Menu: FC<{ id: string; children: ReactNode }> = ({ id, children }) => (
   <div data-testid={`context-menu-${id}`}>{children}</div>
 );
 
-export const Item: FC<ItemProps> = ({ children, onClick }) => (
-  <button onClick={onClick}>{children}</button>
+export const Item: FC<ItemProps> = ({ children, onClick, disabled, 'data-windowid': windowId }) => (
+  <button onClick={() => onClick?.({ props: windowId ? { windowId } : {} })} disabled={disabled}>
+    {children}
+  </button>
 );
 
 export const Separator: FC = () => <hr />;
