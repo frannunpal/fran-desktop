@@ -1,7 +1,11 @@
-import type { WindowEntity, WindowInput } from '@domain/Entities/Window';
-import type { FSNode, FileNode, FolderNode } from '@domain/Entities/FileSystem';
-import type { Theme, ThemeMode } from '@application/Ports/IThemeProvider';
-import type { DesktopIconEntity, DesktopIconInput } from '@domain/Entities/DesktopIcon';
+import type { WindowInput } from '@domain/Entities/Window';
+import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
+import type { FSNode } from '@domain/Entities/FileSystem';
+import type { FileNode } from './FileNode';
+import type { FolderNode } from './FolderNode';
+import type { Theme, ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
+import type { DesktopIconInput } from '@domain/Entities/DesktopIcon';
+import type { DesktopIconEntity } from '@/Shared/Interfaces/IDesktopIcon';
 
 export interface DesktopState {
   // Window slice
@@ -23,7 +27,13 @@ export interface DesktopState {
   // FileSystem slice
   fsNodes: FSNode[];
   createFile: (name: string, content: string, parentId: string | null) => FileNode;
-  createFolder: (name: string, parentId: string | null) => FolderNode;
+  createFolder: (
+    name: string,
+    parentId: string | null,
+    iconName?: string,
+    iconColor?: string,
+  ) => FolderNode;
+  initFs: () => Promise<void>;
   updateFile: (id: string, content: string) => void;
   deleteNode: (id: string) => void;
 

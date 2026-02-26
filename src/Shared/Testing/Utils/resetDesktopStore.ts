@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 import type { StoreApi, UseBoundStore } from 'zustand';
-import type { DesktopState } from '@shared/Interfaces/DesktopState';
+import type { DesktopState } from '@/Shared/Interfaces/IDesktopState';
 
 type LocalStorageMock = { clear: () => void };
 

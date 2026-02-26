@@ -1,8 +1,8 @@
 import type { ReactNode, MouseEvent } from 'react';
 import type { IconType } from 'react-icons';
-import type { WindowEntity } from '@domain/Entities/Window';
-import type { DesktopIconEntity } from '@domain/Entities/DesktopIcon';
-import type { MenuPosition } from '@shared/Interfaces/MenuPosition';
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
+import type { DesktopIconEntity } from '@/Shared/Interfaces/IDesktopIcon';
+import type { MenuPosition } from '@/Shared/Interfaces/IMenuPosition';
 
 export interface WindowProps {
   window: WindowEntity;
