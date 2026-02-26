@@ -15,7 +15,7 @@ You get a working desktop in the browser in which everything works as you expect
 - **Right-click menus** - Context menus that actually work
 - **Desktop icons** - Double-click to open apps
 
-It also remembers your layout and preferences, such as color mode. Close the tab, come back later—your windows are where you left them (stored in localStorage, wihtout cookies or privacy concerns, everything you do, stays in your machine).
+It also remembers your layout and preferences, such as color mode. Close the tab, come back later—your windows are where you left them (stored in localStorage, wihtout cookies or privacy concerns, __everything you do, stays in your machine__).
 
 ## The apps it includes
 

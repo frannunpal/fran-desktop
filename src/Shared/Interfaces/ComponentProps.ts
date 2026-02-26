@@ -14,6 +14,9 @@ export interface DesktopIconProps {
 }
 
 export interface DesktopContextMenuProps {
+  opened: boolean;
+  position: { x: number; y: number };
+  onClose: () => void;
   onOpenApp: (appId: string) => void;
   onToggleTheme: () => void;
 }
@@ -28,5 +31,11 @@ export interface DesktopAreaProps {
 }
 
 export interface TaskbarContextMenuProps {
+  windowMenuOpened: boolean;
+  panelMenuOpened: boolean;
+  menuPosition: { x: number; y: number };
+  targetWindowId: string | null;
   onCloseWindow: (id: string) => void;
+  onWindowMenuClose: () => void;
+  onPanelMenuClose: () => void;
 }

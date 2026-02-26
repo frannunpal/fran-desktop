@@ -1,16 +1,13 @@
 import '@mantine/core/styles.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { MantineProvider } from '@mantine/core';
-import { useContextMenu } from 'react-contexify';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { toMantineTheme } from '@infrastructure/Adapters/MantineThemeAdapter';
 import DesktopArea from '@presentation/Components/DesktopArea/DesktopArea';
 import Window from '@presentation/Components/Window/Window';
 import Taskbar from '@presentation/Components/Taskbar/Taskbar';
 import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
-import ContextMenu, {
-  DESKTOP_CONTEXT_MENU_ID,
-} from '@presentation/Components/ContextMenu/ContextMenu';
+import ContextMenu from '@presentation/Components/ContextMenu/ContextMenu';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
@@ -32,7 +29,8 @@ function App() {
 
   useSystemTheme();
 
-  const { show: showContextMenu } = useContextMenu({ id: DESKTOP_CONTEXT_MENU_ID });
+  const [contextMenuOpened, setContextMenuOpened] = useState(false);
+  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
 
   // Seed demo data on first mount
   useEffect(() => {
@@ -82,7 +80,8 @@ function App() {
       <DesktopArea
         onContextMenu={e => {
           e.preventDefault();
-          showContextMenu({ event: e });
+          setContextMenuPos({ x: e.clientX, y: e.clientY });
+          setContextMenuOpened(true);
         }}
       >
         {icons.map(icon => (
@@ -95,7 +94,13 @@ function App() {
         ))}
       </DesktopArea>
       <Taskbar />
-      <ContextMenu onOpenApp={handleOpenApp} onToggleTheme={toggleTheme} />
+      <ContextMenu
+        opened={contextMenuOpened}
+        position={contextMenuPos}
+        onClose={() => setContextMenuOpened(false)}
+        onOpenApp={handleOpenApp}
+        onToggleTheme={toggleTheme}
+      />
     </MantineProvider>
   );
 }

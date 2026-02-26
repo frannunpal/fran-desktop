@@ -1,27 +1,68 @@
 import type { FC } from 'react';
-import { Menu, Item, Separator } from 'react-contexify';
+import { Menu } from '@mantine/core';
 import type { TaskbarContextMenuProps } from '@shared/Interfaces/ComponentProps';
 
-export const TASKBAR_WINDOW_MENU_ID = 'taskbar-window-menu';
-export const TASKBAR_PANEL_MENU_ID = 'taskbar-panel-menu';
+const ContextMenuAnchor: FC<{ x: number; y: number }> = ({ x, y }) => (
+  <Menu.Target>
+    <div
+      aria-hidden="true"
+      style={{
+        position: 'fixed',
+        left: x,
+        top: y,
+        width: 0,
+        height: 0,
+        pointerEvents: 'none',
+      }}
+    />
+  </Menu.Target>
+);
 
-const TaskbarContextMenu: FC<TaskbarContextMenuProps> = ({ onCloseWindow }) => {
+const TaskbarContextMenu: FC<TaskbarContextMenuProps> = ({
+  windowMenuOpened,
+  panelMenuOpened,
+  menuPosition,
+  targetWindowId,
+  onCloseWindow,
+  onWindowMenuClose,
+  onPanelMenuClose,
+}) => {
   return (
     <>
-      <Menu id={TASKBAR_WINDOW_MENU_ID}>
-        <Item
-          onClick={({ props }: { props?: { windowId?: string } }) => {
-            if (props?.windowId) onCloseWindow(props.windowId);
-          }}
-        >
-          Close window
-        </Item>
-        <Separator />
-        <Item disabled>Pin window (coming soon)</Item>
+      <Menu
+        opened={windowMenuOpened}
+        onClose={onWindowMenuClose}
+        closeOnClickOutside
+        closeOnEscape
+        closeOnItemClick
+        withinPortal
+      >
+        <ContextMenuAnchor x={menuPosition.x} y={menuPosition.y} />
+        <Menu.Dropdown>
+          <Menu.Item
+            onClick={() => {
+              if (targetWindowId) onCloseWindow(targetWindowId);
+            }}
+          >
+            Close window
+          </Menu.Item>
+          <Menu.Divider />
+          <Menu.Item disabled>Pin window (coming soon)</Menu.Item>
+        </Menu.Dropdown>
       </Menu>
 
-      <Menu id={TASKBAR_PANEL_MENU_ID}>
-        <Item disabled>Show panel configuration (coming soon)</Item>
+      <Menu
+        opened={panelMenuOpened}
+        onClose={onPanelMenuClose}
+        closeOnClickOutside
+        closeOnEscape
+        closeOnItemClick
+        withinPortal
+      >
+        <ContextMenuAnchor x={menuPosition.x} y={menuPosition.y} />
+        <Menu.Dropdown>
+          <Menu.Item disabled>Show panel configuration (coming soon)</Menu.Item>
+        </Menu.Dropdown>
       </Menu>
     </>
   );

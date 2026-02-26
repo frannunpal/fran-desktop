@@ -2,15 +2,21 @@
 import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
+import ContextMenu from './ContextMenu';
 
-vi.mock('react-contexify', () => import('@/Shared/Testing/__mocks__/react-contexify.mock'));
-
-const { default: ContextMenu, DESKTOP_CONTEXT_MENU_ID } = await import('./ContextMenu');
+const defaultProps = {
+  opened: true,
+  position: { x: 100, y: 200 },
+  onClose: vi.fn(),
+  onOpenApp: vi.fn(),
+  onToggleTheme: vi.fn(),
+};
 
 describe('ContextMenu component', () => {
-  it('should render all menu items', () => {
+  it('should render all menu items when opened', () => {
     // Act
-    render(<ContextMenu onOpenApp={vi.fn()} onToggleTheme={vi.fn()} />);
+    render(<ContextMenu {...defaultProps} />, { wrapper });
 
     // Assert
     expect(screen.getByText('Open Notepad')).toBeInTheDocument();
@@ -19,22 +25,12 @@ describe('ContextMenu component', () => {
     expect(screen.getByText('Toggle Theme')).toBeInTheDocument();
   });
 
-  it('should render with the correct menu id', () => {
-    // Act
-    render(<ContextMenu onOpenApp={vi.fn()} onToggleTheme={vi.fn()} />);
-
-    // Assert
-    expect(
-      screen.getByTestId(`context-menu-${DESKTOP_CONTEXT_MENU_ID}`),
-    ).toBeInTheDocument();
-  });
-
   it('should call onOpenApp with notepad when Open Notepad is clicked', () => {
     // Arrange
     const handleOpenApp = vi.fn();
 
     // Act
-    render(<ContextMenu onOpenApp={handleOpenApp} onToggleTheme={vi.fn()} />);
+    render(<ContextMenu {...defaultProps} onOpenApp={handleOpenApp} />, { wrapper });
     fireEvent.click(screen.getByText('Open Notepad'));
 
     // Assert
@@ -46,7 +42,7 @@ describe('ContextMenu component', () => {
     const handleOpenApp = vi.fn();
 
     // Act
-    render(<ContextMenu onOpenApp={handleOpenApp} onToggleTheme={vi.fn()} />);
+    render(<ContextMenu {...defaultProps} onOpenApp={handleOpenApp} />, { wrapper });
     fireEvent.click(screen.getByText('Open Terminal'));
 
     // Assert
@@ -58,10 +54,30 @@ describe('ContextMenu component', () => {
     const handleToggleTheme = vi.fn();
 
     // Act
-    render(<ContextMenu onOpenApp={vi.fn()} onToggleTheme={handleToggleTheme} />);
+    render(<ContextMenu {...defaultProps} onToggleTheme={handleToggleTheme} />, { wrapper });
     fireEvent.click(screen.getByText('Toggle Theme'));
 
     // Assert
     expect(handleToggleTheme).toHaveBeenCalledOnce();
+  });
+
+  it('should call onClose after clicking a menu item', () => {
+    // Arrange
+    const handleClose = vi.fn();
+
+    // Act
+    render(<ContextMenu {...defaultProps} onClose={handleClose} />, { wrapper });
+    fireEvent.click(screen.getByText('Open Notepad'));
+
+    // Assert
+    expect(handleClose).toHaveBeenCalledOnce();
+  });
+
+  it('should not render menu items when closed', () => {
+    // Act
+    render(<ContextMenu {...defaultProps} opened={false} />, { wrapper });
+
+    // Assert
+    expect(screen.queryByText('Open Notepad')).not.toBeInTheDocument();
   });
 });

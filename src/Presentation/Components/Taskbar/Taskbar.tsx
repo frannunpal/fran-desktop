@@ -2,16 +2,12 @@
 import type { FC } from 'react';
 import { useState } from 'react';
 import { Text, Popover } from '@mantine/core';
-import { useContextMenu } from 'react-contexify';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useClock } from '@presentation/Hooks/useClock';
 import { useFcIcon } from '@presentation/Hooks/useFcIcon';
 import Launcher from '@presentation/Components/Launcher/Launcher';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
-import TaskbarContextMenu, {
-  TASKBAR_WINDOW_MENU_ID,
-  TASKBAR_PANEL_MENU_ID,
-} from '@presentation/Components/TaskbarContextMenu/TaskbarContextMenu';
+import TaskbarContextMenu from '@presentation/Components/TaskbarContextMenu/TaskbarContextMenu';
 import classes from './Taskbar.module.css';
 import { FcElectronics } from 'react-icons/fc';
 import type { WindowEntity } from '@domain/Entities/Window';
@@ -39,8 +35,10 @@ const Taskbar: FC = () => {
   const time = useClock();
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  const { show: showWindowMenu } = useContextMenu({ id: TASKBAR_WINDOW_MENU_ID });
-  const { show: showPanelMenu } = useContextMenu({ id: TASKBAR_PANEL_MENU_ID });
+  const [windowMenuOpened, setWindowMenuOpened] = useState(false);
+  const [panelMenuOpened, setPanelMenuOpened] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [targetWindowId, setTargetWindowId] = useState<string | null>(null);
 
   const openWindows = windows.filter(w => w.isOpen);
 
@@ -62,7 +60,8 @@ const Taskbar: FC = () => {
         aria-label="Taskbar"
         onContextMenu={e => {
           e.preventDefault();
-          showPanelMenu({ event: e });
+          setMenuPosition({ x: e.clientX, y: e.clientY - 8 });
+          setPanelMenuOpened(true);
         }}
       >
         <Launcher icon={FcElectronics} />
@@ -75,7 +74,9 @@ const Taskbar: FC = () => {
             onContextMenu={e => {
               e.preventDefault();
               e.stopPropagation();
-              showWindowMenu({ event: e, props: { windowId: win.id } });
+              setMenuPosition({ x: e.clientX, y: e.clientY - 8 });
+              setTargetWindowId(win.id);
+              setWindowMenuOpened(true);
             }}
             aria-label={win.title}
           >
@@ -117,7 +118,15 @@ const Taskbar: FC = () => {
           </Popover>
         </div>
       </div>
-      <TaskbarContextMenu onCloseWindow={closeWindow} />
+      <TaskbarContextMenu
+        windowMenuOpened={windowMenuOpened}
+        panelMenuOpened={panelMenuOpened}
+        menuPosition={menuPosition}
+        targetWindowId={targetWindowId}
+        onCloseWindow={closeWindow}
+        onWindowMenuClose={() => setWindowMenuOpened(false)}
+        onPanelMenuClose={() => setPanelMenuOpened(false)}
+      />
     </>
   );
 };
