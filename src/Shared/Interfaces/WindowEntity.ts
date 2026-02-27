@@ -1,4 +1,4 @@
-import type { WindowState } from '@/Domain/Entities/Window';
+import type { WindowState } from '@/Shared/Types/WindowTypes';
 
 export interface WindowEntity {
   id: string;

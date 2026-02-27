@@ -1,2 +1,1 @@
-
-export const getFileExtension = ( name: string ): string => name.split( '.' ).pop()?.toLowerCase() ?? '';
+export { getFileExtension } from '@/Shared/Utils/getFileExtension';

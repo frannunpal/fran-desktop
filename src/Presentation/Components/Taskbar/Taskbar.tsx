@@ -10,7 +10,6 @@ import Launcher from '@presentation/Components/Launcher/Launcher';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import TaskbarContextMenu from '@presentation/Components/TaskbarContextMenu/TaskbarContextMenu';
 import classes from './Taskbar.module.css';
-import { FcElectronics } from 'react-icons/fc';
 import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
 
 interface WindowButtonIconProps {
@@ -95,7 +94,7 @@ const Taskbar: FC = () => {
         aria-label="Taskbar"
         onContextMenu={panelMenu.open}
       >
-        <Launcher icon={FcElectronics} />
+        <Launcher fcIcon="FcElectronics" />
         {openWindows.map(win => (
           <WindowButton
             key={win.id}

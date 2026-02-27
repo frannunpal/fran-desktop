@@ -1,4 +1,4 @@
-import type { FileSystemNodeType } from '@/Domain/Entities/FileSystem';
+import type { FileSystemNodeType } from '@/Shared/Types/FileSystemTypes';
 
 export interface FileSystemNode {
   id: string;

@@ -6,6 +6,17 @@ import { resolve } from 'path';
 export default defineConfig({
   base: '/fran-desktop/',
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          mantine: ['@mantine/core', '@mantine/hooks'],
+          motion: ['framer-motion'],
+          icons: ['react-icons/vsc'],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

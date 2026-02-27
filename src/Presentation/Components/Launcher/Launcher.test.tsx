@@ -27,12 +27,15 @@ describe('Launcher component', () => {
     expect(screen.getByLabelText('Launcher')).toBeInTheDocument();
   });
 
-  it('should render a custom icon when icon prop is provided', () => {
-    // Arrange
-    const CustomIcon = () => <svg data-testid="custom-icon" />;
+  it('should render a custom icon when fcIcon prop is provided', () => {
+    // Arrange — mock useFcIcon to return a recognizable component for the given name
+    vi.mock('@presentation/Hooks/useFcIcon', () => ({
+      useFcIcon: (name: string) =>
+        name === 'FcCustom' ? () => <svg data-testid="custom-icon" /> : null,
+    }));
 
     // Act
-    render(<Launcher icon={CustomIcon} />, { wrapper });
+    render(<Launcher fcIcon="FcCustom" />, { wrapper });
 
     // Assert
     expect(screen.getByTestId('custom-icon')).toBeInTheDocument();

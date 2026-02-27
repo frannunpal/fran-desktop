@@ -1,7 +1,6 @@
 import { type FC, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@mantine/core';
-import { FcDebian } from 'react-icons/fc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import type { LauncherProps } from '@/Shared/Interfaces/IComponentProps';
@@ -21,7 +20,9 @@ const AppIcon: FC<AppIconProps> = ({ fcIcon, fallback }) => {
   return <span aria-hidden="true">{fallback}</span>;
 };
 
-const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
+const Launcher: FC<LauncherProps> = ({ fcIcon = 'FcDebian' }) => {
+  // eslint-disable-next-line react-hooks/static-components
+  const Icon = useFcIcon(fcIcon);
   const [open, setOpen] = useState(false);
   const openWindow = useDesktopStore(state => state.openWindow);
   const taskbar = useDesktopStore(state => state.theme.taskbar);
@@ -56,7 +57,7 @@ const Launcher: FC<LauncherProps> = ({ icon: Icon = FcDebian }) => {
         aria-label="Launcher"
         aria-expanded={open}
       >
-        <Icon size={22} style={{ display: 'block' }} />
+        {Icon && <Icon size={22} style={{ display: 'block' }} />}
       </button>
 
       <AnimatePresence>

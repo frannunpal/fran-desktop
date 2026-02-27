@@ -1,4 +1,4 @@
-import type { WindowInput } from '@domain/Entities/Window';
+import type { WindowInput } from '@/Shared/Types/WindowTypes';
 import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
 
 export interface IWindowManager {

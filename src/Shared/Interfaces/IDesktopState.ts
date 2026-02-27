@@ -1,10 +1,10 @@
-import type { WindowInput } from '@domain/Entities/Window';
+import type { WindowInput } from '@/Shared/Types/WindowTypes';
 import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
-import type { FSNode } from '@domain/Entities/FileSystem';
+import type { FSNode } from '@/Shared/Types/FileSystemTypes';
 import type { FileNode } from './FileNode';
 import type { FolderNode } from './FolderNode';
 import type { Theme, ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
-import type { DesktopIconInput } from '@domain/Entities/DesktopIcon';
+import type { DesktopIconInput } from '@/Shared/Types/DesktopIconTypes';
 import type { DesktopIconEntity } from '@/Shared/Interfaces/IDesktopIcon';
 
 export interface DesktopState {

@@ -102,19 +102,19 @@ function App() {
   // Seed demo data and filesystem on first mount
   useEffect(() => {
     initFs();
-    const notepad = APPS.find(a => a.id === 'notepad')!;
+    const pdf = APPS.find(a => a.id === 'pdf')!;
     if (windows.length === 0) {
       openWindow({
-        title: notepad.name,
-        content: notepad.id,
-        icon: notepad.icon,
-        fcIcon: notepad.fcIcon,
+        title: pdf.name,
+        content: pdf.id,
+        icon: pdf.icon,
+        fcIcon: pdf.fcIcon,
         x: 120,
         y: 80,
-        width: notepad.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
-        height: notepad.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
-        minWidth: notepad.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
-        minHeight: notepad.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
+        width: pdf.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
+        height: pdf.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
+        minWidth: pdf.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
+        minHeight: pdf.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
       });
     }
     if (icons.length === 0) {

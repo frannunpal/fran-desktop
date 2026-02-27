@@ -1,17 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WindowManagerAdapter } from './WindowManagerAdapter';
-import type { WindowInput } from '@domain/Entities/Window';
+import { makeWindowInput } from '@/Shared/Testing/Utils/makeWindowInput';
 
-const baseInput: WindowInput = {
-  title: 'Test Window',
-  content: 'notepad',
-  x: 100,
-  y: 100,
-  width: 800,
-  height: 600,
-  minWidth: 200,
-  minHeight: 150,
-};
+const baseInput = makeWindowInput();
 
 describe('WindowManagerAdapter', () => {
   let manager: WindowManagerAdapter;

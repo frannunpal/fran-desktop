@@ -1,8 +1,6 @@
 import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
-
-export type WindowState = 'normal' | 'minimized' | 'maximized';
-
-export type WindowInput = Omit<WindowEntity, 'id' | 'isOpen' | 'state' | 'zIndex'>;
+export type { WindowState, WindowInput } from '@/Shared/Types/WindowTypes';
+import type { WindowInput } from '@/Shared/Types/WindowTypes';
 
 export const createWindow = (input: WindowInput): WindowEntity => ({
   ...input,

@@ -1,30 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import Window from './Window';
-import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 
 // Storybook needs a real store for Window — provide a minimal mock via decorators
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
 import { useEffect } from 'react';
-
-const makeWindow = (overrides: Partial<WindowEntity> = {}): WindowEntity => ({
-  id: 'win-story',
-  title: 'My Window',
-  content: 'notepad',
-  icon: '📝',
-  fcIcon: 'FcEditImage',
-  x: 60,
-  y: 60,
-  width: 600,
-  height: 400,
-  minWidth: 300,
-  minHeight: 200,
-  isOpen: true,
-  state: 'normal',
-  zIndex: 1,
-  ...overrides,
-});
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
+import { makeWindow } from '@/Shared/Testing/Utils/makeWindow';
 
 const StoreSeeder = ({ win }: { win: WindowEntity }) => {
   useEffect(() => {
@@ -49,16 +32,14 @@ const meta: Meta<typeof Window> = {
     ),
   ],
   args: {
-    window: makeWindow(),
+    window: makeWindow({ id: 'win-story', title: 'My Window', icon: '📝', fcIcon: 'FcEditImage', x: 60, y: 60, width: 600, height: 400, minWidth: 300, minHeight: 200 }),
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof Window>;
 
-export const Normal: Story = {
-  args: { window: makeWindow() },
-};
+export const Normal: Story = {};
 
 export const Maximized: Story = {
   args: { window: makeWindow({ state: 'maximized' }) },

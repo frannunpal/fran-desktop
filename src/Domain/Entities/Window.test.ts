@@ -1,17 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { createWindow } from './Window';
-import type { WindowInput } from './Window';
+import { makeWindowInput } from '@/Shared/Testing/Utils/makeWindowInput';
 
-const baseInput: WindowInput = {
-  title: 'Test Window',
-  content: 'notepad',
-  x: 100,
-  y: 150,
-  width: 800,
-  height: 600,
-  minWidth: 200,
-  minHeight: 150,
-};
+const baseInput = makeWindowInput({ y: 150 });
 
 describe('Window Entity', () => {
   describe('createWindow', () => {
@@ -67,7 +58,7 @@ describe('Window Entity', () => {
 
     it('should accept an optional icon', () => {
       // Arrange
-      const inputWithIcon: WindowInput = { ...baseInput, icon: 'notepad-icon.png' };
+      const inputWithIcon = makeWindowInput({ y: 150, icon: 'notepad-icon.png' });
 
       // Act
       const window = createWindow(inputWithIcon);

@@ -1,4 +1,4 @@
-import type { FolderNode } from '@/Domain';
+import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
 
 export interface FileIconProps {
   type: 'file' | 'folder';

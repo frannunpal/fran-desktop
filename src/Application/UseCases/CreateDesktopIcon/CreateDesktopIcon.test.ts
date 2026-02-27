@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createDesktopIconUseCase } from './CreateDesktopIcon';
-import type { DesktopIconInput } from '@domain/Entities/DesktopIcon';
+import type { DesktopIconInput } from '@/Shared/Types/DesktopIconTypes';
 
 const baseInput: DesktopIconInput = {
   name: 'Terminal',

@@ -1,6 +1,6 @@
 import { createWindow } from '@domain/Entities/Window';
-import type { WindowInput } from '@domain/Entities/Window';
-import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
+import type { WindowInput } from '@/Shared/Types/WindowTypes';
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 import type { IWindowManager } from '@/Shared/Interfaces/IWindowManager';
 
 export class WindowManagerAdapter implements IWindowManager {
@@ -27,38 +27,32 @@ export class WindowManagerAdapter implements IWindowManager {
   }
 
   minimize(id: string): void {
-    const window = this.windows.get(id);
-    if (!window) return;
-    this.windows.set(id, { ...window, state: 'minimized' });
+    this.updateWindow(id, { state: 'minimized' });
   }
 
   maximize(id: string): void {
-    const window = this.windows.get(id);
-    if (!window) return;
-    this.windows.set(id, { ...window, state: 'maximized' });
+    this.updateWindow(id, { state: 'maximized' });
   }
 
   restore(id: string): void {
-    const window = this.windows.get(id);
-    if (!window) return;
-    this.windows.set(id, { ...window, state: 'normal' });
+    this.updateWindow(id, { state: 'normal' });
   }
 
   focus(id: string): void {
-    const window = this.windows.get(id);
-    if (!window) return;
-    this.windows.set(id, { ...window, zIndex: this.nextZIndex++ });
+    this.updateWindow(id, { zIndex: this.nextZIndex++ });
   }
 
   move(id: string, x: number, y: number): void {
-    const window = this.windows.get(id);
-    if (!window) return;
-    this.windows.set(id, { ...window, x, y });
+    this.updateWindow(id, { x, y });
   }
 
   resize(id: string, width: number, height: number): void {
+    this.updateWindow(id, { width, height });
+  }
+
+  private updateWindow(id: string, patch: Partial<WindowEntity>): void {
     const window = this.windows.get(id);
     if (!window) return;
-    this.windows.set(id, { ...window, width, height });
+    this.windows.set(id, { ...window, ...patch });
   }
 }

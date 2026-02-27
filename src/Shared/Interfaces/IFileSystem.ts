@@ -1,4 +1,4 @@
-import type { FSNode } from '@domain/Entities/FileSystem';
+import type { FSNode } from '@/Shared/Types/FileSystemTypes';
 import type { FileNode } from './FileNode';
 import type { FolderNode } from './FolderNode';
 

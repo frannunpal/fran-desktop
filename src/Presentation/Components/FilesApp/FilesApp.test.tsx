@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '@/Shared/Testing/__mocks__/jsdom-setup';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
 
@@ -68,6 +68,10 @@ const mockFsNodes = [
 
 const mockStore = {
   fsNodes: mockFsNodes,
+  filesCurrentFolderId: null as string | null,
+  setFilesCurrentFolderId: vi.fn((id: string | null) => {
+    mockStore.filesCurrentFolderId = id;
+  }),
   createFile: vi.fn(),
   createFolder: vi.fn(),
   openWindow: vi.fn(),
@@ -87,6 +91,14 @@ vi.mock('@shared/Constants/Animations', () => ({
 const { default: FilesApp } = await import('./FilesApp');
 
 describe('FilesApp', () => {
+  beforeEach(() => {
+    mockStore.filesCurrentFolderId = null;
+    vi.clearAllMocks();
+    mockStore.setFilesCurrentFolderId = vi.fn((id: string | null) => {
+      mockStore.filesCurrentFolderId = id;
+    });
+  });
+
   it('should render root folders in the sidebar', () => {
     // Act
     render(<FilesApp />, { wrapper });
@@ -115,11 +127,11 @@ describe('FilesApp', () => {
 
   it('should navigate to subfolder on double-click', () => {
     // Arrange
-    render(<FilesApp />, { wrapper });
-    const desktopItem = screen.getByLabelText('Open folder Desktop');
+    const { rerender } = render(<FilesApp />, { wrapper });
 
     // Act
-    fireEvent.doubleClick(desktopItem);
+    fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
+    rerender(<FilesApp />);
 
     // Assert — breadcrumb updates (Desktop appears at least once)
     expect(screen.getAllByText('Desktop').length).toBeGreaterThan(0);
@@ -145,8 +157,9 @@ describe('FilesApp', () => {
 
   it('should show correct icon for PDF file', () => {
     // Arrange
-    render(<FilesApp />, { wrapper });
+    const { rerender } = render(<FilesApp />, { wrapper });
     fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
+    rerender(<FilesApp />);
 
     // Assert
     expect(screen.getByLabelText('Open file CV_2026_English.pdf')).toBeInTheDocument();
@@ -154,8 +167,9 @@ describe('FilesApp', () => {
 
   it('should call openWindow with pdf content on double-click of PDF file', () => {
     // Arrange
-    render(<FilesApp />, { wrapper });
+    const { rerender } = render(<FilesApp />, { wrapper });
     fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
+    rerender(<FilesApp />);
 
     // Act
     fireEvent.doubleClick(screen.getByLabelText('Open file CV_2026_English.pdf'));

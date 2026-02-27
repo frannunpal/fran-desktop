@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { createElement } from 'react';
 import * as VscIcons from 'react-icons/vsc';
-import { getFileExtension } from '@/Presentation/Components/FilesApp/components/getFileExtension';
+import { getFileExtension } from '@/Shared/Utils/getFileExtension';
 import type { FileIconProps } from '@/Shared/Interfaces/IFileIconProps';
 
 const EXTENSION_ICONS: Record<string, keyof typeof VscIcons> = {

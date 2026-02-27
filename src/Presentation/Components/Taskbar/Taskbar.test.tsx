@@ -5,6 +5,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
 import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
+import { makeWindowInput } from '@/Shared/Testing/Utils/makeWindowInput';
 
 vi.mock('@presentation/Hooks/useClock', () => ({ useClock: () => '10:30' }));
 vi.mock('@presentation/Components/Launcher/Launcher', () => ({
@@ -20,16 +21,7 @@ vi.stubGlobal('localStorage', localStorageMock);
 const { useDesktopStore } = await import('@presentation/Store/desktopStore');
 const { default: Taskbar } = await import('./Taskbar');
 
-const baseInput = {
-  title: 'Notepad',
-  content: 'notepad' as const,
-  x: 100,
-  y: 100,
-  width: 600,
-  height: 400,
-  minWidth: 200,
-  minHeight: 150,
-};
+const baseInput = makeWindowInput({ title: 'Notepad', width: 600, height: 400 });
 
 describe('Taskbar component', () => {
   beforeEach(() => {

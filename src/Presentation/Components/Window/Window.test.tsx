@@ -2,8 +2,9 @@
 import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
 import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
+import { makeWindow } from '@/Shared/Testing/Utils/makeWindow';
+import { makeWindowInput } from '@/Shared/Testing/Utils/makeWindowInput';
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
 import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
 
@@ -19,21 +20,6 @@ vi.stubGlobal('localStorage', localStorageMock);
 const { useDesktopStore } = await import('@presentation/Store/desktopStore');
 const { default: Window } = await import('./Window');
 
-const makeWindow = (overrides: Partial<WindowEntity> = {}): WindowEntity => ({
-  id: 'win-1',
-  title: 'Test Window',
-  content: 'notepad',
-  x: 100,
-  y: 100,
-  width: 800,
-  height: 600,
-  minWidth: 200,
-  minHeight: 150,
-  isOpen: true,
-  state: 'normal',
-  zIndex: 1,
-  ...overrides,
-});
 
 describe('Window component', () => {
   beforeEach(() => {
@@ -107,16 +93,7 @@ describe('Window component', () => {
 
   it('should call closeWindow when close button is clicked', async () => {
     // Arrange
-    useDesktopStore.getState().openWindow({
-      title: 'Test Window',
-      content: 'notepad',
-      x: 100,
-      y: 100,
-      width: 800,
-      height: 600,
-      minWidth: 200,
-      minHeight: 150,
-    });
+    useDesktopStore.getState().openWindow(makeWindowInput());
     const win = useDesktopStore.getState().windows[0];
     render(<Window window={win} />, { wrapper });
 
@@ -131,16 +108,7 @@ describe('Window component', () => {
 
   it('should minimize window when minimize button is clicked', async () => {
     // Arrange
-    useDesktopStore.getState().openWindow({
-      title: 'Test Window',
-      content: 'notepad',
-      x: 100,
-      y: 100,
-      width: 800,
-      height: 600,
-      minWidth: 200,
-      minHeight: 150,
-    });
+    useDesktopStore.getState().openWindow(makeWindowInput());
     const win = useDesktopStore.getState().windows[0];
     render(<Window window={win} />, { wrapper });
 
@@ -173,18 +141,8 @@ describe('Window component', () => {
 
   it('should focus window on mouse down', () => {
     // Arrange — open through the store so windowManager tracks zIndex
-    const baseInput = {
-      title: 'Test Window',
-      content: 'notepad' as const,
-      x: 100,
-      y: 100,
-      width: 800,
-      height: 600,
-      minWidth: 200,
-      minHeight: 150,
-    };
-    useDesktopStore.getState().openWindow(baseInput); // zIndex 1
-    useDesktopStore.getState().openWindow(baseInput); // zIndex 2
+    useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 1
+    useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 2
     const [w1, w2] = useDesktopStore.getState().windows;
     render(<Window window={w1} />, { wrapper });
 

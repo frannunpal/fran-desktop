@@ -1,4 +1,5 @@
-import type { FSNode, FileNode } from '@/Domain';
+import type { FSNode } from '@/Shared/Types/FileSystemTypes';
+import type { FileNode } from '@/Shared/Interfaces/FileNode';
 
 export interface FileListProps {
   nodes: FSNode[];
