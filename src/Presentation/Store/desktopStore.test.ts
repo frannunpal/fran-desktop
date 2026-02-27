@@ -269,6 +269,134 @@ describe('desktopStore', () => {
     });
   });
 
+  // ── Desktop context menu creation ──────────────────────────────────────────
+  describe('desktop context menu creation', () => {
+    const fsFetchManifest = { folders: ['Desktop'], files: [] };
+
+    beforeEach(async () => {
+      clearFileSystem();
+      resetFsInitFlag();
+      useDesktopStore.setState({ icons: [] });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ json: () => Promise.resolve(fsFetchManifest) }),
+      );
+      await useDesktopStore.getState().initFs();
+    });
+
+    it('should expose desktopFolderId matching the Desktop/ folder', () => {
+      // Assert
+      const { desktopFolderId, fsNodes } = useDesktopStore.getState();
+      const desktopFolder = fsNodes.find(n => n.name === 'Desktop' && n.type === 'folder');
+      expect(desktopFolderId).toBe(desktopFolder?.id);
+    });
+
+    it('should create a file inside Desktop/ when using desktopFolderId', () => {
+      // Arrange
+      const { desktopFolderId } = useDesktopStore.getState();
+
+      // Act — simulate desktop context menu creation
+      useDesktopStore.getState().createFile('notes.txt', '', desktopFolderId);
+
+      // Assert
+      const { fsNodes } = useDesktopStore.getState();
+      const file = fsNodes.find(n => n.name === 'notes.txt');
+      expect(file).toBeDefined();
+      expect(file?.parentId).toBe(desktopFolderId);
+    });
+
+    it('should create a folder inside Desktop/ when using desktopFolderId', () => {
+      // Arrange
+      const { desktopFolderId } = useDesktopStore.getState();
+
+      // Act
+      useDesktopStore.getState().createFolder('Projects', desktopFolderId);
+
+      // Assert
+      const { fsNodes } = useDesktopStore.getState();
+      const folder = fsNodes.find(n => n.name === 'Projects');
+      expect(folder).toBeDefined();
+      expect(folder?.parentId).toBe(desktopFolderId);
+    });
+
+    it('should create a file inside a subfolder when using filesCurrentFolderId', () => {
+      // Arrange — create a subfolder to simulate Files app being inside it
+      const { desktopFolderId } = useDesktopStore.getState();
+      const subfolder = useDesktopStore.getState().createFolder('Work', desktopFolderId);
+
+      // Act — simulate Files app context menu creation
+      useDesktopStore.getState().createFile('report.txt', '', subfolder.id);
+
+      // Assert
+      const { fsNodes } = useDesktopStore.getState();
+      const file = fsNodes.find(n => n.name === 'report.txt');
+      expect(file?.parentId).toBe(subfolder.id);
+      expect(file?.parentId).not.toBe(desktopFolderId);
+    });
+
+    it('should NOT create desktop icon for files created outside Desktop/', () => {
+      // Arrange — file created at root (null parentId) as the bug did
+      const iconsBefore = useDesktopStore.getState().icons.length;
+
+      // Act
+      useDesktopStore.getState().createFile('orphan.txt', '', null);
+
+      // Assert — no new desktop icon added
+      expect(useDesktopStore.getState().icons).toHaveLength(iconsBefore);
+    });
+
+    it('should create a desktop icon for files created inside Desktop/', () => {
+      // Arrange
+      const { desktopFolderId } = useDesktopStore.getState();
+      const iconsBefore = useDesktopStore.getState().icons.length;
+
+      // Act
+      useDesktopStore.getState().createFile('readme.txt', '', desktopFolderId);
+
+      // Assert
+      expect(useDesktopStore.getState().icons).toHaveLength(iconsBefore + 1);
+      expect(useDesktopStore.getState().icons.some(ic => ic.name === 'readme.txt')).toBe(true);
+    });
+
+    it('should create a desktop icon for folders created inside Desktop/', () => {
+      // Arrange
+      const { desktopFolderId } = useDesktopStore.getState();
+      const iconsBefore = useDesktopStore.getState().icons.length;
+
+      // Act
+      useDesktopStore.getState().createFolder('Projects', desktopFolderId);
+
+      // Assert
+      expect(useDesktopStore.getState().icons).toHaveLength(iconsBefore + 1);
+      expect(useDesktopStore.getState().icons.some(ic => ic.name === 'Projects')).toBe(true);
+    });
+
+    it('should NOT create desktop icon for folders created outside Desktop/', () => {
+      // Arrange
+      const iconsBefore = useDesktopStore.getState().icons.length;
+
+      // Act
+      useDesktopStore.getState().createFolder('orphan', null);
+
+      // Assert
+      expect(useDesktopStore.getState().icons).toHaveLength(iconsBefore);
+    });
+
+    it('should remove desktop icon when a folder in Desktop/ is deleted', () => {
+      // Arrange
+      const { desktopFolderId } = useDesktopStore.getState();
+      const folder = useDesktopStore.getState().createFolder('ToDelete', desktopFolderId);
+      const iconsBefore = useDesktopStore.getState().icons.length;
+
+      // Act
+      useDesktopStore.getState().deleteNode(folder.id);
+
+      // Assert
+      expect(useDesktopStore.getState().icons).toHaveLength(iconsBefore - 1);
+      expect(useDesktopStore.getState().icons.some(ic => ic.name === 'ToDelete')).toBe(false);
+    });
+  });
+
   // ── Theme ──────────────────────────────────────────────────────────────────
   describe('theme', () => {
     it('should start with light theme', () => {

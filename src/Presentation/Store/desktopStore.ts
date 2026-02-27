@@ -121,6 +121,7 @@ export const useDesktopStore = create<DesktopState>()(
 
       // ── FileSystem ──────────────────────────────────────────────────────────
       fsNodes: fileSystem.getAllNodes(),
+      desktopFolderId: getDesktopFolderId(),
 
       initFs: async () => {
         if (getFsInitStarted() || !fileSystem.isEmpty()) return;
@@ -130,7 +131,7 @@ export const useDesktopStore = create<DesktopState>()(
             r.json(),
           );
           fileSystem.seed(manifest);
-          set({ fsNodes: fileSystem.getAllNodes() });
+          set({ fsNodes: fileSystem.getAllNodes(), desktopFolderId: getDesktopFolderId() });
 
           // Seed app icons first so file icons don't overlap them
           const DESKTOP_APPS = ['notepad', 'terminal', 'files'];
@@ -160,6 +161,7 @@ export const useDesktopStore = create<DesktopState>()(
                 icon: '📄',
                 ...pos,
                 appId: node.mimeType === 'application/pdf' ? 'pdf' : 'files',
+                nodeId: node.id,
               });
               set(state => ({ icons: [...state.icons, icon] }));
             }
@@ -184,6 +186,7 @@ export const useDesktopStore = create<DesktopState>()(
               icon: '📄',
               ...pos,
               appId: file.mimeType === 'application/pdf' ? 'pdf' : 'files',
+              nodeId: file.id,
             });
             set(state => ({ icons: [...state.icons, icon] }));
           }
@@ -195,6 +198,24 @@ export const useDesktopStore = create<DesktopState>()(
       createFolder: (name, parentId, iconName, iconColor) => {
         const folder = fileSystem.createFolder(name, parentId, iconName, iconColor);
         set({ fsNodes: fileSystem.getAllNodes() });
+
+        // Sync to desktop if folder is in Desktop/
+        const desktopFolderId = getDesktopFolderId();
+        if (parentId && parentId === desktopFolderId) {
+          const { icons } = get();
+          if (!icons.some(ic => ic.name === folder.name)) {
+            const pos = nextFreeIconSlot(icons);
+            const icon = createDesktopIcon({
+              name: folder.name,
+              icon: '📁',
+              ...pos,
+              appId: 'files',
+              nodeId: folder.id,
+            });
+            set(state => ({ icons: [...state.icons, icon] }));
+          }
+        }
+
         return folder;
       },
 
@@ -208,8 +229,8 @@ export const useDesktopStore = create<DesktopState>()(
         fileSystem.delete(id);
         set({ fsNodes: fileSystem.getAllNodes() });
 
-        // Remove desktop icon if deleted file was in Desktop/
-        if (node?.type === 'file') {
+        // Remove desktop icon if deleted node was in Desktop/
+        if (node?.type === 'file' || node?.type === 'folder') {
           const desktopFolderId = getDesktopFolderId();
           if (node.parentId && node.parentId === desktopFolderId) {
             set(state => ({

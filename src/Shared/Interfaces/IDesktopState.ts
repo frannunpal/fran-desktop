@@ -26,6 +26,7 @@ export interface DesktopState {
 
   // FileSystem slice
   fsNodes: FSNode[];
+  desktopFolderId: string | null;
   createFile: (name: string, content: string, parentId: string | null) => FileNode;
   createFolder: (
     name: string,

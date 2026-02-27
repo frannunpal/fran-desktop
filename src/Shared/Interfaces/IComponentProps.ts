@@ -10,7 +10,7 @@ export interface WindowProps {
 
 export interface DesktopIconProps {
   icon: DesktopIconEntity;
-  onDoubleClick: (appId: string) => void;
+  onDoubleClick: (appId: string, nodeId?: string) => void;
 }
 
 export interface DesktopContextMenuProps {

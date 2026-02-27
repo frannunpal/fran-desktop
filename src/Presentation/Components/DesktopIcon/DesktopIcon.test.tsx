@@ -48,7 +48,22 @@ describe('DesktopIcon component', () => {
     fireEvent.dblClick(screen.getByRole('button', { name: 'Notepad' }));
 
     // Assert
-    expect(handleDoubleClick).toHaveBeenCalledWith('notepad');
+    expect(handleDoubleClick).toHaveBeenCalledWith('notepad', undefined);
+  });
+
+  it('should call onDoubleClick with appId and nodeId when icon has nodeId', () => {
+    // Arrange
+    const handleDoubleClick = vi.fn();
+
+    // Act
+    render(
+      <DesktopIcon icon={makeIcon({ nodeId: 'folder-123' })} onDoubleClick={handleDoubleClick} />,
+      { wrapper },
+    );
+    fireEvent.dblClick(screen.getByRole('button', { name: 'Notepad' }));
+
+    // Assert
+    expect(handleDoubleClick).toHaveBeenCalledWith('notepad', 'folder-123');
   });
 
   it('should call onDoubleClick when Enter key is pressed', () => {
@@ -60,7 +75,7 @@ describe('DesktopIcon component', () => {
     fireEvent.keyDown(screen.getByRole('button', { name: 'Notepad' }), { key: 'Enter' });
 
     // Assert
-    expect(handleDoubleClick).toHaveBeenCalledWith('notepad');
+    expect(handleDoubleClick).toHaveBeenCalledWith('notepad', undefined);
   });
 
   it('should position itself at the given x/y coordinates', () => {

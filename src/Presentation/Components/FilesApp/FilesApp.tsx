@@ -1,4 +1,4 @@
-import { type FC, useCallback } from 'react';
+import { type FC, useCallback, useState } from 'react';
 import { Text, Breadcrumbs, Anchor } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
@@ -8,12 +8,24 @@ import FolderTree from './components/FolderTree';
 import FileList from './components/FileList';
 import classes from './FilesApp.module.css';
 
-const FilesApp: FC = () => {
+interface FilesAppProps {
+  initialFolderId?: string | null;
+}
+
+const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
   const fsNodes = useDesktopStore(state => state.fsNodes);
   const openWindow = useDesktopStore(state => state.openWindow);
   const openContextMenu = useDesktopStore(state => state.openContextMenu);
-  const currentFolderId = useDesktopStore(state => state.filesCurrentFolderId);
-  const setCurrentFolderId = useDesktopStore(state => state.setFilesCurrentFolderId);
+  const setFilesCurrentFolderId = useDesktopStore(state => state.setFilesCurrentFolderId);
+  const [currentFolderId, setCurrentFolderIdLocal] = useState<string | null>(initialFolderId);
+
+  const setCurrentFolderId = useCallback(
+    (id: string | null) => {
+      setCurrentFolderIdLocal(id);
+      setFilesCurrentFolderId(id);
+    },
+    [setFilesCurrentFolderId],
+  );
 
   const currentNodes =
     currentFolderId === null

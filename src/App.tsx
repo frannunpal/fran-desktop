@@ -48,6 +48,7 @@ function App() {
   const openContextMenu = useDesktopStore(state => state.openContextMenu);
   const closeContextMenu = useDesktopStore(state => state.closeContextMenu);
   const filesCurrentFolderId = useDesktopStore(state => state.filesCurrentFolderId);
+  const desktopFolderId = useDesktopStore(state => state.desktopFolderId);
 
   const [createModal, setCreateModal] = useState<{ opened: boolean; mode: 'file' | 'folder' }>({
     opened: false,
@@ -73,9 +74,9 @@ function App() {
 
   const handleCreateConfirm = (name: string, iconName?: string, iconColor?: string) => {
     if (createModal.mode === 'folder') {
-      createFolder(name, null, iconName, iconColor);
+      createFolder(name, desktopFolderId, iconName, iconColor);
     } else {
-      createFile(name, '', null);
+      createFile(name, '', desktopFolderId);
     }
   };
 
@@ -117,23 +118,29 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleOpenApp = (appId: string) => {
-    const app = APPS.find(a => a.id === appId);
-    const { x, y } = randomWindowPosition();
-    openWindow({
-      title: app?.name ?? appId.charAt(0).toUpperCase() + appId.slice(1),
-      content: appId,
-      icon: app?.icon,
-      fcIcon: app?.fcIcon,
-      canMaximize: app?.canMaximize,
-      x,
-      y,
-      width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
-      height: app?.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
-      minWidth: app?.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
-      minHeight: app?.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
-    });
-  };
+  const handleOpenApp = useCallback(
+    (appId: string, nodeId?: string) => {
+      const app = APPS.find(a => a.id === appId);
+      const { x, y } = randomWindowPosition();
+      const contentData: Record<string, unknown> | undefined =
+        appId === 'files' && nodeId ? { initialFolderId: nodeId } : undefined;
+      openWindow({
+        title: app?.name ?? appId.charAt(0).toUpperCase() + appId.slice(1),
+        content: appId,
+        icon: app?.icon,
+        fcIcon: app?.fcIcon,
+        canMaximize: app?.canMaximize,
+        x,
+        y,
+        width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
+        height: app?.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
+        minWidth: app?.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
+        minHeight: app?.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
+        contentData,
+      });
+    },
+    [openWindow],
+  );
 
   return (
     <WindowButtonRegistryProvider>
@@ -149,7 +156,9 @@ function App() {
                 {win.content === 'pdf' && (
                   <PdfApp src={win.contentData?.src as string | undefined} />
                 )}
-                {win.content === 'files' && <FilesApp />}
+                {win.content === 'files' && (
+                  <FilesApp initialFolderId={win.contentData?.initialFolderId as string | null | undefined} />
+                )}
               </Window>
             ))}
           </AnimatePresence>

@@ -8,11 +8,11 @@ const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick }) => {
     <div
       className={classes.root}
       style={{ left: icon.x, top: icon.y }}
-      onDoubleClick={() => onDoubleClick(icon.appId)}
+      onDoubleClick={() => onDoubleClick(icon.appId, icon.nodeId)}
       role="button"
       aria-label={icon.name}
       tabIndex={0}
-      onKeyDown={e => e.key === 'Enter' && onDoubleClick(icon.appId)}
+      onKeyDown={e => e.key === 'Enter' && onDoubleClick(icon.appId, icon.nodeId)}
     >
       <span className={classes.iconImage} aria-hidden="true">
         {icon.icon}
