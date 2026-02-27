@@ -45,6 +45,10 @@ export class LocalStorageFileSystem implements IFileSystem {
     return this.nodes.size === 0;
   }
 
+  clear(): void {
+    this.nodes.clear();
+  }
+
   seed(manifest: FsManifest): void {
     const folderMap = new Map<string, FolderNode>();
     for (const name of manifest.folders) {

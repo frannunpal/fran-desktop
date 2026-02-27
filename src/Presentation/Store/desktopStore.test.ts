@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
 import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
+import { resetFsInitFlag } from './fsInitFlag';
 
 // Mock localStorage before importing the store
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
 
 // Import AFTER stubbing so the store picks up the mock
-const { useDesktopStore } = await import('./desktopStore');
+const { useDesktopStore, clearFileSystem } = await import('./desktopStore');
 
 const baseWindowInput = {
   title: 'Test Window',
@@ -166,6 +167,64 @@ describe('desktopStore', () => {
 
       // Assert
       expect(useDesktopStore.getState().icons).toHaveLength(0);
+    });
+  });
+
+  // ── initFs ─────────────────────────────────────────────────────────────────
+  // These tests share a single initFs() call: the FS singleton retains nodes
+  // between tests, so only the first call seeds. All assertions reuse that state.
+  describe('initFs', () => {
+    const fsFetchManifest = {
+      folders: ['Desktop'],
+      files: [
+        { name: 'CV_2026_English.pdf', folder: 'Desktop', mimeType: 'application/pdf', url: '' },
+        { name: 'notes.txt', folder: 'Desktop', mimeType: 'text/plain', url: '' },
+      ],
+    };
+
+    // Seed once before all initFs tests
+    beforeEach(async () => {
+      clearFileSystem();
+      resetFsInitFlag();
+      useDesktopStore.setState({ icons: [] });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ json: () => Promise.resolve(fsFetchManifest) }),
+      );
+      await useDesktopStore.getState().initFs();
+    });
+
+    it('should seed notepad, terminal and files app icons', () => {
+      // Assert
+      const { icons } = useDesktopStore.getState();
+      expect(icons.some(ic => ic.appId === 'notepad')).toBe(true);
+      expect(icons.some(ic => ic.appId === 'terminal')).toBe(true);
+      expect(icons.some(ic => ic.appId === 'files')).toBe(true);
+    });
+
+    it('should seed Desktop/ file icons after app icons', () => {
+      // Assert
+      const { icons } = useDesktopStore.getState();
+      expect(icons.some(ic => ic.name === 'CV_2026_English.pdf')).toBe(true);
+      expect(icons.some(ic => ic.name === 'notes.txt')).toBe(true);
+    });
+
+    it('should place all icons at unique positions (no overlaps)', () => {
+      // Assert
+      const { icons } = useDesktopStore.getState();
+      const positions = icons.map(ic => `${ic.x},${ic.y}`);
+      expect(new Set(positions).size).toBe(icons.length);
+    });
+
+    it('should not add icons on a second initFs call', async () => {
+      // Arrange
+      const countAfterFirst = useDesktopStore.getState().icons.length;
+
+      // Act — second call is a no-op: fileSystem is non-empty
+      await useDesktopStore.getState().initFs();
+
+      // Assert
+      expect(useDesktopStore.getState().icons).toHaveLength(countAfterFirst);
     });
   });
 

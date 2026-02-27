@@ -139,6 +139,47 @@ describe('Window component', () => {
     expect(screen.getByLabelText('Maximize')).toBeInTheDocument();
   });
 
+  it('should show focus overlay when window is not focused (lower zIndex)', () => {
+    // Arrange — open two windows; w1 has lower zIndex
+    useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 1
+    useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 2
+    const w1 = useDesktopStore.getState().windows[0];
+
+    // Act
+    render(<Window window={w1} />, { wrapper });
+
+    // Assert
+    expect(screen.getByTestId('focus-overlay')).toBeInTheDocument();
+  });
+
+  it('should not show focus overlay when window is focused (highest zIndex)', () => {
+    // Arrange — single window is always focused
+    useDesktopStore.getState().openWindow(makeWindowInput());
+    const win = useDesktopStore.getState().windows[0];
+
+    // Act
+    render(<Window window={win} />, { wrapper });
+
+    // Assert
+    expect(screen.queryByTestId('focus-overlay')).not.toBeInTheDocument();
+  });
+
+  it('should call focusWindow when clicking the focus overlay', () => {
+    // Arrange — open two windows; w1 has lower zIndex
+    useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 1
+    useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 2
+    const w1 = useDesktopStore.getState().windows[0];
+    render(<Window window={w1} />, { wrapper });
+
+    // Act
+    fireEvent.mouseDown(screen.getByTestId('focus-overlay'));
+
+    // Assert — w1 should now have highest zIndex
+    const focused = useDesktopStore.getState().windows.find(w => w.id === w1.id)!;
+    const other = useDesktopStore.getState().windows.find(w => w.id !== w1.id)!;
+    expect(focused.zIndex).toBeGreaterThan(other.zIndex);
+  });
+
   it('should focus window on mouse down', () => {
     // Arrange — open through the store so windowManager tracks zIndex
     useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 1

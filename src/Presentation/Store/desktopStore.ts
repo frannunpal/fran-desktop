@@ -7,10 +7,13 @@ import { createDesktopIcon } from '@domain/Entities/DesktopIcon';
 import type { DesktopState } from '@/Shared/Interfaces/IDesktopState';
 import type { ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import { APPS } from '@shared/Constants/apps';
+import { getFsInitStarted, setFsInitStarted } from './fsInitFlag';
+export { resetFsInitFlag } from './fsInitFlag';
 
 // ─── Adapters (singleton, not persisted) ────────────────────────────────────
 const windowManager = new WindowManagerAdapter();
 const fileSystem = new LocalStorageFileSystem();
+export const clearFileSystem = () => fileSystem.clear();
 
 const persistedMode = (() => {
   try {
@@ -21,9 +24,6 @@ const persistedMode = (() => {
   }
 })();
 const themeProvider = new DefaultThemeProvider(persistedMode ?? 'light');
-
-// ─── Guards ───────────────────────────────────────────────────────────────────
-let fsInitStarted = false;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const getDesktopFolderId = (): string | null => {
@@ -123,8 +123,8 @@ export const useDesktopStore = create<DesktopState>()(
       fsNodes: fileSystem.getAllNodes(),
 
       initFs: async () => {
-        if (fsInitStarted || !fileSystem.isEmpty()) return;
-        fsInitStarted = true;
+        if (getFsInitStarted() || !fileSystem.isEmpty()) return;
+        setFsInitStarted(true);
         try {
           const manifest = await fetch(`${import.meta.env.BASE_URL}fs-manifest.json`).then(r =>
             r.json(),
@@ -132,14 +132,27 @@ export const useDesktopStore = create<DesktopState>()(
           fileSystem.seed(manifest);
           set({ fsNodes: fileSystem.getAllNodes() });
 
+          // Seed app icons first so file icons don't overlap them
+          const DESKTOP_APPS = ['notepad', 'terminal', 'files'];
+          DESKTOP_APPS.forEach(appId => {
+            const app = APPS.find(a => a.id === appId);
+            if (!app) return;
+            const alreadyAdded = get().icons.some(ic => ic.appId === appId);
+            if (!alreadyAdded) {
+              const pos = nextFreeIconSlot(get().icons);
+              set(state => ({
+                icons: [...state.icons, createDesktopIcon({ name: app.name, icon: app.icon, ...pos, appId })],
+              }));
+            }
+          });
+
           // Sync Desktop/ files to desktop icons
           const desktopFolderId = getDesktopFolderId();
           if (!desktopFolderId) return;
           const desktopFiles = fileSystem.getChildren(desktopFolderId);
-          const { icons } = get();
           desktopFiles.forEach(node => {
             if (node.type !== 'file') return;
-            const alreadyOnDesktop = icons.some(ic => ic.name === node.name);
+            const alreadyOnDesktop = get().icons.some(ic => ic.name === node.name);
             if (!alreadyOnDesktop) {
               const pos = nextFreeIconSlot(get().icons);
               const icon = createDesktopIcon({
@@ -152,7 +165,7 @@ export const useDesktopStore = create<DesktopState>()(
             }
           });
         } catch {
-          fsInitStarted = false; // allow retry on network error
+          setFsInitStarted(false); // allow retry on network error
         }
       },
 

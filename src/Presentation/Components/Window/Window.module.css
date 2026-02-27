@@ -37,4 +37,12 @@
   flex: 1;
   overflow: auto;
   min-height: 0;
+  position: relative;
+}
+
+.focusOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: default;
 }

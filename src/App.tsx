@@ -20,6 +20,8 @@ import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import { randomWindowPosition } from '@shared/Constants/Animations';
 import type { FSNode } from '@domain/Entities/FileSystem';
 
+let seedStarted = false;
+
 const buildFilesPath = (folderId: string | null, nodes: FSNode[]): string => {
   const crumbs: string[] = ['/home'];
   let id: string | null = folderId;
@@ -33,18 +35,11 @@ const buildFilesPath = (folderId: string | null, nodes: FSNode[]): string => {
   return [...crumbs, ...trail].join('/');
 };
 
-const DESKTOP_ICON_POSITIONS: Record<string, { x: number; y: number }> = {
-  notepad: { x: 20, y: 20 },
-  terminal: { x: 20, y: 120 },
-  files: { x: 20, y: 220 },
-};
-
 function App() {
   const theme = useDesktopStore(state => state.theme);
   const windows = useDesktopStore(state => state.windows);
   const icons = useDesktopStore(state => state.icons);
   const openWindow = useDesktopStore(state => state.openWindow);
-  const addIcon = useDesktopStore(state => state.addIcon);
   const initFs = useDesktopStore(state => state.initFs);
   const fsNodes = useDesktopStore(state => state.fsNodes);
   const createFile = useDesktopStore(state => state.createFile);
@@ -101,6 +96,8 @@ function App() {
 
   // Seed demo data and filesystem on first mount
   useEffect(() => {
+    if (seedStarted) return;
+    seedStarted = true;
     initFs();
     const pdf = APPS.find(a => a.id === 'pdf')!;
     if (windows.length === 0) {
@@ -115,12 +112,6 @@ function App() {
         height: pdf.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
         minWidth: pdf.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
         minHeight: pdf.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
-      });
-    }
-    if (icons.length === 0) {
-      APPS.filter(a => DESKTOP_ICON_POSITIONS[a.id]).forEach(a => {
-        const pos = DESKTOP_ICON_POSITIONS[a.id];
-        addIcon({ name: a.name, icon: a.icon, x: pos.x, y: pos.y, appId: a.id });
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

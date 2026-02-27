@@ -13,7 +13,7 @@ import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
 import { useFcIcon } from '@presentation/Hooks/useFcIcon';
 import type { WindowProps } from '@/Shared/Interfaces/IComponentProps';
-import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 import {
   windowVariants,
   minimizeVariant,
@@ -52,6 +52,12 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
   );
 
   const windowColor = useDesktopStore(state => state.theme.window);
+  const isFocused = useDesktopStore(
+    state =>
+      Math.max(
+        ...state.windows.filter(w => w.isOpen && w.state !== 'minimized').map(w => w.zIndex),
+      ) === win.zIndex,
+  );
   const { getRect } = useWindowButtonRegistry();
   const controls = useAnimationControls();
   const prevStateRef = useRef(win.state);
@@ -168,7 +174,16 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
             </ActionIcon>
           </Group>
         </div>
-        <div className={classes.content}>{children}</div>
+        <div className={classes.content}>
+          {!isFocused && (
+            <div
+              data-testid="focus-overlay"
+              className={classes.focusOverlay}
+              onMouseDown={() => focusWindow(win.id)}
+            />
+          )}
+          {children}
+        </div>
       </motion.div>
     </Rnd>
   );
