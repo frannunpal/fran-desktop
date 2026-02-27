@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import FilesApp from './FilesApp';
 
 const meta: Meta<typeof FilesApp> = {
-  title: 'Presentation/FilesApp',
+  title: 'Apps/FilesApp',
   component: FilesApp,
   parameters: { layout: 'fullscreen' },
 };

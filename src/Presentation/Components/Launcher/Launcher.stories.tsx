@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import Launcher from './Launcher';
 
 const meta: Meta<typeof Launcher> = {
-  title: 'Presentation/Launcher',
+  title: 'Common components/Launcher',
   component: Launcher,
   decorators: [
     Story => (

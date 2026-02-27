@@ -5,7 +5,7 @@ import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
 
 const meta: Meta<typeof Taskbar> = {
-  title: 'Presentation/Taskbar',
+  title: 'Common components/Taskbar',
   component: Taskbar,
   parameters: { layout: 'fullscreen' },
   decorators: [

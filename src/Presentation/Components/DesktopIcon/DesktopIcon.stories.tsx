@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import DesktopIcon from './DesktopIcon';
 
 const meta: Meta<typeof DesktopIcon> = {
-  title: 'Presentation/DesktopIcon',
+  title: 'Common components/DesktopIcon',
   component: DesktopIcon,
   decorators: [
     Story => (

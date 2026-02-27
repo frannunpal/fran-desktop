@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import PdfApp from './PdfApp';
 
 const meta: Meta<typeof PdfApp> = {
-  title: 'Presentation/PdfApp',
+  title: 'Apps/PdfApp',
   component: PdfApp,
   parameters: { layout: 'fullscreen' },
 };

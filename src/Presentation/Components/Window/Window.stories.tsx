@@ -17,14 +17,19 @@ const StoreSeeder = ({ win }: { win: WindowEntity }) => {
 };
 
 const meta: Meta<typeof Window> = {
-  title: 'Presentation/Window',
+  title: 'Common components/Window',
   component: Window,
   decorators: [
     (Story, ctx) => (
       <WindowButtonRegistryProvider>
         <StoreSeeder win={ctx.args.window as WindowEntity} />
         <div
-          style={{ position: 'relative', width: '100vw', height: '100vh', background: 'var(--mantine-color-body)' }}
+          style={{
+            position: 'relative',
+            width: '100vw',
+            height: '100vh',
+            background: 'var(--mantine-color-body)',
+          }}
         >
           <Story />
         </div>
@@ -32,7 +37,18 @@ const meta: Meta<typeof Window> = {
     ),
   ],
   args: {
-    window: makeWindow({ id: 'win-story', title: 'My Window', icon: '📝', fcIcon: 'FcEditImage', x: 60, y: 60, width: 600, height: 400, minWidth: 300, minHeight: 200 }),
+    window: makeWindow({
+      id: 'win-story',
+      title: 'My Window',
+      icon: '📝',
+      fcIcon: 'FcEditImage',
+      x: 60,
+      y: 60,
+      width: 600,
+      height: 400,
+      minWidth: 300,
+      minHeight: 200,
+    }),
   },
 };
 

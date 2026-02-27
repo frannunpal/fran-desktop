@@ -3,7 +3,7 @@ import '@mantine/dates/styles.css';
 import CalendarApp from './CalendarApp';
 
 const meta: Meta<typeof CalendarApp> = {
-  title: 'Presentation/CalendarApp',
+  title: 'Apps/CalendarApp',
   component: CalendarApp,
   parameters: { layout: 'centered' },
 };

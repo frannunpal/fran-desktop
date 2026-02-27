@@ -3,7 +3,7 @@ import { useState } from 'react';
 import TaskbarContextMenu from './TaskbarContextMenu';
 
 const meta: Meta<typeof TaskbarContextMenu> = {
-  title: 'Presentation/TaskbarContextMenu',
+  title: 'Common components/TaskbarContextMenu',
   component: TaskbarContextMenu,
   parameters: { layout: 'fullscreen' },
   args: {

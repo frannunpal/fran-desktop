@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import DesktopArea from './DesktopArea';
 
 const meta: Meta<typeof DesktopArea> = {
-  title: 'Presentation/DesktopArea',
+  title: 'Common components/DesktopArea',
   component: DesktopArea,
   parameters: { layout: 'fullscreen' },
 };

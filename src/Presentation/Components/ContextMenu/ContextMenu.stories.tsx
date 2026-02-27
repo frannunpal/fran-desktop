@@ -4,7 +4,7 @@ import { Button } from '@mantine/core';
 import ContextMenu from './ContextMenu';
 
 const meta: Meta<typeof ContextMenu> = {
-  title: 'Presentation/ContextMenu',
+  title: 'Common components/ContextMenu',
   component: ContextMenu,
   parameters: { layout: 'centered' },
 };
