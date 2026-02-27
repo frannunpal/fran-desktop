@@ -11,7 +11,8 @@ describe('APPS constant', () => {
     expect(ids).toContain('calendar');
     expect(ids).toContain('pdf');
     expect(ids).toContain('createItem');
-    expect(ids).toHaveLength(7);
+    expect(ids).toContain('storybook');
+    expect(ids).toHaveLength(8);
   });
 
   it('should have unique ids', () => {

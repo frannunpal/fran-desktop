@@ -59,6 +59,16 @@ export const APPS: AppEntry[] = [
     canMaximize: false,
   },
   {
+    id: 'storybook',
+    name: 'Storybook',
+    icon: '📖',
+    fcIcon: 'FcReading',
+    defaultWidth: 1100,
+    defaultHeight: 700,
+    minWidth: 600,
+    minHeight: 400,
+  },
+  {
     id: 'createItem',
     name: 'Create',
     icon: '➕',

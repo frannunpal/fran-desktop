@@ -12,6 +12,7 @@ import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import PdfApp from '@presentation/Components/PdfApp/PdfApp';
 import FilesApp from '@presentation/Components/FilesApp/FilesApp';
 import CreateItemApp from '@presentation/Components/Shared/CreateItemApp/CreateItemApp';
+import StorybookApp from '@presentation/Components/StorybookApp/StorybookApp';
 import CreateItemContextMenu from '@presentation/Components/ContextMenu/CreateItemContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
@@ -142,6 +143,7 @@ function App() {
                     currentPath={win.contentData?.currentPath as string}
                   />
                 )}
+                {win.content === 'storybook' && <StorybookApp />}
               </Window>
             ))}
           </AnimatePresence>

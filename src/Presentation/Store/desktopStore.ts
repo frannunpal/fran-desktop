@@ -135,7 +135,7 @@ export const useDesktopStore = create<DesktopState>()(
           set({ fsNodes: fileSystem.getAllNodes(), desktopFolderId: getDesktopFolderId() });
 
           // Seed app icons first so file icons don't overlap them
-          const DESKTOP_APPS = ['notepad', 'terminal', 'files'];
+          const DESKTOP_APPS = ['notepad', 'terminal', 'files', 'storybook'];
           DESKTOP_APPS.forEach(appId => {
             const app = APPS.find(a => a.id === appId);
             if (!app) return;
