@@ -21,7 +21,9 @@ describe('ContextMenu component', () => {
     // Assert
     expect(screen.getByText('Open Notepad')).toBeInTheDocument();
     expect(screen.getByText('Open Terminal')).toBeInTheDocument();
-    expect(screen.getByText('Open Files')).toBeInTheDocument();
+    expect(screen.getByText('Open FilesApp')).toBeInTheDocument();
+    expect(screen.getByText('Open CV')).toBeInTheDocument();
+    expect(screen.getByText('Open Calendar')).toBeInTheDocument();
     expect(screen.getByText('Toggle Theme')).toBeInTheDocument();
   });
 

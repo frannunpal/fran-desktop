@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { ANIMATION_DURATION, EASE_IN, EASE_OUT, windowVariants, panelVariants, randomWindowPosition } from './Animations';
+import {
+  ANIMATION_DURATION,
+  EASE_IN,
+  EASE_OUT,
+  windowVariants,
+  panelVariants,
+  randomWindowPosition,
+} from './Animations';
 
 describe('Animations constants', () => {
   describe('ANIMATION_DURATION', () => {

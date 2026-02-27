@@ -18,8 +18,12 @@ vi.mock('react-icons/vsc', () => ({
   VscCopy: () => <svg />,
 }));
 
-vi.mock('@presentation/Components/Shared/CreateItemModal/CreateItemModal', () => ({
-  default: ({ opened }: { opened: boolean }) => (opened ? <div role="dialog" /> : null),
+vi.mock('@presentation/Components/ContextMenu/ContextMenuAnchor', () => ({
+  default: () => <div />,
+}));
+
+vi.mock('@shared/Constants/Animations', () => ({
+  randomWindowPosition: () => ({ x: 100, y: 100 }),
 }));
 
 vi.mock('@mantine/core', async () => {
@@ -44,10 +48,6 @@ vi.mock('@mantine/core', async () => {
   };
 });
 
-vi.mock('@presentation/Components/ContextMenu/ContextMenuAnchor', () => ({
-  default: () => <div />,
-}));
-
 const mockFsNodes = [
   {
     id: 'node-1',
@@ -66,6 +66,7 @@ import type { FSNode } from '@/Shared/Types/FileSystemTypes';
 const mockStore: {
   contextMenu: { x: number; y: number; owner: string | null; targetNodeId?: string };
   closeContextMenu: ReturnType<typeof vi.fn>;
+  openWindow: ReturnType<typeof vi.fn>;
   createFile: ReturnType<typeof vi.fn>;
   createFolder: ReturnType<typeof vi.fn>;
   deleteNode: ReturnType<typeof vi.fn>;
@@ -83,6 +84,7 @@ const mockStore: {
     targetNodeId: undefined,
   },
   closeContextMenu: vi.fn(),
+  openWindow: vi.fn(),
   createFile: vi.fn(),
   createFolder: vi.fn(),
   deleteNode: vi.fn(),
@@ -138,7 +140,7 @@ describe('CreateItemContextMenu', () => {
       expect(screen.queryByText('Delete')).not.toBeInTheDocument();
     });
 
-    it('should open modal when "Create folder" is clicked', () => {
+    it('should open window when "Create folder" is clicked', () => {
       // Arrange
       mockStore.contextMenu = { x: 0, y: 0, owner: 'desktop', targetNodeId: undefined };
       render(
@@ -150,7 +152,12 @@ describe('CreateItemContextMenu', () => {
       fireEvent.click(screen.getByText('Create folder'));
 
       // Assert
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(mockStore.openWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: 'createItem',
+          title: 'Create Folder',
+        }),
+      );
     });
 
     it('should not render when owner does not match', () => {

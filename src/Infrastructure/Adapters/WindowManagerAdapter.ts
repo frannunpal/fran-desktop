@@ -3,9 +3,36 @@ import type { WindowInput } from '@/Shared/Types/WindowTypes';
 import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 import type { IWindowManager } from '@/Shared/Interfaces/IWindowManager';
 
+/**
+ * Z-index strategy:
+ *
+ *  - All windows share a single monotonic counter `nextZIndex`.
+ *  - Normal windows get their raw counter value as zIndex.
+ *  - AlwaysOnTop windows get `ALWAYS_ON_TOP_OFFSET + counter`, guaranteeing
+ *    they are always rendered above every normal window regardless of focus order.
+ *  - When a window is focused, the counter advances and the window receives the
+ *    new top-of-stack value within its group. Normal windows cannot exceed
+ *    ALWAYS_ON_TOP_OFFSET; alwaysOnTop windows are always ≥ ALWAYS_ON_TOP_OFFSET.
+ *
+ *  isFocused (computed in Window.tsx):
+ *    A window is focused when its zIndex is the maximum among windows in its
+ *    own group (normal OR alwaysOnTop), ignoring minimized windows.
+ */
+const ALWAYS_ON_TOP_OFFSET = 10_000;
+
 export class WindowManagerAdapter implements IWindowManager {
   private windows: Map<string, WindowEntity> = new Map();
   private nextZIndex = 1;
+
+  private assignZIndex(alwaysOnTop: boolean): number {
+    const raw = this.nextZIndex++;
+    return alwaysOnTop ? ALWAYS_ON_TOP_OFFSET + raw : raw;
+  }
+
+  reset(): void {
+    this.windows.clear();
+    this.nextZIndex = 1;
+  }
 
   getAll(): WindowEntity[] {
     return Array.from(this.windows.values());
@@ -17,7 +44,7 @@ export class WindowManagerAdapter implements IWindowManager {
 
   open(input: WindowInput): WindowEntity {
     const window = createWindow(input);
-    window.zIndex = this.nextZIndex++;
+    window.zIndex = this.assignZIndex(window.alwaysOnTop ?? false);
     this.windows.set(window.id, window);
     return window;
   }
@@ -39,7 +66,10 @@ export class WindowManagerAdapter implements IWindowManager {
   }
 
   focus(id: string): void {
-    this.updateWindow(id, { zIndex: this.nextZIndex++ });
+    const window = this.windows.get(id);
+    if (!window) return;
+    const newZIndex = this.assignZIndex(window.alwaysOnTop ?? false);
+    this.updateWindow(id, { zIndex: newZIndex });
   }
 
   move(id: string, x: number, y: number): void {

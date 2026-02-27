@@ -25,7 +25,7 @@ export const APPS: AppEntry[] = [
   },
   {
     id: 'files',
-    name: 'Files',
+    name: 'FilesApp',
     icon: '📁',
     fcIcon: 'FcOpenedFolder',
     ...DEFAULT_WINDOW_DIMENSIONS,
@@ -57,5 +57,17 @@ export const APPS: AppEntry[] = [
     minWidth: 320,
     minHeight: 360,
     canMaximize: false,
+  },
+  {
+    id: 'createItem',
+    name: 'Create',
+    icon: '➕',
+    fcIcon: 'FcAddDatabase',
+    defaultWidth: 400,
+    defaultHeight: 300,
+    minWidth: 350,
+    minHeight: 250,
+    canMaximize: false,
+    alwaysOnTop: true,
   },
 ];

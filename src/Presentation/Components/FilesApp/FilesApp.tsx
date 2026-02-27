@@ -1,4 +1,4 @@
-import { type FC, useCallback, useState } from 'react';
+import { type FC, useCallback, useState, useEffect } from 'react';
 import { Text, Breadcrumbs, Anchor } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
@@ -26,6 +26,10 @@ const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
     },
     [setFilesCurrentFolderId],
   );
+
+  useEffect(() => {
+    setFilesCurrentFolderId(initialFolderId);
+  }, [initialFolderId, setFilesCurrentFolderId]);
 
   const currentNodes =
     currentFolderId === null

@@ -8,4 +8,5 @@ export interface AppEntry {
   minWidth?: number;
   minHeight?: number;
   canMaximize?: boolean;
+  alwaysOnTop?: boolean;
 }

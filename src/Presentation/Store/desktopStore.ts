@@ -14,6 +14,7 @@ export { resetFsInitFlag } from './fsInitFlag';
 const windowManager = new WindowManagerAdapter();
 const fileSystem = new LocalStorageFileSystem();
 export const clearFileSystem = () => fileSystem.clear();
+export const resetWindowManager = () => windowManager.reset();
 
 const persistedMode = (() => {
   try {
@@ -211,6 +212,8 @@ export const useDesktopStore = create<DesktopState>()(
             const icon = createDesktopIcon({
               name: folder.name,
               icon: '📁',
+              iconName: folder.iconName,
+              iconColor: folder.iconColor,
               ...pos,
               appId: 'files',
               nodeId: folder.id,

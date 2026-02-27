@@ -66,7 +66,7 @@ describe('Launcher component', () => {
     // Assert
     expect(screen.getByLabelText('Notepad')).toBeInTheDocument();
     expect(screen.getByLabelText('Terminal')).toBeInTheDocument();
-    expect(screen.getByLabelText('Files')).toBeInTheDocument();
+    expect(screen.getByLabelText('FilesApp')).toBeInTheDocument();
     expect(screen.getByLabelText('Settings')).toBeInTheDocument();
   });
 

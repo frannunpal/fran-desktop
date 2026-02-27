@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import FileList from '../components/FileList';
 import type { FSNode } from '@/Shared/Types/FileSystemTypes';
 
@@ -68,35 +67,35 @@ const mockNodes: FSNode[] = [
 export const Default: Story = {
   args: {
     nodes: mockNodes,
-    onNavigate: fn(),
-    onOpenFile: fn(),
-    onNodeContextMenu: fn(),
+    onNavigate: () => {},
+    onOpenFile: () => {},
+    onNodeContextMenu: () => {},
   },
 };
 
 export const EmptyFolder: Story = {
   args: {
     nodes: [],
-    onNavigate: fn(),
-    onOpenFile: fn(),
-    onNodeContextMenu: fn(),
+    onNavigate: () => {},
+    onOpenFile: () => {},
+    onNodeContextMenu: () => {},
   },
 };
 
 export const OnlyFolders: Story = {
   args: {
     nodes: mockNodes.filter(n => n.type === 'folder'),
-    onNavigate: fn(),
-    onOpenFile: fn(),
-    onNodeContextMenu: fn(),
+    onNavigate: () => {},
+    onOpenFile: () => {},
+    onNodeContextMenu: () => {},
   },
 };
 
 export const OnlyFiles: Story = {
   args: {
     nodes: mockNodes.filter(n => n.type === 'file'),
-    onNavigate: fn(),
-    onOpenFile: fn(),
-    onNodeContextMenu: fn(),
+    onNavigate: () => {},
+    onOpenFile: () => {},
+    onNodeContextMenu: () => {},
   },
 };

@@ -16,5 +16,6 @@ export interface WindowEntity {
   icon?: string;
   fcIcon?: string;
   canMaximize?: boolean;
+  alwaysOnTop?: boolean;
   contentData?: Record<string, unknown>;
 }

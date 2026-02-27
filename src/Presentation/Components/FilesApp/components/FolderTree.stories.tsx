@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import FolderTree from '../components/FolderTree';
 import type { FSNode } from '@/Shared/Types/FileSystemTypes';
 
@@ -82,7 +81,7 @@ export const Default: Story = {
   args: {
     allNodes: mockNodes,
     currentFolderId: 'folder-documents',
-    onNavigate: fn(),
+    onNavigate: () => {},
   },
 };
 
@@ -90,7 +89,7 @@ export const AtRoot: Story = {
   args: {
     allNodes: mockNodes,
     currentFolderId: null,
-    onNavigate: fn(),
+    onNavigate: () => {},
   },
 };
 
@@ -98,7 +97,7 @@ export const AtDesktop: Story = {
   args: {
     allNodes: mockNodes,
     currentFolderId: 'folder-desktop',
-    onNavigate: fn(),
+    onNavigate: () => {},
   },
 };
 
@@ -106,7 +105,7 @@ export const Empty: Story = {
   args: {
     allNodes: [],
     currentFolderId: null,
-    onNavigate: fn(),
+    onNavigate: () => {},
   },
 };
 
@@ -114,6 +113,6 @@ export const DeepNested: Story = {
   args: {
     allNodes: mockNodes,
     currentFolderId: 'folder-projects',
-    onNavigate: fn(),
+    onNavigate: () => {},
   },
 };

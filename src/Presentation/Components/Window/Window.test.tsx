@@ -17,13 +17,12 @@ vi.mock('@presentation/Hooks/useWindowButtonRegistry', () => ({
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
 
-const { useDesktopStore } = await import('@presentation/Store/desktopStore');
+const { useDesktopStore, resetWindowManager } = await import('@presentation/Store/desktopStore');
 const { default: Window } = await import('./Window');
-
 
 describe('Window component', () => {
   beforeEach(() => {
-    resetDesktopStore(useDesktopStore, localStorageMock);
+    resetDesktopStore(useDesktopStore, localStorageMock, resetWindowManager);
   });
 
   it('should render the window title', () => {
@@ -194,5 +193,59 @@ describe('Window component', () => {
     const focused = useDesktopStore.getState().windows.find(w => w.id === w1.id)!;
     const other = useDesktopStore.getState().windows.find(w => w.id === w2.id)!;
     expect(focused.zIndex).toBeGreaterThan(other.zIndex);
+  });
+
+  it('alwaysOnTop window should always have higher zIndex than normal windows', () => {
+    // Arrange — open a normal window and an alwaysOnTop window
+    useDesktopStore.getState().openWindow(makeWindowInput()); // normal
+    useDesktopStore.getState().openWindow(makeWindowInput({ alwaysOnTop: true })); // alwaysOnTop
+    const [normal, alwaysOnTop] = useDesktopStore.getState().windows;
+
+    // Assert — alwaysOnTop zIndex must exceed the normal window zIndex
+    expect(alwaysOnTop.zIndex).toBeGreaterThan(normal.zIndex);
+  });
+
+  it('focusing a normal window should not bring it above an alwaysOnTop window', () => {
+    // Arrange
+    useDesktopStore.getState().openWindow(makeWindowInput({ alwaysOnTop: true })); // alwaysOnTop
+    useDesktopStore.getState().openWindow(makeWindowInput()); // normal
+    const alwaysOnTopWin = useDesktopStore.getState().windows[0];
+    const normalWin = useDesktopStore.getState().windows[1];
+
+    // Act — focus the normal window
+    useDesktopStore.getState().focusWindow(normalWin.id);
+
+    // Assert — alwaysOnTop should still be on top
+    const updatedNormal = useDesktopStore.getState().windows.find(w => w.id === normalWin.id)!;
+    const updatedAlwaysOnTop = useDesktopStore
+      .getState()
+      .windows.find(w => w.id === alwaysOnTopWin.id)!;
+    expect(updatedAlwaysOnTop.zIndex).toBeGreaterThan(updatedNormal.zIndex);
+  });
+
+  it('alwaysOnTop window should show focus overlay when another alwaysOnTop window has higher zIndex', () => {
+    // Arrange — two alwaysOnTop windows
+    useDesktopStore.getState().openWindow(makeWindowInput({ alwaysOnTop: true })); // lower
+    useDesktopStore.getState().openWindow(makeWindowInput({ alwaysOnTop: true })); // higher
+    const lowerAlwaysOnTop = useDesktopStore.getState().windows[0];
+
+    // Act
+    render(<Window window={lowerAlwaysOnTop} />, { wrapper });
+
+    // Assert — lower alwaysOnTop window should show focus overlay
+    expect(screen.getByTestId('focus-overlay')).toBeInTheDocument();
+  });
+
+  it('normal window should not show focus overlay even when alwaysOnTop window has higher zIndex', () => {
+    // Arrange — one normal window (focused in its group) and one alwaysOnTop window above it
+    useDesktopStore.getState().openWindow(makeWindowInput()); // normal, zIndex 1
+    useDesktopStore.getState().openWindow(makeWindowInput({ alwaysOnTop: true })); // alwaysOnTop, zIndex > 10000
+    const normalWin = useDesktopStore.getState().windows[0];
+
+    // Act
+    render(<Window window={normalWin} />, { wrapper });
+
+    // Assert — normal window is focused within its group → no overlay
+    expect(screen.queryByTestId('focus-overlay')).not.toBeInTheDocument();
   });
 });

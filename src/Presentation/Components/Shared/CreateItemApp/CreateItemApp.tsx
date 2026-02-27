@@ -1,6 +1,5 @@
-import { type FC, useState, useEffect, createElement } from 'react';
+import { type FC, useState, createElement } from 'react';
 import {
-  Modal,
   Text,
   TextInput,
   Button,
@@ -10,15 +9,15 @@ import {
   ActionIcon,
 } from '@mantine/core';
 import * as VscIcons from 'react-icons/vsc';
+import { useDesktopStore } from '@presentation/Store/desktopStore';
 import IconColorPicker from '../IconColorPicker/IconColorPicker';
-import classes from './CreateItemModal.module.css';
+import classes from './CreateItemApp.module.css';
 
-export interface CreateItemModalProps {
-  opened: boolean;
-  mode: 'file' | 'folder';
-  currentPath: string;
-  onClose: () => void;
-  onConfirm: (name: string, iconName?: string, iconColor?: string) => void;
+export interface CreateItemAppProps {
+  windowId?: string;
+  mode?: 'file' | 'folder';
+  parentId?: string | null;
+  currentPath?: string;
 }
 
 const DEFAULT_ICON = 'VscFolder';
@@ -26,52 +25,48 @@ const DEFAULT_COLOR = '#228be6';
 const DEFAULT_FILE_NAME = 'New File';
 const DEFAULT_FOLDER_NAME = 'New Folder';
 
-const CreateItemModal: FC<CreateItemModalProps> = ({
-  opened,
-  mode,
-  currentPath,
-  onClose,
-  onConfirm,
+const CreateItemApp: FC<CreateItemAppProps> = ({
+  windowId,
+  mode = 'folder',
+  parentId = null,
+  currentPath = '/home',
 }) => {
   const [name, setName] = useState(mode === 'folder' ? DEFAULT_FOLDER_NAME : DEFAULT_FILE_NAME);
   const [iconName, setIconName] = useState(DEFAULT_ICON);
   const [iconColor, setIconColor] = useState(DEFAULT_COLOR);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
-  const handleOpen = () => {
-    setName(mode === 'folder' ? DEFAULT_FOLDER_NAME : DEFAULT_FILE_NAME);
-    setIconName(DEFAULT_ICON);
-    setIconColor(DEFAULT_COLOR);
-    setIconPickerOpen(false);
-  };
-
-  useEffect(() => () => handleOpen(), []);
+  const closeWindow = useDesktopStore(state => state.closeWindow);
+  const createFile = useDesktopStore(state => state.createFile);
+  const createFolder = useDesktopStore(state => state.createFolder);
 
   const handleConfirm = () => {
     if (!name.trim()) return;
-    onConfirm(
-      name.trim(),
-      mode === 'folder' ? iconName : undefined,
-      mode === 'folder' ? iconColor : undefined,
-    );
-    onClose();
+    if (mode === 'folder') {
+      createFolder(name.trim(), parentId ?? null, iconName, iconColor);
+    } else {
+      createFile(name.trim(), '', parentId ?? null);
+    }
+    if (windowId) {
+      closeWindow(windowId);
+    }
+  };
+
+  const handleCancel = () => {
+    if (windowId) {
+      closeWindow(windowId);
+    }
   };
 
   const PreviewIcon = VscIcons[iconName as keyof typeof VscIcons] as React.ElementType | undefined;
 
   return (
-    <Modal
-      opened={opened}
-      onClose={onClose}
-      title={
+    <div className={classes.root}>
+      <div className={classes.header}>
         <Text fw={600} size="sm">
           {mode === 'folder' ? 'Create new folder' : 'Create new file'} in {currentPath}:
         </Text>
-      }
-      size="md"
-      centered
-      onEnterTransitionEnd={handleOpen}
-    >
+      </div>
       <div className={classes.content}>
         <div className={classes.nameRow}>
           {mode === 'folder' && PreviewIcon && (
@@ -141,7 +136,7 @@ const CreateItemModal: FC<CreateItemModalProps> = ({
           <Button
             variant="default"
             size="sm"
-            onClick={onClose}
+            onClick={handleCancel}
             leftSection={<VscIcons.VscClose size={14} />}
           >
             Cancel
@@ -151,8 +146,8 @@ const CreateItemModal: FC<CreateItemModalProps> = ({
           </Button>
         </Group>
       </div>
-    </Modal>
+    </div>
   );
 };
 
-export default CreateItemModal;
+export default CreateItemApp;

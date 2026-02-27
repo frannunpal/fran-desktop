@@ -7,9 +7,11 @@ type LocalStorageMock = { clear: () => void };
 export const resetDesktopStore = (
   store: UseBoundStore<StoreApi<DesktopState>>,
   localStorageMock: LocalStorageMock,
+  extraReset?: () => void,
 ) => {
   localStorageMock.clear();
   vi.clearAllMocks();
+  extraReset?.();
   store.getState().setThemeMode('light');
   store.setState({ windows: [], icons: [], fsNodes: [] });
 };

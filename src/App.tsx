@@ -11,6 +11,7 @@ import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import PdfApp from '@presentation/Components/PdfApp/PdfApp';
 import FilesApp from '@presentation/Components/FilesApp/FilesApp';
+import CreateItemApp from '@presentation/Components/Shared/CreateItemApp/CreateItemApp';
 import CreateItemContextMenu from '@presentation/Components/ContextMenu/CreateItemContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
@@ -131,6 +132,14 @@ function App() {
                 {win.content === 'files' && (
                   <FilesApp
                     initialFolderId={win.contentData?.initialFolderId as string | null | undefined}
+                  />
+                )}
+                {win.content === 'createItem' && (
+                  <CreateItemApp
+                    windowId={win.id}
+                    mode={win.contentData?.mode as 'file' | 'folder'}
+                    parentId={win.contentData?.parentId as string | null}
+                    currentPath={win.contentData?.currentPath as string}
                   />
                 )}
               </Window>

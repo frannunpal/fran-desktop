@@ -11,9 +11,9 @@ import {
   VscClose,
 } from 'react-icons/vsc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
-import CreateItemModal from '@presentation/Components/Shared/CreateItemModal/CreateItemModal';
 import ContextMenuAnchor from './ContextMenuAnchor';
 import type { FSNode } from '@/Shared/Types/FileSystemTypes';
+import { randomWindowPosition } from '@shared/Constants/Animations';
 
 interface CreateItemContextMenuProps {
   owner: string;
@@ -42,11 +42,7 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
   const clipboard = useDesktopStore(state => state.clipboard);
   const clearClipboard = useDesktopStore(state => state.clearClipboard);
   const fsNodes = useDesktopStore(state => state.fsNodes);
-
-  const [modal, setModal] = useState<{ opened: boolean; mode: 'file' | 'folder' }>({
-    opened: false,
-    mode: 'folder',
-  });
+  const openWindow = useDesktopStore(state => state.openWindow);
 
   const [replaceConfirm, setReplaceConfirm] = useState<{
     opened: boolean;
@@ -60,17 +56,24 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
   const targetNodeId = contextMenu.targetNodeId;
   const targetNode = targetNodeId ? fsNodes.find(n => n.id === targetNodeId) : undefined;
 
-  const openModal = (mode: 'file' | 'folder') => {
+  const openCreateWindow = (mode: 'file' | 'folder') => {
     closeContextMenu();
-    setModal({ opened: true, mode });
-  };
-
-  const handleConfirm = (name: string, iconName?: string, iconColor?: string) => {
-    if (modal.mode === 'folder') {
-      createFolder(name, parentId, iconName, iconColor);
-    } else {
-      createFile(name, '', parentId);
-    }
+    const { x, y } = randomWindowPosition();
+    openWindow({
+      title: mode === 'folder' ? 'Create Folder' : 'Create File',
+      content: 'createItem',
+      icon: mode === 'folder' ? '📁' : '📄',
+      fcIcon: mode === 'folder' ? 'FcNewFolder' : 'FcFile',
+      x,
+      y,
+      width: 400,
+      height: 300,
+      minWidth: 350,
+      minHeight: 250,
+      canMaximize: false,
+      alwaysOnTop: true,
+      contentData: { mode, parentId, currentPath },
+    });
   };
 
   const handleDelete = () => {
@@ -181,11 +184,14 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
             <>
               <Menu.Item
                 leftSection={<VscNewFolder size={14} />}
-                onClick={() => openModal('folder')}
+                onClick={() => openCreateWindow('folder')}
               >
                 Create folder
               </Menu.Item>
-              <Menu.Item leftSection={<VscNewFile size={14} />} onClick={() => openModal('file')}>
+              <Menu.Item
+                leftSection={<VscNewFile size={14} />}
+                onClick={() => openCreateWindow('file')}
+              >
                 Create new file
               </Menu.Item>
               {canPaste && (
@@ -201,13 +207,6 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
           )}
         </Menu.Dropdown>
       </Menu>
-      <CreateItemModal
-        opened={modal.opened}
-        mode={modal.mode}
-        currentPath={currentPath}
-        onClose={() => setModal(m => ({ ...m, opened: false }))}
-        onConfirm={handleConfirm}
-      />
       <Modal
         opened={replaceConfirm.opened}
         onClose={() => handleReplaceConfirm(false)}

@@ -52,12 +52,20 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
   );
 
   const windowColor = useDesktopStore(state => state.theme.window);
-  const isFocused = useDesktopStore(
-    state =>
-      Math.max(
-        ...state.windows.filter(w => w.isOpen && w.state !== 'minimized').map(w => w.zIndex),
-      ) === win.zIndex,
-  );
+  // A window is focused when it has the highest zIndex within its own group
+  // (normal windows vs alwaysOnTop windows), ignoring minimized windows.
+  // Read this window's zIndex from the store (not the prop) to avoid stale comparisons
+  // after focusWindow updates state but before the parent re-renders.
+  const isFocused = useDesktopStore(state => {
+    const thisWindow = state.windows.find(w => w.id === win.id);
+    if (!thisWindow) return true;
+    const isAlwaysOnTop = thisWindow.alwaysOnTop ?? false;
+    const visibleInGroup = state.windows.filter(
+      w => w.isOpen && w.state !== 'minimized' && (w.alwaysOnTop ?? false) === isAlwaysOnTop,
+    );
+    if (visibleInGroup.length === 0) return true;
+    return Math.max(...visibleInGroup.map(w => w.zIndex)) === thisWindow.zIndex;
+  });
   const { getRect } = useWindowButtonRegistry();
   const controls = useAnimationControls();
   const prevStateRef = useRef(win.state);
