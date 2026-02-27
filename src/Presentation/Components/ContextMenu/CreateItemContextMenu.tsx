@@ -1,14 +1,29 @@
 import { type FC, useState } from 'react';
-import { Menu } from '@mantine/core';
-import { VscNewFolder, VscNewFile, VscFiles, VscClippy, VscTrash } from 'react-icons/vsc';
+import { Menu, Modal, Button, Text, Group } from '@mantine/core';
+import {
+  VscNewFolder,
+  VscNewFile,
+  VscFiles,
+  VscClippy,
+  VscTrash,
+  VscCopy,
+  VscCheck,
+  VscClose,
+} from 'react-icons/vsc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import CreateItemModal from '@presentation/Components/Shared/CreateItemModal/CreateItemModal';
 import ContextMenuAnchor from './ContextMenuAnchor';
+import type { FSNode } from '@/Shared/Types/FileSystemTypes';
 
 interface CreateItemContextMenuProps {
   owner: string;
   parentId: string | null;
   currentPath: string;
+}
+
+interface PendingPaste {
+  node: FSNode;
+  originalName: string;
 }
 
 const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
@@ -21,11 +36,24 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
   const createFile = useDesktopStore(state => state.createFile);
   const createFolder = useDesktopStore(state => state.createFolder);
   const deleteNode = useDesktopStore(state => state.deleteNode);
+  const moveNode = useDesktopStore(state => state.moveNode);
+  const copyToClipboard = useDesktopStore(state => state.copyToClipboard);
+  const cutToClipboard = useDesktopStore(state => state.cutToClipboard);
+  const clipboard = useDesktopStore(state => state.clipboard);
+  const clearClipboard = useDesktopStore(state => state.clearClipboard);
   const fsNodes = useDesktopStore(state => state.fsNodes);
 
   const [modal, setModal] = useState<{ opened: boolean; mode: 'file' | 'folder' }>({
     opened: false,
     mode: 'folder',
+  });
+
+  const [replaceConfirm, setReplaceConfirm] = useState<{
+    opened: boolean;
+    pending: PendingPaste | null;
+  }>({
+    opened: false,
+    pending: null,
   });
 
   const isOpen = contextMenu.owner === owner;
@@ -47,7 +75,80 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
 
   const handleDelete = () => {
     if (targetNodeId) deleteNode(targetNodeId);
+    closeContextMenu();
   };
+
+  const handleCut = () => {
+    if (targetNode) cutToClipboard([targetNode]);
+    closeContextMenu();
+  };
+
+  const handleCopy = () => {
+    if (targetNode) copyToClipboard([targetNode]);
+    closeContextMenu();
+  };
+
+  const findExistingNode = (name: string, parentFolderId: string | null): FSNode | undefined => {
+    return fsNodes.find(n => n.name === name && n.parentId === parentFolderId);
+  };
+
+  const executePaste = (node: FSNode, replaceExisting: boolean) => {
+    if (!parentId) return;
+
+    if (clipboard.action === 'cut') {
+      moveNode(node.id, parentId);
+    } else if (clipboard.action === 'copy') {
+      if (node.type === 'folder') {
+        const existingFolder = findExistingNode(node.name, parentId);
+        if (existingFolder && replaceExisting) {
+          deleteNode(existingFolder.id);
+        }
+        if (!existingFolder || replaceExisting) {
+          createFolder(node.name, parentId, node.iconName, node.iconColor);
+        }
+      } else if (node.type === 'file') {
+        const existingFile = findExistingNode(node.name, parentId);
+        if (existingFile && replaceExisting) {
+          deleteNode(existingFile.id);
+        }
+        if (!existingFile || replaceExisting) {
+          createFile(node.name, node.content, parentId);
+        }
+      }
+    }
+
+    if (clipboard.action === 'cut') {
+      clearClipboard();
+    }
+  };
+
+  const handlePasteClick = () => {
+    if (clipboard.content.length === 0 || !parentId) return;
+
+    const node = clipboard.content[0];
+    const existingNode = findExistingNode(node.name, parentId);
+
+    if (existingNode) {
+      setReplaceConfirm({
+        opened: true,
+        pending: { node, originalName: node.name },
+      });
+    } else {
+      executePaste(node, false);
+      closeContextMenu();
+    }
+  };
+
+  const handleReplaceConfirm = (replace: boolean) => {
+    if (replaceConfirm.pending) {
+      executePaste(replaceConfirm.pending.node, replace);
+    }
+    setReplaceConfirm({ opened: false, pending: null });
+    closeContextMenu();
+  };
+
+  const hasClipboardContent = clipboard.content.length > 0;
+  const canPaste = hasClipboardContent && parentId !== null;
 
   return (
     <>
@@ -65,10 +166,10 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
           {targetNode ? (
             <>
               <Menu.Label>{targetNode.name}</Menu.Label>
-              <Menu.Item leftSection={<VscFiles size={14} />} disabled>
+              <Menu.Item leftSection={<VscFiles size={14} />} onClick={handleCut}>
                 Cut
               </Menu.Item>
-              <Menu.Item leftSection={<VscClippy size={14} />} disabled>
+              <Menu.Item leftSection={<VscClippy size={14} />} onClick={handleCopy}>
                 Copy
               </Menu.Item>
               <Menu.Divider />
@@ -87,6 +188,15 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
               <Menu.Item leftSection={<VscNewFile size={14} />} onClick={() => openModal('file')}>
                 Create new file
               </Menu.Item>
+              {canPaste && (
+                <>
+                  <Menu.Divider />
+                  <Menu.Item leftSection={<VscCopy size={14} />} onClick={handlePasteClick}>
+                    Paste{' '}
+                    {clipboard.content.length > 1 ? `(${clipboard.content.length} items)` : ''}
+                  </Menu.Item>
+                </>
+              )}
             </>
           )}
         </Menu.Dropdown>
@@ -98,6 +208,35 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
         onClose={() => setModal(m => ({ ...m, opened: false }))}
         onConfirm={handleConfirm}
       />
+      <Modal
+        opened={replaceConfirm.opened}
+        onClose={() => handleReplaceConfirm(false)}
+        title={<Text fw={600}>Replace file?</Text>}
+        centered
+        size="sm"
+      >
+        <Text size="sm" mb="md">
+          A file named "{replaceConfirm.pending?.originalName}" already exists. Do you want to
+          replace it?
+        </Text>
+        <Group justify="flex-end">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => handleReplaceConfirm(false)}
+            leftSection={<VscClose size={14} />}
+          >
+            No
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => handleReplaceConfirm(true)}
+            leftSection={<VscCheck size={14} />}
+          >
+            Yes, replace
+          </Button>
+        </Group>
+      </Modal>
     </>
   );
 };

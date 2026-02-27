@@ -13,6 +13,7 @@ export interface IFileSystem {
     iconColor?: string,
   ): FolderNode;
   updateFile(id: string, content: string): FileNode;
+  move(id: string, newParentId: string | null): FSNode;
   delete(id: string): void;
   getRootNodes(): FSNode[];
   getAllNodes(): FSNode[];

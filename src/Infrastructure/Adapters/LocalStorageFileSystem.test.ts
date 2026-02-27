@@ -318,4 +318,64 @@ describe('LocalStorageFileSystem', () => {
       expect(folder.iconColor).toBeUndefined();
     });
   });
+
+  describe('move', () => {
+    it('should move a file to a different folder', () => {
+      // Arrange
+      const targetFolder = fs.createFolder('Target', null);
+      const file = fs.createFile('movable.txt', 'content', null);
+
+      // Act
+      const moved = fs.move(file.id, targetFolder.id);
+
+      // Assert
+      expect(moved.parentId).toBe(targetFolder.id);
+      expect(fs.getChildren(targetFolder.id).some(c => c.id === file.id)).toBe(true);
+    });
+
+    it('should move a file to root (null parentId)', () => {
+      // Arrange
+      const folder = fs.createFolder('Source', null);
+      const file = fs.createFile('to-root.txt', 'content', folder.id);
+
+      // Act
+      const moved = fs.move(file.id, null);
+
+      // Assert
+      expect(moved.parentId).toBeNull();
+    });
+
+    it('should remove file from old parent children', () => {
+      // Arrange
+      const oldFolder = fs.createFolder('OldParent', null);
+      const newFolder = fs.createFolder('NewParent', null);
+      const file = fs.createFile('move-child.txt', 'content', oldFolder.id);
+
+      // Act
+      fs.move(file.id, newFolder.id);
+
+      // Assert
+      const oldChildren = fs.getChildren(oldFolder.id);
+      const newChildren = fs.getChildren(newFolder.id);
+      expect(oldChildren.some(c => c.id === file.id)).toBe(false);
+      expect(newChildren.some(c => c.id === file.id)).toBe(true);
+    });
+
+    it('should throw for unknown node id', () => {
+      // Act & Assert
+      expect(() => fs.move('non-existent', null)).toThrow('Node not found: non-existent');
+    });
+
+    it('should persist the move to localStorage', () => {
+      // Arrange
+      const folder = fs.createFolder('Target', null);
+      const file = fs.createFile('persist-move.txt', 'content', null);
+
+      // Act
+      fs.move(file.id, folder.id);
+
+      // Assert
+      expect(localStorageMock.setItem).toHaveBeenCalled();
+    });
+  });
 });

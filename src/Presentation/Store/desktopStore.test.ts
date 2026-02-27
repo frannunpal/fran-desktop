@@ -428,4 +428,104 @@ describe('desktopStore', () => {
       expect(useDesktopStore.getState().theme.mode).toBe('light');
     });
   });
+
+  // ── Clipboard ───────────────────────────────────────────────────────────────
+  describe('clipboard', () => {
+    it('should start with empty clipboard', () => {
+      const { clipboard } = useDesktopStore.getState();
+      expect(clipboard.content).toHaveLength(0);
+      expect(clipboard.action).toBeNull();
+    });
+
+    it('should copy nodes to clipboard', () => {
+      // Arrange
+      const file = useDesktopStore.getState().createFile('copy-test.txt', 'content', null);
+
+      // Act
+      useDesktopStore.getState().copyToClipboard([file]);
+
+      // Assert
+      const { clipboard } = useDesktopStore.getState();
+      expect(clipboard.content).toHaveLength(1);
+      expect(clipboard.content[0].name).toBe('copy-test.txt');
+      expect(clipboard.action).toBe('copy');
+    });
+
+    it('should cut nodes to clipboard', () => {
+      // Arrange
+      const file = useDesktopStore.getState().createFile('cut-test.txt', 'content', null);
+
+      // Act
+      useDesktopStore.getState().cutToClipboard([file]);
+
+      // Assert
+      const { clipboard } = useDesktopStore.getState();
+      expect(clipboard.content).toHaveLength(1);
+      expect(clipboard.content[0].name).toBe('cut-test.txt');
+      expect(clipboard.action).toBe('cut');
+    });
+
+    it('should clear clipboard', () => {
+      // Arrange
+      const file = useDesktopStore.getState().createFile('clear-test.txt', 'content', null);
+      useDesktopStore.getState().copyToClipboard([file]);
+
+      // Act
+      useDesktopStore.getState().clearClipboard();
+
+      // Assert
+      const { clipboard } = useDesktopStore.getState();
+      expect(clipboard.content).toHaveLength(0);
+      expect(clipboard.action).toBeNull();
+    });
+  });
+
+  // ── Move Node ───────────────────────────────────────────────────────────────
+  describe('moveNode', () => {
+    it('should move a file to a different folder', () => {
+      // Arrange
+      const targetFolder = useDesktopStore.getState().createFolder('Target', null);
+      const file = useDesktopStore.getState().createFile('movable.txt', 'content', null);
+
+      // Act
+      useDesktopStore.getState().moveNode(file.id, targetFolder.id);
+
+      // Assert
+      const { fsNodes } = useDesktopStore.getState();
+      const movedFile = fsNodes.find(n => n.id === file.id);
+      expect(movedFile?.parentId).toBe(targetFolder.id);
+    });
+
+    it('should move a file to root (null parentId)', () => {
+      // Arrange
+      const folder = useDesktopStore.getState().createFolder('Source', null);
+      const file = useDesktopStore.getState().createFile('to-root.txt', 'content', folder.id);
+
+      // Act
+      useDesktopStore.getState().moveNode(file.id, null);
+
+      // Assert
+      const { fsNodes } = useDesktopStore.getState();
+      const movedFile = fsNodes.find(n => n.id === file.id);
+      expect(movedFile?.parentId).toBeNull();
+    });
+
+    it('should remove file from old parent children array', () => {
+      // Arrange
+      const oldFolder = useDesktopStore.getState().createFolder('OldParent', null);
+      const newFolder = useDesktopStore.getState().createFolder('NewParent', null);
+      const file = useDesktopStore.getState().createFile('move-child.txt', 'content', oldFolder.id);
+
+      // Act
+      useDesktopStore.getState().moveNode(file.id, newFolder.id);
+
+      // Assert
+      const { fsNodes } = useDesktopStore.getState();
+      const oldFolderNode = fsNodes.find(n => n.id === oldFolder.id) as { children?: string[] };
+      const newFolderNode = fsNodes.find(n => n.id === newFolder.id) as { children?: string[] };
+
+      expect(oldFolderNode?.children).not.toContain(file.id);
+      expect(newFolderNode?.children).toContain(file.id);
+    });
+  });
 });

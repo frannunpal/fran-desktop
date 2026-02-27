@@ -142,7 +142,10 @@ export const useDesktopStore = create<DesktopState>()(
             if (!alreadyAdded) {
               const pos = nextFreeIconSlot(get().icons);
               set(state => ({
-                icons: [...state.icons, createDesktopIcon({ name: app.name, icon: app.icon, ...pos, appId })],
+                icons: [
+                  ...state.icons,
+                  createDesktopIcon({ name: app.name, icon: app.icon, ...pos, appId }),
+                ],
               }));
             }
           });
@@ -240,10 +243,30 @@ export const useDesktopStore = create<DesktopState>()(
         }
       },
 
+      moveNode: (id, newParentId) => {
+        fileSystem.move(id, newParentId);
+        set({ fsNodes: fileSystem.getAllNodes() });
+      },
+
+      // ── Clipboard ────────────────────────────────────────────────────────────
+      clipboard: { content: [], action: null },
+
+      copyToClipboard: nodes => {
+        set({ clipboard: { content: nodes, action: 'copy' } });
+      },
+
+      cutToClipboard: nodes => {
+        set({ clipboard: { content: nodes, action: 'cut' } });
+      },
+
+      clearClipboard: () => {
+        set({ clipboard: { content: [], action: null } });
+      },
+
       // ── Files app ───────────────────────────────────────────────────────────
       filesCurrentFolderId: null,
 
-      setFilesCurrentFolderId: (id) => {
+      setFilesCurrentFolderId: id => {
         set({ filesCurrentFolderId: id });
       },
 

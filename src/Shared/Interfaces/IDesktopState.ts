@@ -1,11 +1,18 @@
 import type { WindowInput } from '@/Shared/Types/WindowTypes';
-import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 import type { FSNode } from '@/Shared/Types/FileSystemTypes';
 import type { FileNode } from './FileNode';
 import type { FolderNode } from './FolderNode';
 import type { Theme, ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import type { DesktopIconInput } from '@/Shared/Types/DesktopIconTypes';
 import type { DesktopIconEntity } from '@/Shared/Interfaces/IDesktopIcon';
+
+export type ClipboardAction = 'copy' | 'cut' | null;
+
+export interface ClipboardState {
+  content: FSNode[];
+  action: ClipboardAction;
+}
 
 export interface DesktopState {
   // Window slice
@@ -37,6 +44,13 @@ export interface DesktopState {
   initFs: () => Promise<void>;
   updateFile: (id: string, content: string) => void;
   deleteNode: (id: string) => void;
+  moveNode: (id: string, newParentId: string | null) => void;
+
+  // Clipboard slice
+  clipboard: ClipboardState;
+  copyToClipboard: (nodes: FSNode[]) => void;
+  cutToClipboard: (nodes: FSNode[]) => void;
+  clearClipboard: () => void;
 
   // Context menu slice
   contextMenu: { x: number; y: number; owner: string | null; targetNodeId?: string };

@@ -117,6 +117,28 @@ export class LocalStorageFileSystem implements IFileSystem {
     return updated;
   }
 
+  move(id: string, newParentId: string | null): FSNode {
+    const node = this.nodes.get(id);
+    if (!node) throw new Error(`Node not found: ${id}`);
+
+    // Remove from old parent
+    if (node.parentId) {
+      this.removeChildFromParent(node);
+    }
+
+    // Update node with new parent
+    const updated = { ...node, parentId: newParentId };
+    this.nodes.set(id, updated);
+
+    // Add to new parent
+    if (newParentId) {
+      this.addChildToFolder(newParentId, id);
+    }
+
+    this.persist();
+    return updated;
+  }
+
   delete(id: string): void {
     const node = this.nodes.get(id);
     if (!node) return;
