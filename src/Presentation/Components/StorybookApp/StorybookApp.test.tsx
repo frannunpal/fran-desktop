@@ -16,6 +16,14 @@ describe('StorybookApp', () => {
     expect(iframe).toHaveAttribute('src', 'https://frannunpal.github.io/fran-desktop/storybook/');
   });
 
+  it('should render an iframe element', () => {
+    // Act
+    render(<StorybookApp />);
+
+    // Assert
+    expect(screen.getByTitle('Storybook').tagName).toBe('IFRAME');
+  });
+
   it('should have an accessible label', () => {
     // Act
     render(<StorybookApp />);
