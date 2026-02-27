@@ -4,7 +4,7 @@ import { Text } from '@mantine/core';
 import { FcDebian } from 'react-icons/fc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
-import type { LauncherProps } from '@shared/Interfaces/ComponentProps';
+import type { LauncherProps } from '@/Shared/Interfaces/IComponentProps';
 import { panelVariants, randomWindowPosition } from '@shared/Constants/Animations';
 import { useFcIcon } from '@presentation/Hooks/useFcIcon';
 import classes from './Launcher.module.css';

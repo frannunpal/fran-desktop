@@ -1,8 +1,22 @@
 import { createFile, createFolder } from '@domain/Entities/FileSystem';
-import type { FSNode, FileNode, FolderNode } from '@domain/Entities/FileSystem';
-import type { IFileSystem } from '@application/Ports/IFileSystem';
+import type { FSNode } from '@domain/Entities/FileSystem';
+import type { FileNode } from '@/Shared/Interfaces/FileNode';
+import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
+import type { IFileSystem } from '@/Shared/Interfaces/IFileSystem';
 
 const STORAGE_KEY = 'fran-desktop:filesystem';
+
+export interface FsManifestFile {
+  name: string;
+  folder: string;
+  mimeType: string;
+  url: string;
+}
+
+export interface FsManifest {
+  folders: string[];
+  files: FsManifestFile[];
+}
 
 export class LocalStorageFileSystem implements IFileSystem {
   private nodes: Map<string, FSNode>;
@@ -27,6 +41,30 @@ export class LocalStorageFileSystem implements IFileSystem {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   }
 
+  isEmpty(): boolean {
+    return this.nodes.size === 0;
+  }
+
+  seed(manifest: FsManifest): void {
+    const folderMap = new Map<string, FolderNode>();
+    for (const name of manifest.folders) {
+      const folder = createFolder(name, null);
+      this.nodes.set(folder.id, folder);
+      folderMap.set(name, folder);
+    }
+    for (const f of manifest.files) {
+      const parent = folderMap.get(f.folder);
+      const file = createFile(f.name, '', parent?.id ?? null, f.mimeType, f.url);
+      this.nodes.set(file.id, file);
+      if (parent) {
+        const updated: FolderNode = { ...parent, children: [...parent.children, file.id] };
+        this.nodes.set(parent.id, updated);
+        folderMap.set(f.folder, updated);
+      }
+    }
+    this.persist();
+  }
+
   getNode(id: string): FSNode | undefined {
     return this.nodes.get(id);
   }
@@ -41,6 +79,10 @@ export class LocalStorageFileSystem implements IFileSystem {
     return Array.from(this.nodes.values()).filter(n => n.parentId === null);
   }
 
+  getAllNodes(): FSNode[] {
+    return Array.from(this.nodes.values());
+  }
+
   createFile(name: string, content: string, parentId: string | null): FileNode {
     const file = createFile(name, content, parentId);
     this.nodes.set(file.id, file);
@@ -49,8 +91,13 @@ export class LocalStorageFileSystem implements IFileSystem {
     return file;
   }
 
-  createFolder(name: string, parentId: string | null): FolderNode {
-    const folder = createFolder(name, parentId);
+  createFolder(
+    name: string,
+    parentId: string | null,
+    iconName?: string,
+    iconColor?: string,
+  ): FolderNode {
+    const folder = createFolder(name, parentId, { iconName, iconColor });
     this.nodes.set(folder.id, folder);
     if (parentId) this.addChildToFolder(parentId, folder.id);
     this.persist();

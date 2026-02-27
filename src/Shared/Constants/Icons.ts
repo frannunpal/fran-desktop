@@ -1,0 +1,18 @@
+export const PRESET_ICONS = [
+  'VscFolder',
+  'VscFolderOpened',
+  'VscHome',
+  'VscServer',
+  'VscDatabase',
+  'VscBook',
+  'VscMail',
+  'VscGithub',
+  'VscCloud',
+  'VscLock',
+  'VscSettingsGear',
+  'VscStar',
+  'VscHeart',
+  'VscMusic',
+  'VscCamera',
+  'VscArchive',
+];

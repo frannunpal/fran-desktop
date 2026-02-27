@@ -1,0 +1,17 @@
+{
+  "folders": ["Desktop", "Documents", "Images"],
+  "files": [
+    {
+      "name": "CV_2026_English.pdf",
+      "folder": "Desktop",
+      "mimeType": "application/pdf",
+      "url": "Desktop/CV_2026_English.pdf"
+    },
+    {
+      "name": "wallpaper.jpg",
+      "folder": "Images",
+      "mimeType": "image/jpg",
+      "url": "Images/wallpaper.jpg"
+    }
+  ]
+}

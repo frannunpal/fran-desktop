@@ -12,8 +12,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
 import { useFcIcon } from '@presentation/Hooks/useFcIcon';
-import type { WindowProps } from '@shared/Interfaces/ComponentProps';
-import type { WindowEntity } from '@domain/Entities/Window';
+import type { WindowProps } from '@/Shared/Interfaces/IComponentProps';
+import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
 import {
   windowVariants,
   minimizeVariant,

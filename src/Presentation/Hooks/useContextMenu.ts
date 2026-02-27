@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { MouseEvent } from 'react';
-import type { MenuPosition } from '@shared/Interfaces/MenuPosition';
+import type { MenuPosition } from '@/Shared/Interfaces/IMenuPosition';
 
 interface UseContextMenuReturn {
   opened: boolean;

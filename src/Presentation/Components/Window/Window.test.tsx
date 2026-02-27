@@ -2,7 +2,7 @@
 import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import type { WindowEntity } from '@domain/Entities/Window';
+import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
 import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
 import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';

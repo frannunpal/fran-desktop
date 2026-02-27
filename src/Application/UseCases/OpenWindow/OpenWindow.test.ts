@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { openWindow } from './OpenWindow';
 import { createMockWindowManager } from '@/Shared/Testing/__mocks__/IWindowManager.mock';
-import type { IWindowManager } from '@application/Ports/IWindowManager';
-import type { WindowEntity, WindowInput } from '@domain/Entities/Window';
+import type { IWindowManager } from '@/Shared/Interfaces/IWindowManager';
+import type { WindowInput } from '@domain/Entities/Window';
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 
 const mockWindow: WindowEntity = {
   id: 'abc-123',

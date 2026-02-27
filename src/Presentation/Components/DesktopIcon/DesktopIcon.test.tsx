@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import type { ReactNode } from 'react';
-import type { DesktopIconEntity } from '@domain/Entities/DesktopIcon';
+import type { DesktopIconEntity } from "@/Shared/Interfaces/IDesktopIcon";
 
 const { default: DesktopIcon } = await import('./DesktopIcon');
 

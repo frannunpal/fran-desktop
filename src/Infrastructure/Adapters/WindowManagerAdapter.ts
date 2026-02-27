@@ -1,6 +1,7 @@
 import { createWindow } from '@domain/Entities/Window';
-import type { WindowEntity, WindowInput } from '@domain/Entities/Window';
-import type { IWindowManager } from '@application/Ports/IWindowManager';
+import type { WindowInput } from '@domain/Entities/Window';
+import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
+import type { IWindowManager } from '@/Shared/Interfaces/IWindowManager';
 
 export class WindowManagerAdapter implements IWindowManager {
   private windows: Map<string, WindowEntity> = new Map();

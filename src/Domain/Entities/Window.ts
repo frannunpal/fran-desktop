@@ -1,22 +1,6 @@
-export type WindowState = 'normal' | 'minimized' | 'maximized';
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 
-export interface WindowEntity {
-  id: string;
-  title: string;
-  content: string; // app identifier
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  minWidth: number;
-  minHeight: number;
-  isOpen: boolean;
-  state: WindowState;
-  zIndex: number;
-  icon?: string;
-  fcIcon?: string;
-  canMaximize?: boolean;
-}
+export type WindowState = 'normal' | 'minimized' | 'maximized';
 
 export type WindowInput = Omit<WindowEntity, 'id' | 'isOpen' | 'state' | 'zIndex'>;
 

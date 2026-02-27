@@ -1,28 +1,16 @@
+import type { CreateFolderOptions } from '../../Shared/Interfaces/CreateFolderOptions';
+import type { FileNode } from '@/Shared/Interfaces/FileNode';
+import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
+
 export type FileSystemNodeType = 'file' | 'folder';
-
-export interface FileSystemNode {
-  id: string;
-  name: string;
-  type: FileSystemNodeType;
-  parentId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface FileNode extends FileSystemNode {
-  type: 'file';
-  content: string;
-  mimeType: string;
-}
-
-export interface FolderNode extends FileSystemNode {
-  type: 'folder';
-  children: string[]; // child node ids
-}
 
 export type FSNode = FileNode | FolderNode;
 
-export const createFolder = (name: string, parentId: string | null = null): FolderNode => ({
+export const createFolder = (
+  name: string,
+  parentId: string | null = null,
+  options: CreateFolderOptions = {},
+): FolderNode => ({
   id: crypto.randomUUID(),
   name,
   type: 'folder',
@@ -30,6 +18,7 @@ export const createFolder = (name: string, parentId: string | null = null): Fold
   children: [],
   createdAt: new Date(),
   updatedAt: new Date(),
+  ...options,
 });
 
 export const createFile = (
@@ -37,6 +26,7 @@ export const createFile = (
   content: string,
   parentId: string | null = null,
   mimeType = 'text/plain',
+  url?: string,
 ): FileNode => ({
   id: crypto.randomUUID(),
   name,
@@ -46,4 +36,5 @@ export const createFile = (
   parentId,
   createdAt: new Date(),
   updatedAt: new Date(),
+  ...(url !== undefined ? { url } : {}),
 });

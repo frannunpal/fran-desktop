@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Menu } from '@mantine/core';
-import type { TaskbarContextMenuProps } from '@shared/Interfaces/ComponentProps';
+import type { TaskbarContextMenuProps } from '@/Shared/Interfaces/IComponentProps';
 import ContextMenuAnchor from '@presentation/Components/ContextMenu/ContextMenuAnchor';
 
 const TaskbarContextMenu: FC<TaskbarContextMenuProps> = ({

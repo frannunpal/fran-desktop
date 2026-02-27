@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { closeWindow } from './CloseWindow';
 import { createMockWindowManager } from '@/Shared/Testing/__mocks__/IWindowManager.mock';
-import type { IWindowManager } from '@application/Ports/IWindowManager';
+import type { IWindowManager } from '@/Shared/Interfaces/IWindowManager';
 
 describe('closeWindow use case', () => {
   let manager: IWindowManager;

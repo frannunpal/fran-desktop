@@ -37,6 +37,15 @@ export interface DesktopState {
   updateFile: (id: string, content: string) => void;
   deleteNode: (id: string) => void;
 
+  // Context menu slice
+  contextMenu: { x: number; y: number; owner: string | null };
+  openContextMenu: (x: number, y: number, owner: string) => void;
+  closeContextMenu: () => void;
+
+  // Files app slice
+  filesCurrentFolderId: string | null;
+  setFilesCurrentFolderId: (id: string | null) => void;
+
   // Theme slice
   theme: Theme;
   themeSetManually: boolean;

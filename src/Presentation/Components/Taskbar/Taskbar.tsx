@@ -11,7 +11,7 @@ import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import TaskbarContextMenu from '@presentation/Components/TaskbarContextMenu/TaskbarContextMenu';
 import classes from './Taskbar.module.css';
 import { FcElectronics } from 'react-icons/fc';
-import type { WindowEntity } from '@domain/Entities/Window';
+import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
 
 interface WindowButtonIconProps {
   win: WindowEntity;

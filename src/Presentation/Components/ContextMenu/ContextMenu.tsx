@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Menu } from '@mantine/core';
-import type { DesktopContextMenuProps } from '@shared/Interfaces/ComponentProps';
+import type { DesktopContextMenuProps } from '@/Shared/Interfaces/IComponentProps';
 import { APPS } from '@shared/Constants/apps';
 import ContextMenuAnchor from './ContextMenuAnchor';
 

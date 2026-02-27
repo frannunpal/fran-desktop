@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LocalStorageFileSystem } from './LocalStorageFileSystem';
+import type { FsManifest } from './LocalStorageFileSystem';
 import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
 
 const localStorageMock = createLocalStorageMock();
@@ -147,7 +148,9 @@ describe('LocalStorageFileSystem', () => {
 
     it('should throw for unknown id', () => {
       // Act & Assert
-      expect(() => fs.updateFile('non-existent', 'content')).toThrow('File not found: non-existent');
+      expect(() => fs.updateFile('non-existent', 'content')).toThrow(
+        'File not found: non-existent',
+      );
     });
 
     it('should throw when trying to update a folder', () => {
@@ -219,6 +222,100 @@ describe('LocalStorageFileSystem', () => {
     it('should start empty when localStorage has no data', () => {
       // Assert
       expect(fs.getRootNodes()).toEqual([]);
+    });
+  });
+
+  describe('isEmpty', () => {
+    it('should return true when no nodes exist', () => {
+      // Assert
+      expect(fs.isEmpty()).toBe(true);
+    });
+
+    it('should return false after creating a folder', () => {
+      // Act
+      fs.createFolder('Desktop', null);
+
+      // Assert
+      expect(fs.isEmpty()).toBe(false);
+    });
+  });
+
+  describe('seed', () => {
+    it('should create folders from manifest', () => {
+      // Arrange
+      const manifest: FsManifest = {
+        folders: ['Desktop', 'Documents'],
+        files: [],
+      };
+
+      // Act
+      fs.seed(manifest);
+
+      // Assert
+      const roots = fs.getRootNodes();
+      expect(roots).toHaveLength(2);
+      expect(roots.map(n => n.name)).toEqual(expect.arrayContaining(['Desktop', 'Documents']));
+    });
+
+    it('should create files inside the correct folder', () => {
+      // Arrange
+      const manifest: FsManifest = {
+        folders: ['Desktop'],
+        files: [
+          { name: 'CV.pdf', folder: 'Desktop', mimeType: 'application/pdf', url: 'Desktop/CV.pdf' },
+        ],
+      };
+
+      // Act
+      fs.seed(manifest);
+
+      // Assert
+      const desktopFolder = fs.getRootNodes().find(n => n.name === 'Desktop')!;
+      const children = fs.getChildren(desktopFolder.id);
+      expect(children).toHaveLength(1);
+      expect(children[0].name).toBe('CV.pdf');
+    });
+
+    it('should set url and mimeType on seeded files', () => {
+      // Arrange
+      const manifest: FsManifest = {
+        folders: ['Desktop'],
+        files: [
+          { name: 'CV.pdf', folder: 'Desktop', mimeType: 'application/pdf', url: 'Desktop/CV.pdf' },
+        ],
+      };
+
+      // Act
+      fs.seed(manifest);
+
+      // Assert
+      const desktopFolder = fs.getRootNodes().find(n => n.name === 'Desktop')!;
+      const file = fs.getChildren(desktopFolder.id)[0];
+      expect(file.type).toBe('file');
+      if (file.type === 'file') {
+        expect(file.url).toBe('Desktop/CV.pdf');
+        expect(file.mimeType).toBe('application/pdf');
+      }
+    });
+  });
+
+  describe('createFolder with icon options', () => {
+    it('should store iconName and iconColor when provided', () => {
+      // Act
+      const folder = fs.createFolder('MyFolder', null, 'VscHome', '#ff6b6b');
+
+      // Assert
+      expect(folder.iconName).toBe('VscHome');
+      expect(folder.iconColor).toBe('#ff6b6b');
+    });
+
+    it('should create folder without icon options when not provided', () => {
+      // Act
+      const folder = fs.createFolder('PlainFolder', null);
+
+      // Assert
+      expect(folder.iconName).toBeUndefined();
+      expect(folder.iconColor).toBeUndefined();
     });
   });
 });

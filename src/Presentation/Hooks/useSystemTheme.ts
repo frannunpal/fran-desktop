@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { ThemeMode } from '@application/Ports/IThemeProvider';
+import type { ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 
 const getSystemMode = (): ThemeMode =>

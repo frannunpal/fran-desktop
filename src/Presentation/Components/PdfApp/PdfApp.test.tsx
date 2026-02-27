@@ -15,12 +15,20 @@ describe('PdfApp component', () => {
     expect(screen.getByTitle('CV')).toBeInTheDocument();
   });
 
-  it('should have the correct PDF src', () => {
+  it('should have the default PDF src when no prop provided', () => {
     // Act
     render(<PdfApp />, { wrapper });
 
     // Assert
-    expect(screen.getByTitle('CV')).toHaveAttribute('src', 'CV_2026_English.pdf');
+    expect(screen.getByTitle('CV')).toHaveAttribute('src', 'Desktop/CV_2026_English.pdf');
+  });
+
+  it('should use the provided src prop', () => {
+    // Act
+    render(<PdfApp src="Documents/report.pdf" />, { wrapper });
+
+    // Assert
+    expect(screen.getByTitle('CV')).toHaveAttribute('src', 'Documents/report.pdf');
   });
 
   it('should have an accessible label', () => {

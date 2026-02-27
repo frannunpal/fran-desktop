@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import Window from './Window';
-import type { WindowEntity } from '@domain/Entities/Window';
+import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 
 // Storybook needs a real store for Window — provide a minimal mock via decorators

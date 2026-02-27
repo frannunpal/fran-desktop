@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Text } from '@mantine/core';
-import type { DesktopIconProps } from '@shared/Interfaces/ComponentProps';
+import type { DesktopIconProps } from '@/Shared/Interfaces/IComponentProps';
 import classes from './DesktopIcon.module.css';
 
 const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick }) => {

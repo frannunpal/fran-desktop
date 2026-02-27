@@ -1,4 +1,4 @@
-import type { IThemeProvider, Theme, ThemeMode } from '@application/Ports/IThemeProvider';
+import type { IThemeProvider, Theme, ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 
 const THEMES: Record<ThemeMode, Theme> = {
   light: {

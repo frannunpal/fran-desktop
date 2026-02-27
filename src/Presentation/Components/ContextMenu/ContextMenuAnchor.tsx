@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Menu } from '@mantine/core';
-import type { MenuPosition } from '@shared/Interfaces/MenuPosition';
+import type { MenuPosition } from '@/Shared/Interfaces/IMenuPosition';
 
 const ContextMenuAnchor: FC<MenuPosition> = ({ x, y }) => (
   <Menu.Target>

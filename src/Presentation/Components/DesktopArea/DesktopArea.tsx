@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
-import type { DesktopAreaProps } from '@shared/Interfaces/ComponentProps';
-import wallpaper from '/wallpaper.jpg';
+import type { DesktopAreaProps } from '@/Shared/Interfaces/IComponentProps';
+import wallpaper from '/Images/wallpaper.jpg';
 import classes from './DesktopArea.module.css';
 
 const DesktopArea: FC<DesktopAreaProps> = ({ children, onContextMenu }) => {

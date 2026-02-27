@@ -37,7 +37,7 @@ describe('DesktopArea', () => {
     const root = container.firstChild as HTMLElement;
 
     // Assert
-    expect(root.style.backgroundImage).toBe('url("/wallpaper.jpg")');
+    expect(root.style.backgroundImage).toBe('url("/Images/wallpaper.jpg")');
     expect(root.style.backgroundColor).toBe('rgb(240, 244, 248)');
   });
 
@@ -50,7 +50,7 @@ describe('DesktopArea', () => {
     const root = container.firstChild as HTMLElement;
 
     // Assert
-    expect(root.style.backgroundImage).toBe('url("/wallpaper.jpg")');
+    expect(root.style.backgroundImage).toBe('url("/Images/wallpaper.jpg")');
     expect(root.style.backgroundColor).toBe('rgb(26, 27, 30)');
   });
 });

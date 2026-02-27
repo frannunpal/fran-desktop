@@ -4,8 +4,8 @@ import { WindowManagerAdapter } from '@infrastructure/Adapters/WindowManagerAdap
 import { LocalStorageFileSystem } from '@infrastructure/Adapters/LocalStorageFileSystem';
 import { DefaultThemeProvider } from '@infrastructure/Adapters/DefaultThemeProvider';
 import { createDesktopIcon } from '@domain/Entities/DesktopIcon';
-import type { DesktopState } from '@shared/Interfaces/DesktopState';
-import type { ThemeMode } from '@application/Ports/IThemeProvider';
+import type { DesktopState } from '@/Shared/Interfaces/IDesktopState';
+import type { ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import { APPS } from '@shared/Constants/apps';
 
 // ─── Adapters (singleton, not persisted) ────────────────────────────────────
@@ -22,11 +22,35 @@ const persistedMode = (() => {
 })();
 const themeProvider = new DefaultThemeProvider(persistedMode ?? 'light');
 
+// ─── Guards ───────────────────────────────────────────────────────────────────
+let fsInitStarted = false;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const getDesktopFolderId = (): string | null => {
+  const roots = fileSystem.getRootNodes();
+  return roots.find(n => n.type === 'folder' && n.name === 'Desktop')?.id ?? null;
+};
+
+const ICON_COL_W = 80;
+const ICON_ROW_H = 80;
+const ICON_MARGIN = 20;
+
+const nextFreeIconSlot = (icons: { x: number; y: number }[]): { x: number; y: number } => {
+  const occupied = new Set(icons.map(ic => `${ic.x},${ic.y}`));
+  for (let col = 0; ; col++) {
+    const x = ICON_MARGIN + col * ICON_COL_W;
+    for (let row = 0; row < 8; row++) {
+      const y = ICON_MARGIN + row * ICON_ROW_H;
+      if (!occupied.has(`${x},${y}`)) return { x, y };
+    }
+  }
+};
+
 // ─── Store ───────────────────────────────────────────────────────────────────
 export const useDesktopStore = create<DesktopState>()(
   persist(
-    set => ({
-      // ── Windows ──────────────────────────────────────────────────────────
+    (set, get) => ({
+      // ── Windows ────────────────────────────────────────────────────────────
       windows: [],
 
       openWindow: input => {
@@ -83,7 +107,7 @@ export const useDesktopStore = create<DesktopState>()(
         }));
       },
 
-      // ── Desktop icons ─────────────────────────────────────────────────────
+      // ── Desktop icons ───────────────────────────────────────────────────────
       icons: [],
 
       addIcon: input => {
@@ -95,32 +119,112 @@ export const useDesktopStore = create<DesktopState>()(
         set(state => ({ icons: state.icons.filter(i => i.id !== id) }));
       },
 
-      // ── FileSystem ────────────────────────────────────────────────────────
-      fsNodes: fileSystem.getRootNodes(),
+      // ── FileSystem ──────────────────────────────────────────────────────────
+      fsNodes: fileSystem.getAllNodes(),
+
+      initFs: async () => {
+        if (fsInitStarted || !fileSystem.isEmpty()) return;
+        fsInitStarted = true;
+        try {
+          const manifest = await fetch(`${import.meta.env.BASE_URL}fs-manifest.json`).then(r =>
+            r.json(),
+          );
+          fileSystem.seed(manifest);
+          set({ fsNodes: fileSystem.getAllNodes() });
+
+          // Sync Desktop/ files to desktop icons
+          const desktopFolderId = getDesktopFolderId();
+          if (!desktopFolderId) return;
+          const desktopFiles = fileSystem.getChildren(desktopFolderId);
+          const { icons } = get();
+          desktopFiles.forEach(node => {
+            if (node.type !== 'file') return;
+            const alreadyOnDesktop = icons.some(ic => ic.name === node.name);
+            if (!alreadyOnDesktop) {
+              const pos = nextFreeIconSlot(get().icons);
+              const icon = createDesktopIcon({
+                name: node.name,
+                icon: '📄',
+                ...pos,
+                appId: node.mimeType === 'application/pdf' ? 'pdf' : 'files',
+              });
+              set(state => ({ icons: [...state.icons, icon] }));
+            }
+          });
+        } catch {
+          fsInitStarted = false; // allow retry on network error
+        }
+      },
 
       createFile: (name, content, parentId) => {
         const file = fileSystem.createFile(name, content, parentId);
-        set({ fsNodes: fileSystem.getRootNodes() });
+        set({ fsNodes: fileSystem.getAllNodes() });
+
+        // Sync to desktop if file is in Desktop folder
+        const desktopFolderId = getDesktopFolderId();
+        if (parentId && parentId === desktopFolderId) {
+          const { icons } = get();
+          if (!icons.some(ic => ic.name === file.name)) {
+            const pos = nextFreeIconSlot(icons);
+            const icon = createDesktopIcon({
+              name: file.name,
+              icon: '📄',
+              ...pos,
+              appId: file.mimeType === 'application/pdf' ? 'pdf' : 'files',
+            });
+            set(state => ({ icons: [...state.icons, icon] }));
+          }
+        }
+
         return file;
       },
 
-      createFolder: (name, parentId) => {
-        const folder = fileSystem.createFolder(name, parentId);
-        set({ fsNodes: fileSystem.getRootNodes() });
+      createFolder: (name, parentId, iconName, iconColor) => {
+        const folder = fileSystem.createFolder(name, parentId, iconName, iconColor);
+        set({ fsNodes: fileSystem.getAllNodes() });
         return folder;
       },
 
       updateFile: (id, content) => {
         fileSystem.updateFile(id, content);
-        set({ fsNodes: fileSystem.getRootNodes() });
+        set({ fsNodes: fileSystem.getAllNodes() });
       },
 
       deleteNode: id => {
+        const node = fileSystem.getNode(id);
         fileSystem.delete(id);
-        set({ fsNodes: fileSystem.getRootNodes() });
+        set({ fsNodes: fileSystem.getAllNodes() });
+
+        // Remove desktop icon if deleted file was in Desktop/
+        if (node?.type === 'file') {
+          const desktopFolderId = getDesktopFolderId();
+          if (node.parentId && node.parentId === desktopFolderId) {
+            set(state => ({
+              icons: state.icons.filter(ic => ic.name !== node.name),
+            }));
+          }
+        }
       },
 
-      // ── Theme ─────────────────────────────────────────────────────────────
+      // ── Files app ───────────────────────────────────────────────────────────
+      filesCurrentFolderId: null,
+
+      setFilesCurrentFolderId: (id) => {
+        set({ filesCurrentFolderId: id });
+      },
+
+      // ── Context menu ────────────────────────────────────────────────────────
+      contextMenu: { x: 0, y: 0, owner: null },
+
+      openContextMenu: (x, y, owner) => {
+        set({ contextMenu: { x, y, owner } });
+      },
+
+      closeContextMenu: () => {
+        set({ contextMenu: { x: 0, y: 0, owner: null } });
+      },
+
+      // ── Theme ───────────────────────────────────────────────────────────────
       theme: themeProvider.getTheme(),
       themeSetManually: persistedMode !== null,
 

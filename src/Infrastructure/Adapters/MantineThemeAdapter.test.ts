@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { toMantineTheme } from './MantineThemeAdapter';
-import type { Theme } from '@application/Ports/IThemeProvider';
+import type { Theme } from '@/Shared/Interfaces/IThemeProvider';
 
 const lightTheme: Theme = {
   mode: 'light',

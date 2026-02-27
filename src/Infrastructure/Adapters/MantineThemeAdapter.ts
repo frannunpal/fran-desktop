@@ -1,5 +1,5 @@
 import type { MantineThemeOverride } from '@mantine/core';
-import type { Theme } from '@application/Ports/IThemeProvider';
+import type { Theme } from '@/Shared/Interfaces/IThemeProvider';
 
 export const toMantineTheme = (theme: Theme): MantineThemeOverride => ({
   primaryColor: 'blue',

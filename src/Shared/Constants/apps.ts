@@ -1,5 +1,5 @@
-export type { AppEntry } from '@shared/Interfaces/AppEntry';
-import type { AppEntry } from '@shared/Interfaces/AppEntry';
+export type { AppEntry } from '@/Shared/Interfaces/IAppEntry';
+import type { AppEntry } from '@/Shared/Interfaces/IAppEntry';
 
 export const DEFAULT_WINDOW_DIMENSIONS = {
   defaultWidth: 600,
