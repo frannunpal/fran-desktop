@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/static-components */
 import { type FC, useState, useRef, useEffect } from 'react';
-import { Text, Popover } from '@mantine/core';
+import { Text, Popover, Notification } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useClock } from '@presentation/Hooks/useClock';
 import { useFcIcon } from '@presentation/Hooks/useFcIcon';
@@ -10,7 +10,7 @@ import Launcher from '@presentation/Components/Launcher/Launcher';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import TaskbarContextMenu from '@presentation/Components/TaskbarContextMenu/TaskbarContextMenu';
 import classes from './Taskbar.module.css';
-import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 
 interface WindowButtonIconProps {
   win: WindowEntity;
@@ -20,6 +20,18 @@ const WindowButtonIcon: FC<WindowButtonIconProps> = ({ win }) => {
   const FcIcon = useFcIcon(win.fcIcon ?? '');
   if (FcIcon) return <FcIcon size={14} />;
   if (win.icon) return <span aria-hidden="true">{win.icon}</span>;
+  return null;
+};
+
+const NotifButtonIcon: FC<{ open: boolean }> = ({ open }) => {
+  const FcIcon = useFcIcon(open ? 'FcCollapse' : 'FcExpand');
+  if (FcIcon) return <FcIcon size={18} style={{ display: 'block' }} />;
+  return null;
+};
+
+const NotificationIcon: FC<{ fcIcon?: string }> = ({ fcIcon }) => {
+  const FcIcon = useFcIcon(fcIcon ?? '');
+  if (FcIcon) return <FcIcon size={18} style={{ display: 'block' }} />;
   return null;
 };
 
@@ -61,6 +73,8 @@ const WindowButton: FC<WindowButtonProps> = ({ win, onClick, onContextMenu }) =>
 const Taskbar: FC = () => {
   const taskbar = useDesktopStore(state => state.theme.taskbar);
   const themeMode = useDesktopStore(state => state.theme.mode);
+  const notifications = useDesktopStore(state => state.notifications);
+  const removeNotification = useDesktopStore(state => state.removeNotification);
   const windows = useDesktopStore(state => state.windows);
   const restoreWindow = useDesktopStore(state => state.restoreWindow);
   const minimizeWindow = useDesktopStore(state => state.minimizeWindow);
@@ -69,7 +83,16 @@ const Taskbar: FC = () => {
   const toggleTheme = useDesktopStore(state => state.toggleTheme);
   const time = useClock();
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [targetWindowId, setTargetWindowId] = useState<string | null>(null);
+
+  const prevNotifLenRef = useRef(0);
+  useEffect(() => {
+    if (notifications.length > prevNotifLenRef.current) {
+      setNotifOpen(true); // eslint-disable-line react-hooks/set-state-in-effect
+    }
+    prevNotifLenRef.current = notifications.length;
+  }, [notifications.length]);
 
   const windowMenu = useContextMenu(-8);
   const panelMenu = useContextMenu(-8);
@@ -108,6 +131,51 @@ const Taskbar: FC = () => {
           />
         ))}
         <div className={classes.systemTray}>
+          <Popover
+            opened={notifOpen}
+            onChange={setNotifOpen}
+            position="top-end"
+            shadow="md"
+            withArrow
+            keepMounted
+          >
+            <Popover.Target>
+              <button
+                className={classes.notifButton}
+                onClick={() => setNotifOpen(o => !o)}
+                aria-label={notifOpen ? 'Hide notifications' : 'Show notifications'}
+              >
+                <NotifButtonIcon open={notifOpen} />
+              </button>
+            </Popover.Target>
+            <Popover.Dropdown style={{ background: 'transparent', border: 'none', padding: 0 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 300 }}>
+                {notifications.length === 0 ? (
+                  <Notification
+                    title="There are no new notifications"
+                    onClose={() => setNotifOpen(false)}
+                  >
+                    For now
+                  </Notification>
+                ) : (
+                  notifications.map(n => (
+                    <Notification
+                      key={n.id}
+                      withBorder
+                      icon={<NotificationIcon fcIcon={n.fcIcon} />}
+                      title={n.title}
+                      onClose={() => {
+                        removeNotification(n.id);
+                        n.onClose?.();
+                      }}
+                    >
+                      {n.message}
+                    </Notification>
+                  ))
+                )}
+              </div>
+            </Popover.Dropdown>
+          </Popover>
           <button
             className={classes.themeToggle}
             onClick={toggleTheme}

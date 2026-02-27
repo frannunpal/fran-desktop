@@ -4,7 +4,7 @@ import { WindowManagerAdapter } from '@infrastructure/Adapters/WindowManagerAdap
 import { LocalStorageFileSystem } from '@infrastructure/Adapters/LocalStorageFileSystem';
 import { DefaultThemeProvider } from '@infrastructure/Adapters/DefaultThemeProvider';
 import { createDesktopIcon } from '@domain/Entities/DesktopIcon';
-import type { DesktopState } from '@/Shared/Interfaces/IDesktopState';
+import type { DesktopState, NotificationItem } from '@/Shared/Interfaces/IDesktopState';
 import type { ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import { APPS } from '@shared/Constants/apps';
 import { getFsInitStarted, setFsInitStarted } from './fsInitFlag';
@@ -296,6 +296,53 @@ export const useDesktopStore = create<DesktopState>()(
       toggleTheme: () => {
         themeProvider.toggle();
         set({ theme: themeProvider.getTheme(), themeSetManually: true });
+      },
+
+      // ── Update ──────────────────────────────────────────────────────────────
+      mergeSeed: manifest => {
+        fileSystem.mergeSeed(manifest);
+        set({ fsNodes: fileSystem.getAllNodes(), desktopFolderId: getDesktopFolderId() });
+      },
+
+      mergeDesktopApps: appIds => {
+        for (const appId of appIds) {
+          const app = APPS.find(a => a.id === appId);
+          if (!app) continue;
+          if (get().icons.some(ic => ic.appId === appId)) continue;
+          const pos = nextFreeIconSlot(get().icons);
+          set(state => ({
+            icons: [
+              ...state.icons,
+              createDesktopIcon({ name: app.name, icon: app.icon, ...pos, appId }),
+            ],
+          }));
+        }
+        const desktopFolderId = getDesktopFolderId();
+        if (!desktopFolderId) return;
+        for (const node of fileSystem.getChildren(desktopFolderId)) {
+          if (node.type !== 'file') continue;
+          if (get().icons.some(ic => ic.name === node.name)) continue;
+          const pos = nextFreeIconSlot(get().icons);
+          const icon = createDesktopIcon({
+            name: node.name,
+            icon: '📄',
+            ...pos,
+            appId: node.mimeType === 'application/pdf' ? 'pdf' : 'files',
+            nodeId: node.id,
+          });
+          set(state => ({ icons: [...state.icons, icon] }));
+        }
+      },
+
+      // ── Notifications ────────────────────────────────────────────────────────
+      notifications: [] as NotificationItem[],
+
+      addNotification: item => {
+        set(state => ({ notifications: [...state.notifications, item] }));
+      },
+
+      removeNotification: id => {
+        set(state => ({ notifications: state.notifications.filter(n => n.id !== id) }));
       },
     }),
     {

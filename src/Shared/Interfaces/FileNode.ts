@@ -5,4 +5,6 @@ export interface FileNode extends FileSystemNode {
   content: string;
   mimeType: string;
   url?: string;
+  iconName: string;
+  iconColor: string;
 }

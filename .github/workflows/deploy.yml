@@ -35,6 +35,10 @@ jobs:
       - name: Build app
         run: bun run build
 
+      - name: Generate version.json
+        run: |
+          echo "{\"sha\":\"$(git rev-parse --short HEAD)\",\"buildAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > dist/version.json
+
       - name: Build Storybook
         run: bun run build-storybook --output-dir dist/storybook
 

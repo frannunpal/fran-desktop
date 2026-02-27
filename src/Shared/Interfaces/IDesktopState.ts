@@ -6,6 +6,7 @@ import type { FolderNode } from './FolderNode';
 import type { Theme, ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import type { DesktopIconInput } from '@/Shared/Types/DesktopIconTypes';
 import type { DesktopIconEntity } from '@/Shared/Interfaces/IDesktopIcon';
+import type { FsManifest } from '@/Infrastructure/Adapters/LocalStorageFileSystem';
 
 export type ClipboardAction = 'copy' | 'cut' | null;
 
@@ -66,4 +67,21 @@ export interface DesktopState {
   themeSetManually: boolean;
   setThemeMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
+
+  // Update slice
+  mergeSeed: (manifest: FsManifest) => void;
+  mergeDesktopApps: (appIds: string[]) => void;
+
+  // Notifications slice
+  notifications: NotificationItem[];
+  addNotification: (item: NotificationItem) => void;
+  removeNotification: (id: string) => void;
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  onClose?: () => void;
+  fcIcon?: string;
 }

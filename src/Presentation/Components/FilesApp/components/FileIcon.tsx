@@ -22,7 +22,7 @@ const EXTENSION_ICONS: Record<string, keyof typeof VscIcons> = {
   css: 'VscFileCode',
 };
 
-const FileIcon: FC<FileIconProps> = ({ type, name = '', folderNode, size = 20 }) => {
+const FileIcon: FC<FileIconProps> = ({ type, name = '', folderNode, fileNode, size = 20 }) => {
   if (type === 'folder') {
     if (folderNode?.iconName) {
       const Icon = VscIcons[folderNode.iconName as keyof typeof VscIcons] as
@@ -37,6 +37,19 @@ const FileIcon: FC<FileIconProps> = ({ type, name = '', folderNode, size = 20 })
       }
     }
     return createElement(VscIcons.VscFolder, { size, 'aria-hidden': 'true' });
+  }
+
+  if (type === 'file' && fileNode?.iconName) {
+    const Icon = VscIcons[fileNode.iconName as keyof typeof VscIcons] as
+      | React.ElementType
+      | undefined;
+    if (Icon) {
+      return createElement(Icon, {
+        size,
+        color: fileNode.iconColor ?? undefined,
+        'aria-hidden': 'true',
+      });
+    }
   }
 
   const ext = getFileExtension(name);

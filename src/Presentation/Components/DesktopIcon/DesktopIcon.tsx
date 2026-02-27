@@ -31,12 +31,13 @@ const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick, onContextMenu 
             updatedAt: new Date(),
           }}
           size={32}
+          iconName={''}
         />
       );
     }
 
     if (isFileIcon || isPdf) {
-      return <FileIcon type="file" name={icon.name} size={32} />;
+      return <FileIcon type="file" name={icon.name} size={32} iconName={''} />;
     }
 
     if (FcIcon) {
@@ -50,12 +51,12 @@ const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick, onContextMenu 
     <div
       className={classes.root}
       style={{ left: icon.x, top: icon.y }}
-      onDoubleClick={() => onDoubleClick(icon.appId, icon.nodeId)}
+      onDoubleClick={() => onDoubleClick(icon.appId ?? '', icon.nodeId)}
       onContextMenu={icon.nodeId ? e => onContextMenu(e, icon.nodeId!) : undefined}
       role="button"
       aria-label={icon.name}
       tabIndex={0}
-      onKeyDown={e => e.key === 'Enter' && onDoubleClick(icon.appId, icon.nodeId)}
+      onKeyDown={e => e.key === 'Enter' && onDoubleClick(icon.appId ?? '', icon.nodeId)}
     >
       <span className={classes.iconImage} aria-hidden="true">
         {renderIcon()}

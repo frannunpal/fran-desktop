@@ -69,6 +69,39 @@ export class LocalStorageFileSystem implements IFileSystem {
     this.persist();
   }
 
+  mergeSeed(manifest: FsManifest): void {
+    const folderMap = new Map<string, FolderNode>();
+
+    for (const name of manifest.folders) {
+      const existing = this.getRootNodes().find(n => n.type === 'folder' && n.name === name) as
+        | FolderNode
+        | undefined;
+      if (existing) {
+        folderMap.set(name, existing);
+      } else {
+        const folder = createFolder(name, null);
+        this.nodes.set(folder.id, folder);
+        folderMap.set(name, folder);
+      }
+    }
+
+    for (const f of manifest.files) {
+      const parent = folderMap.get(f.folder);
+      if (!parent) continue;
+      const alreadyExists = this.getChildren(parent.id).some(
+        n => n.type === 'file' && n.name === f.name,
+      );
+      if (alreadyExists) continue;
+      const file = createFile(f.name, '', parent.id, f.mimeType, f.url);
+      this.nodes.set(file.id, file);
+      const updatedParent: FolderNode = { ...parent, children: [...parent.children, file.id] };
+      this.nodes.set(parent.id, updatedParent);
+      folderMap.set(f.folder, updatedParent);
+    }
+
+    this.persist();
+  }
+
   getNode(id: string): FSNode | undefined {
     return this.nodes.get(id);
   }

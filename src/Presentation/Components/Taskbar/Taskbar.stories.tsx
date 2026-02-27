@@ -9,25 +9,78 @@ const meta: Meta<typeof Taskbar> = {
   component: Taskbar,
   parameters: { layout: 'fullscreen' },
   decorators: [
-    Story => {
-      useEffect(() => {
-        useDesktopStore.setState({ windows: [], icons: [] });
-      }, []);
-      return (
-        <WindowButtonRegistryProvider>
-          <div style={{ height: '100vh', background: 'var(--mantine-color-body)' }}>
-            <Story />
-          </div>
-        </WindowButtonRegistryProvider>
-      );
-    },
+    Story => (
+      <WindowButtonRegistryProvider>
+        <div style={{ height: '100vh', background: 'var(--mantine-color-body)' }}>
+          <Story />
+        </div>
+      </WindowButtonRegistryProvider>
+    ),
   ],
 };
 
 export default meta;
 type Story = StoryObj<typeof Taskbar>;
 
-export const Empty: Story = {};
+export const Empty: Story = {
+  decorators: [
+    Story => {
+      useEffect(() => {
+        useDesktopStore.setState({ windows: [], icons: [], notifications: [] });
+      }, []);
+      return <Story />;
+    },
+  ],
+};
+
+export const WithNotifications: Story = {
+  decorators: [
+    Story => {
+      useEffect(() => {
+        useDesktopStore.setState({ windows: [], icons: [], notifications: [] });
+        useDesktopStore.getState().addNotification({
+          id: 'app-update',
+          title: 'New version available!',
+          message: 'Close this notification to install it.',
+          onClose: () => window.location.reload(),
+          fcIcon: 'FcEngineering',
+        });
+      }, []);
+      return <Story />;
+    },
+  ],
+};
+
+export const WithNotificationsAndWindows: Story = {
+  decorators: [
+    Story => {
+      useEffect(() => {
+        useDesktopStore.setState({ windows: [], icons: [], notifications: [] });
+        const open = useDesktopStore.getState().openWindow;
+        open({
+          title: 'Notepad',
+          content: 'notepad',
+          icon: '📝',
+          fcIcon: 'FcEditImage',
+          x: 0,
+          y: 0,
+          width: 600,
+          height: 400,
+          minWidth: 200,
+          minHeight: 150,
+        });
+        useDesktopStore.getState().addNotification({
+          id: 'app-update',
+          title: 'New version available!',
+          message: 'Close this notification to install it.',
+          onClose: () => window.location.reload(),
+          fcIcon: 'FcEngineering',
+        });
+      }, []);
+      return <Story />;
+    },
+  ],
+};
 
 export const WithWindows: Story = {
   decorators: [

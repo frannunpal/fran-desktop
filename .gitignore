@@ -26,3 +26,9 @@ coverage/*
 coverage
 
 .claude
+
+# Local dev only — CI generates this at build time
+public/version.json
+
+#KDE directory customizations
+.directory

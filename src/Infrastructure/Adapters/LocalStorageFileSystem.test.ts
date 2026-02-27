@@ -299,6 +299,136 @@ describe('LocalStorageFileSystem', () => {
     });
   });
 
+  describe('mergeSeed', () => {
+    it('should create a folder that does not exist yet', () => {
+      // Arrange
+      const manifest: FsManifest = { folders: ['Desktop'], files: [] };
+
+      // Act
+      fs.mergeSeed(manifest);
+
+      // Assert
+      const roots = fs.getRootNodes();
+      expect(roots.some(n => n.name === 'Desktop')).toBe(true);
+    });
+
+    it('should not create a duplicate folder when one with the same name already exists', () => {
+      // Arrange
+      fs.createFolder('Desktop', null);
+      const manifest: FsManifest = { folders: ['Desktop'], files: [] };
+
+      // Act
+      fs.mergeSeed(manifest);
+
+      // Assert
+      const desktopFolders = fs.getRootNodes().filter(n => n.name === 'Desktop');
+      expect(desktopFolders).toHaveLength(1);
+    });
+
+    it('should create a file that does not exist yet in its parent folder', () => {
+      // Arrange
+      const manifest: FsManifest = {
+        folders: ['Desktop'],
+        files: [
+          { name: 'CV.pdf', folder: 'Desktop', mimeType: 'application/pdf', url: 'Desktop/CV.pdf' },
+        ],
+      };
+
+      // Act
+      fs.mergeSeed(manifest);
+
+      // Assert
+      const desktop = fs.getRootNodes().find(n => n.name === 'Desktop')!;
+      const children = fs.getChildren(desktop.id);
+      expect(children.some(n => n.name === 'CV.pdf')).toBe(true);
+    });
+
+    it('should not create a duplicate file when one with the same name already exists in the folder', () => {
+      // Arrange
+      const folder = fs.createFolder('Desktop', null);
+      fs.createFile('CV.pdf', '', folder.id);
+      const manifest: FsManifest = {
+        folders: ['Desktop'],
+        files: [
+          { name: 'CV.pdf', folder: 'Desktop', mimeType: 'application/pdf', url: 'Desktop/CV.pdf' },
+        ],
+      };
+
+      // Act
+      fs.mergeSeed(manifest);
+
+      // Assert
+      const children = fs.getChildren(folder.id);
+      expect(children.filter(n => n.name === 'CV.pdf')).toHaveLength(1);
+    });
+
+    it('should not delete user-created files outside the manifest', () => {
+      // Arrange
+      const folder = fs.createFolder('Desktop', null);
+      const userFile = fs.createFile('my-notes.txt', 'private', folder.id);
+      const manifest: FsManifest = {
+        folders: ['Desktop'],
+        files: [
+          { name: 'CV.pdf', folder: 'Desktop', mimeType: 'application/pdf', url: 'Desktop/CV.pdf' },
+        ],
+      };
+
+      // Act
+      fs.mergeSeed(manifest);
+
+      // Assert
+      expect(fs.getNode(userFile.id)).toBeDefined();
+    });
+
+    it('should not delete user-created folders outside the manifest', () => {
+      // Arrange
+      const userFolder = fs.createFolder('MyStuff', null);
+      const manifest: FsManifest = { folders: ['Desktop'], files: [] };
+
+      // Act
+      fs.mergeSeed(manifest);
+
+      // Assert
+      expect(fs.getNode(userFolder.id)).toBeDefined();
+    });
+
+    it('should persist to localStorage after merge', () => {
+      // Arrange
+      vi.clearAllMocks();
+      const manifest: FsManifest = { folders: ['Desktop'], files: [] };
+
+      // Act
+      fs.mergeSeed(manifest);
+
+      // Assert
+      expect(localStorageMock.setItem).toHaveBeenCalled();
+    });
+
+    it('should work correctly on a completely empty filesystem', () => {
+      // Arrange
+      const manifest: FsManifest = {
+        folders: ['Desktop', 'Documents'],
+        files: [
+          {
+            name: 'readme.txt',
+            folder: 'Documents',
+            mimeType: 'text/plain',
+            url: 'Documents/readme.txt',
+          },
+        ],
+      };
+
+      // Act
+      fs.mergeSeed(manifest);
+
+      // Assert
+      const roots = fs.getRootNodes();
+      expect(roots.map(n => n.name)).toEqual(expect.arrayContaining(['Desktop', 'Documents']));
+      const docs = roots.find(n => n.name === 'Documents')!;
+      expect(fs.getChildren(docs.id).some(n => n.name === 'readme.txt')).toBe(true);
+    });
+  });
+
   describe('createFolder with icon options', () => {
     it('should store iconName and iconColor when provided', () => {
       // Act

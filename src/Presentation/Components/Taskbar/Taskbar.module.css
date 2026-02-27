@@ -84,3 +84,24 @@
 .clock:hover {
   background: var(--color-surface-hover);
 }
+
+.notifButton {
+  height: 28px;
+  width: 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-bg);
+  color: inherit;
+  overflow: visible;
+  padding: 0;
+  line-height: 0;
+}
+
+.notifButton:hover {
+  background: var(--color-surface-hover);
+}

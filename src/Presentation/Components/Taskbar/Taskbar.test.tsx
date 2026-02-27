@@ -6,13 +6,18 @@ import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
 import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
 import { makeWindowInput } from '@/Shared/Testing/Utils/makeWindowInput';
+import type { NotificationItem } from '@/Shared/Interfaces/IDesktopState';
 
 vi.mock('@presentation/Hooks/useClock', () => ({ useClock: () => '10:30' }));
 vi.mock('@presentation/Components/Launcher/Launcher', () => ({
   default: () => <button aria-label="Launcher">⊞</button>,
 }));
 vi.mock('@presentation/Hooks/useWindowButtonRegistry', () => ({
-  useWindowButtonRegistry: () => ({ register: vi.fn(), unregister: vi.fn(), getRect: () => undefined }),
+  useWindowButtonRegistry: () => ({
+    register: vi.fn(),
+    unregister: vi.fn(),
+    getRect: () => undefined,
+  }),
 }));
 
 const localStorageMock = createLocalStorageMock();
@@ -22,6 +27,13 @@ const { useDesktopStore } = await import('@presentation/Store/desktopStore');
 const { default: Taskbar } = await import('./Taskbar');
 
 const baseInput = makeWindowInput({ title: 'Notepad', width: 600, height: 400 });
+
+const makeNotification = (overrides: Partial<NotificationItem> = {}): NotificationItem => ({
+  id: 'test-notif',
+  title: 'Test notification',
+  message: 'Test message',
+  ...overrides,
+});
 
 describe('Taskbar component', () => {
   beforeEach(() => {
@@ -133,5 +145,56 @@ describe('Taskbar component', () => {
 
     // Assert
     expect(useDesktopStore.getState().theme.mode).toBe('dark');
+  });
+
+  it('should always render the notification button', () => {
+    // Act
+    render(<Taskbar />, { wrapper });
+
+    // Assert
+    expect(screen.getByLabelText('Show notifications')).toBeInTheDocument();
+  });
+
+  it('should show the empty state when opened with no notifications', () => {
+    // Arrange
+    useDesktopStore.setState({ notifications: [] });
+    render(<Taskbar />, { wrapper });
+
+    // Act
+    fireEvent.click(screen.getByLabelText('Show notifications'));
+
+    // Assert
+    expect(document.body.querySelector('.mantine-Notification-root')).toBeInTheDocument();
+  });
+
+  it('should auto-open the panel and show Hide label when notifications are present on mount', () => {
+    // Arrange
+    useDesktopStore.setState({ notifications: [makeNotification({ title: 'Test notification' })] });
+
+    // Act
+    render(<Taskbar />, { wrapper });
+
+    // Assert — panel auto-opens because notifications.length > 0
+    expect(screen.getByLabelText('Hide notifications')).toBeInTheDocument();
+  });
+
+  it('should call the notification onClose and remove it when closed', () => {
+    // Arrange
+    const onCloseMock = vi.fn();
+    useDesktopStore.setState({
+      notifications: [makeNotification({ id: 'n1', title: 'Alert', onClose: onCloseMock })],
+    });
+    render(<Taskbar />, { wrapper });
+    // Panel auto-opens because notifications.length > 0
+
+    // Act — close the notification (keepMounted renders it in document.body portal)
+    const closeBtn = document.body.querySelector(
+      '.mantine-Notification-closeButton',
+    ) as HTMLElement;
+    fireEvent.click(closeBtn);
+
+    // Assert
+    expect(onCloseMock).toHaveBeenCalledOnce();
+    expect(useDesktopStore.getState().notifications).toHaveLength(0);
   });
 });
