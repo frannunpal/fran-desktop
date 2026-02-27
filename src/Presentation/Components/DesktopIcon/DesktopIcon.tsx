@@ -3,12 +3,13 @@ import { Text } from '@mantine/core';
 import type { DesktopIconProps } from '@/Shared/Interfaces/IComponentProps';
 import classes from './DesktopIcon.module.css';
 
-const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick }) => {
+const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick, onContextMenu }) => {
   return (
     <div
       className={classes.root}
       style={{ left: icon.x, top: icon.y }}
       onDoubleClick={() => onDoubleClick(icon.appId, icon.nodeId)}
+      onContextMenu={icon.nodeId ? e => onContextMenu(e, icon.nodeId!) : undefined}
       role="button"
       aria-label={icon.name}
       tabIndex={0}

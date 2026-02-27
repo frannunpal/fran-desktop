@@ -11,6 +11,7 @@ export interface WindowProps {
 export interface DesktopIconProps {
   icon: DesktopIconEntity;
   onDoubleClick: (appId: string, nodeId?: string) => void;
+  onContextMenu: (e: React.MouseEvent, nodeId: string) => void;
 }
 
 export interface DesktopContextMenuProps {

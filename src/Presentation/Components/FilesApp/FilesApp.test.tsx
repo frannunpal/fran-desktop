@@ -75,7 +75,7 @@ const mockStore = {
   createFile: vi.fn(),
   createFolder: vi.fn(),
   openWindow: vi.fn(),
-  contextMenu: { x: 0, y: 0, owner: null as string | null },
+  contextMenu: { x: 0, y: 0, owner: null as string | null, targetNodeId: undefined as string | undefined },
   openContextMenu: vi.fn(),
   closeContextMenu: vi.fn(),
 };
@@ -163,6 +163,40 @@ describe('FilesApp', () => {
 
     // Assert
     expect(screen.getByLabelText('Open file CV_2026_English.pdf')).toBeInTheDocument();
+  });
+
+  it('should call openContextMenu with nodeId on right-click of a file list item', () => {
+    // Arrange
+    const { rerender } = render(<FilesApp />, { wrapper });
+    fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
+    rerender(<FilesApp />);
+
+    // Act
+    fireEvent.contextMenu(screen.getByLabelText('Open file CV_2026_English.pdf'));
+
+    // Assert
+    expect(mockStore.openContextMenu).toHaveBeenCalledWith(
+      expect.any(Number),
+      expect.any(Number),
+      'files',
+      'file-cv',
+    );
+  });
+
+  it('should call openContextMenu without nodeId on right-click on empty area', () => {
+    // Arrange
+    render(<FilesApp />, { wrapper });
+    const rootDiv = screen.getByLabelText('Files').closest('[class]') as HTMLElement;
+
+    // Act
+    fireEvent.contextMenu(rootDiv ?? document.body);
+
+    // Assert
+    expect(mockStore.openContextMenu).toHaveBeenCalledWith(
+      expect.any(Number),
+      expect.any(Number),
+      'files',
+    );
   });
 
   it('should call openWindow with pdf content on double-click of PDF file', () => {

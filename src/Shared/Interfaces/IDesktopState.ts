@@ -39,8 +39,8 @@ export interface DesktopState {
   deleteNode: (id: string) => void;
 
   // Context menu slice
-  contextMenu: { x: number; y: number; owner: string | null };
-  openContextMenu: (x: number, y: number, owner: string) => void;
+  contextMenu: { x: number; y: number; owner: string | null; targetNodeId?: string };
+  openContextMenu: (x: number, y: number, owner: string, targetNodeId?: string) => void;
   closeContextMenu: () => void;
 
   // Files app slice

@@ -1,13 +1,12 @@
 import type { FC } from 'react';
 import { Text, UnstyledButton } from '@mantine/core';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
-import type { FolderNode } from "@/Shared/Interfaces/FolderNode";
+import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
 import FileIcon from './FileIcon';
 import classes from './FileList.module.css';
-import type { FileListProps } from '@/Shared/Interfaces/IFileListProps';
-import type { FileListItemProps } from '@/Shared/Interfaces/IFileListItemProps';
+import type { FileListProps, FileListItemProps } from '@/Shared/Interfaces/IFileListProps';
 
-const FileListItem: FC<FileListItemProps> = ({ node, onNavigate, onOpenFile }) => {
+const FileListItem: FC<FileListItemProps> = ({ node, onNavigate, onOpenFile, onContextMenu }) => {
   const handleDoubleClick = () => {
     if (node.type === 'folder') {
       onNavigate(node.id);
@@ -22,6 +21,7 @@ const FileListItem: FC<FileListItemProps> = ({ node, onNavigate, onOpenFile }) =
     <UnstyledButton
       className={classes.item}
       onDoubleClick={handleDoubleClick}
+      onContextMenu={e => onContextMenu(e, node.id)}
       aria-label={label}
       role="option"
     >
@@ -40,7 +40,7 @@ const FileListItem: FC<FileListItemProps> = ({ node, onNavigate, onOpenFile }) =
   );
 };
 
-const FileList: FC<FileListProps> = ({ nodes, onNavigate, onOpenFile }) => {
+const FileList: FC<FileListProps> = ({ nodes, onNavigate, onOpenFile, onNodeContextMenu }) => {
   if (nodes.length === 0) {
     return (
       <div className={classes.empty}>
@@ -61,7 +61,13 @@ const FileList: FC<FileListProps> = ({ nodes, onNavigate, onOpenFile }) => {
   return (
     <div className={classes.grid} role="listbox" aria-label="Files">
       {sorted.map(node => (
-        <FileListItem key={node.id} node={node} onNavigate={onNavigate} onOpenFile={onOpenFile} />
+        <FileListItem
+          key={node.id}
+          node={node}
+          onNavigate={onNavigate}
+          onOpenFile={onOpenFile}
+          onContextMenu={onNodeContextMenu}
+        />
       ))}
     </div>
   );

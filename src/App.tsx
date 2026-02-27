@@ -1,8 +1,7 @@
 import '@mantine/core/styles.css';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { MantineProvider, Menu } from '@mantine/core';
-import { VscNewFolder, VscNewFile } from 'react-icons/vsc';
+import { MantineProvider } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { toMantineTheme } from '@infrastructure/Adapters/MantineThemeAdapter';
 import DesktopArea from '@presentation/Components/DesktopArea/DesktopArea';
@@ -12,28 +11,13 @@ import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
 import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
 import PdfApp from '@presentation/Components/PdfApp/PdfApp';
 import FilesApp from '@presentation/Components/FilesApp/FilesApp';
-import CreateItemModal from '@presentation/Components/Shared/CreateItemModal/CreateItemModal';
-import ContextMenuAnchor from '@presentation/Components/ContextMenu/ContextMenuAnchor';
+import CreateItemContextMenu from '@presentation/Components/ContextMenu/CreateItemContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import { randomWindowPosition } from '@shared/Constants/Animations';
-import type { FSNode } from '@domain/Entities/FileSystem';
 
 let seedStarted = false;
-
-const buildFilesPath = (folderId: string | null, nodes: FSNode[]): string => {
-  const crumbs: string[] = ['/home'];
-  let id: string | null = folderId;
-  const trail: string[] = [];
-  while (id !== null) {
-    const node = nodes.find(n => n.id === id);
-    if (!node) break;
-    trail.unshift(node.name);
-    id = node.parentId;
-  }
-  return [...crumbs, ...trail].join('/');
-};
 
 function App() {
   const theme = useDesktopStore(state => state.theme);
@@ -42,22 +26,9 @@ function App() {
   const openWindow = useDesktopStore(state => state.openWindow);
   const initFs = useDesktopStore(state => state.initFs);
   const fsNodes = useDesktopStore(state => state.fsNodes);
-  const createFile = useDesktopStore(state => state.createFile);
-  const createFolder = useDesktopStore(state => state.createFolder);
-  const contextMenu = useDesktopStore(state => state.contextMenu);
   const openContextMenu = useDesktopStore(state => state.openContextMenu);
-  const closeContextMenu = useDesktopStore(state => state.closeContextMenu);
   const filesCurrentFolderId = useDesktopStore(state => state.filesCurrentFolderId);
   const desktopFolderId = useDesktopStore(state => state.desktopFolderId);
-
-  const [createModal, setCreateModal] = useState<{ opened: boolean; mode: 'file' | 'folder' }>({
-    opened: false,
-    mode: 'folder',
-  });
-  const [filesCreateModal, setFilesCreateModal] = useState<{
-    opened: boolean;
-    mode: 'file' | 'folder';
-  }>({ opened: false, mode: 'folder' });
 
   const handleDesktopContextMenu = useCallback(
     (e: React.MouseEvent) => {
@@ -67,31 +38,14 @@ function App() {
     [openContextMenu],
   );
 
-  const openCreateModal = (mode: 'file' | 'folder') => {
-    closeContextMenu();
-    setCreateModal({ opened: true, mode });
-  };
-
-  const handleCreateConfirm = (name: string, iconName?: string, iconColor?: string) => {
-    if (createModal.mode === 'folder') {
-      createFolder(name, desktopFolderId, iconName, iconColor);
-    } else {
-      createFile(name, '', desktopFolderId);
-    }
-  };
-
-  const openFilesCreateModal = (mode: 'file' | 'folder') => {
-    closeContextMenu();
-    setFilesCreateModal({ opened: true, mode });
-  };
-
-  const handleFilesCreateConfirm = (name: string, iconName?: string, iconColor?: string) => {
-    if (filesCreateModal.mode === 'folder') {
-      createFolder(name, filesCurrentFolderId, iconName, iconColor);
-    } else {
-      createFile(name, '', filesCurrentFolderId);
-    }
-  };
+  const handleIconContextMenu = useCallback(
+    (e: React.MouseEvent, nodeId: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openContextMenu(e.clientX, e.clientY, 'desktop', nodeId);
+    },
+    [openContextMenu],
+  );
 
   useSystemTheme();
 
@@ -142,12 +96,30 @@ function App() {
     [openWindow],
   );
 
+  const buildFilesPath = (): string => {
+    const crumbs: string[] = ['/home'];
+    let id: string | null = filesCurrentFolderId;
+    const trail: string[] = [];
+    while (id !== null) {
+      const node = fsNodes.find(n => n.id === id);
+      if (!node) break;
+      trail.unshift(node.name);
+      id = node.parentId;
+    }
+    return [...crumbs, ...trail].join('/');
+  };
+
   return (
     <WindowButtonRegistryProvider>
       <MantineProvider theme={toMantineTheme(theme)} forceColorScheme={theme.mode}>
         <DesktopArea onContextMenu={handleDesktopContextMenu}>
           {icons.map(icon => (
-            <DesktopIcon key={icon.id} icon={icon} onDoubleClick={handleOpenApp} />
+            <DesktopIcon
+              key={icon.id}
+              icon={icon}
+              onDoubleClick={handleOpenApp}
+              onContextMenu={handleIconContextMenu}
+            />
           ))}
           <AnimatePresence>
             {windows.map(win => (
@@ -157,76 +129,20 @@ function App() {
                   <PdfApp src={win.contentData?.src as string | undefined} />
                 )}
                 {win.content === 'files' && (
-                  <FilesApp initialFolderId={win.contentData?.initialFolderId as string | null | undefined} />
+                  <FilesApp
+                    initialFolderId={win.contentData?.initialFolderId as string | null | undefined}
+                  />
                 )}
               </Window>
             ))}
           </AnimatePresence>
         </DesktopArea>
         <Taskbar />
-        <Menu
-          opened={contextMenu.owner === 'desktop'}
-          onClose={closeContextMenu}
-          closeOnClickOutside
-          closeOnEscape
-          closeOnItemClick
-          withinPortal
-          position="bottom-start"
-        >
-          <ContextMenuAnchor x={contextMenu.x} y={contextMenu.y} />
-          <Menu.Dropdown>
-            <Menu.Item
-              leftSection={<VscNewFolder size={14} />}
-              onClick={() => openCreateModal('folder')}
-            >
-              Create folder
-            </Menu.Item>
-            <Menu.Item
-              leftSection={<VscNewFile size={14} />}
-              onClick={() => openCreateModal('file')}
-            >
-              Create new file
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-        <CreateItemModal
-          opened={createModal.opened}
-          mode={createModal.mode}
-          currentPath="/home"
-          onClose={() => setCreateModal(m => ({ ...m, opened: false }))}
-          onConfirm={handleCreateConfirm}
-        />
-        <Menu
-          opened={contextMenu.owner === 'files'}
-          onClose={closeContextMenu}
-          closeOnClickOutside
-          closeOnEscape
-          closeOnItemClick
-          withinPortal
-          position="bottom-start"
-        >
-          <ContextMenuAnchor x={contextMenu.x} y={contextMenu.y} />
-          <Menu.Dropdown>
-            <Menu.Item
-              leftSection={<VscNewFolder size={14} />}
-              onClick={() => openFilesCreateModal('folder')}
-            >
-              Create folder
-            </Menu.Item>
-            <Menu.Item
-              leftSection={<VscNewFile size={14} />}
-              onClick={() => openFilesCreateModal('file')}
-            >
-              Create new file
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-        <CreateItemModal
-          opened={filesCreateModal.opened}
-          mode={filesCreateModal.mode}
-          currentPath={buildFilesPath(filesCurrentFolderId, fsNodes)}
-          onClose={() => setFilesCreateModal(m => ({ ...m, opened: false }))}
-          onConfirm={handleFilesCreateConfirm}
+        <CreateItemContextMenu owner="desktop" parentId={desktopFolderId} currentPath="/home" />
+        <CreateItemContextMenu
+          owner="files"
+          parentId={filesCurrentFolderId}
+          currentPath={buildFilesPath()}
         />
       </MantineProvider>
     </WindowButtonRegistryProvider>

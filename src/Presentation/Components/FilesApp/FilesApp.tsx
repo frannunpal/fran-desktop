@@ -54,6 +54,15 @@ const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
     [openContextMenu],
   );
 
+  const handleNodeContextMenu = useCallback(
+    (e: React.MouseEvent, nodeId: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openContextMenu(e.clientX, e.clientY, 'files', nodeId);
+    },
+    [openContextMenu],
+  );
+
   const handleOpenFile = useCallback(
     (node: FileNode) => {
       if (node.mimeType === 'application/pdf') {
@@ -117,6 +126,7 @@ const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
             nodes={currentNodes}
             onNavigate={setCurrentFolderId}
             onOpenFile={handleOpenFile}
+            onNodeContextMenu={handleNodeContextMenu}
           />
         </main>
       </div>

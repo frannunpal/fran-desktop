@@ -250,12 +250,12 @@ export const useDesktopStore = create<DesktopState>()(
       // ── Context menu ────────────────────────────────────────────────────────
       contextMenu: { x: 0, y: 0, owner: null },
 
-      openContextMenu: (x, y, owner) => {
-        set({ contextMenu: { x, y, owner } });
+      openContextMenu: (x, y, owner, targetNodeId) => {
+        set({ contextMenu: { x, y, owner, targetNodeId } });
       },
 
       closeContextMenu: () => {
-        set({ contextMenu: { x: 0, y: 0, owner: null } });
+        set({ contextMenu: { x: 0, y: 0, owner: null, targetNodeId: undefined } });
       },
 
       // ── Theme ───────────────────────────────────────────────────────────────

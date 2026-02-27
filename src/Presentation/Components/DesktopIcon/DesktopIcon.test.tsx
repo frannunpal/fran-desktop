@@ -22,10 +22,12 @@ const makeIcon = (overrides: Partial<DesktopIconEntity> = {}): DesktopIconEntity
   ...overrides,
 });
 
+const noop = vi.fn();
+
 describe('DesktopIcon component', () => {
   it('should render the icon name', () => {
     // Act
-    render(<DesktopIcon icon={makeIcon()} onDoubleClick={vi.fn()} />, { wrapper });
+    render(<DesktopIcon icon={makeIcon()} onDoubleClick={noop} onContextMenu={noop} />, { wrapper });
 
     // Assert
     expect(screen.getByText('Notepad')).toBeInTheDocument();
@@ -33,7 +35,7 @@ describe('DesktopIcon component', () => {
 
   it('should render the icon image', () => {
     // Act
-    render(<DesktopIcon icon={makeIcon()} onDoubleClick={vi.fn()} />, { wrapper });
+    render(<DesktopIcon icon={makeIcon()} onDoubleClick={noop} onContextMenu={noop} />, { wrapper });
 
     // Assert
     expect(screen.getByText('📝')).toBeInTheDocument();
@@ -44,7 +46,7 @@ describe('DesktopIcon component', () => {
     const handleDoubleClick = vi.fn();
 
     // Act
-    render(<DesktopIcon icon={makeIcon()} onDoubleClick={handleDoubleClick} />, { wrapper });
+    render(<DesktopIcon icon={makeIcon()} onDoubleClick={handleDoubleClick} onContextMenu={noop} />, { wrapper });
     fireEvent.dblClick(screen.getByRole('button', { name: 'Notepad' }));
 
     // Assert
@@ -57,7 +59,7 @@ describe('DesktopIcon component', () => {
 
     // Act
     render(
-      <DesktopIcon icon={makeIcon({ nodeId: 'folder-123' })} onDoubleClick={handleDoubleClick} />,
+      <DesktopIcon icon={makeIcon({ nodeId: 'folder-123' })} onDoubleClick={handleDoubleClick} onContextMenu={noop} />,
       { wrapper },
     );
     fireEvent.dblClick(screen.getByRole('button', { name: 'Notepad' }));
@@ -71,7 +73,7 @@ describe('DesktopIcon component', () => {
     const handleDoubleClick = vi.fn();
 
     // Act
-    render(<DesktopIcon icon={makeIcon()} onDoubleClick={handleDoubleClick} />, { wrapper });
+    render(<DesktopIcon icon={makeIcon()} onDoubleClick={handleDoubleClick} onContextMenu={noop} />, { wrapper });
     fireEvent.keyDown(screen.getByRole('button', { name: 'Notepad' }), { key: 'Enter' });
 
     // Assert
@@ -81,7 +83,7 @@ describe('DesktopIcon component', () => {
   it('should position itself at the given x/y coordinates', () => {
     // Act
     const { container } = render(
-      <DesktopIcon icon={makeIcon({ x: 50, y: 100 })} onDoubleClick={vi.fn()} />,
+      <DesktopIcon icon={makeIcon({ x: 50, y: 100 })} onDoubleClick={noop} onContextMenu={noop} />,
       { wrapper },
     );
     const root = container.querySelector('[role="button"]') as HTMLElement;
@@ -89,5 +91,35 @@ describe('DesktopIcon component', () => {
     // Assert
     expect(root.style.left).toBe('50px');
     expect(root.style.top).toBe('100px');
+  });
+
+  it('should call onContextMenu with nodeId on right-click when icon has nodeId', () => {
+    // Arrange
+    const handleContextMenu = vi.fn();
+
+    // Act
+    render(
+      <DesktopIcon icon={makeIcon({ nodeId: 'node-abc' })} onDoubleClick={noop} onContextMenu={handleContextMenu} />,
+      { wrapper },
+    );
+    fireEvent.contextMenu(screen.getByRole('button', { name: 'Notepad' }));
+
+    // Assert
+    expect(handleContextMenu).toHaveBeenCalledWith(expect.any(Object), 'node-abc');
+  });
+
+  it('should not trigger onContextMenu on right-click when icon has no nodeId', () => {
+    // Arrange
+    const handleContextMenu = vi.fn();
+
+    // Act
+    render(
+      <DesktopIcon icon={makeIcon()} onDoubleClick={noop} onContextMenu={handleContextMenu} />,
+      { wrapper },
+    );
+    fireEvent.contextMenu(screen.getByRole('button', { name: 'Notepad' }));
+
+    // Assert
+    expect(handleContextMenu).not.toHaveBeenCalled();
   });
 });
