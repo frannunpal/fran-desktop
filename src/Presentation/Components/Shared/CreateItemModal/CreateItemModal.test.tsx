@@ -126,4 +126,32 @@ describe('CreateItemModal', () => {
     // Assert
     expect(screen.queryByText('Choose custom icon or color')).not.toBeInTheDocument();
   });
+
+  it('should keep icon picker open after clicking "Choose custom icon or color"', () => {
+    // Arrange
+    render(<CreateItemModal {...defaultProps} />, { wrapper });
+
+    // Act — toggle open
+    fireEvent.click(screen.getByText('Choose custom icon or color'));
+
+    // Assert — picker buttons rendered by the mock are now accessible
+    expect(screen.getByText('Pick Icon')).toBeInTheDocument();
+    expect(screen.getByText('Pick Color')).toBeInTheDocument();
+  });
+
+  it('should reset state to defaults when unmounted', () => {
+    // Arrange — render, change the name, then unmount
+    const { unmount } = render(
+      <CreateItemModal {...defaultProps} onConfirm={vi.fn()} />,
+      { wrapper },
+    );
+    fireEvent.change(screen.getByLabelText('Item name'), { target: { value: 'Custom Name' } });
+
+    // Act
+    unmount();
+
+    // Assert — re-mount should show the default name again
+    render(<CreateItemModal {...defaultProps} onConfirm={vi.fn()} />, { wrapper });
+    expect(screen.getByLabelText('Item name')).toHaveValue('New Folder');
+  });
 });

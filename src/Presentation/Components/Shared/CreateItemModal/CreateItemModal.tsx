@@ -1,4 +1,4 @@
-import { type FC, useState, createElement } from 'react';
+import { type FC, useState, useEffect, createElement } from 'react';
 import {
   Modal,
   Text,
@@ -38,14 +38,14 @@ const CreateItemModal: FC<CreateItemModalProps> = ({
   const [iconColor, setIconColor] = useState(DEFAULT_COLOR);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
-  const handleOpen = (o: boolean) => {
-    if (o) {
-      setName(mode === 'folder' ? DEFAULT_FOLDER_NAME : DEFAULT_FILE_NAME);
-      setIconName(DEFAULT_ICON);
-      setIconColor(DEFAULT_COLOR);
-      setIconPickerOpen(false);
-    }
+  const handleOpen = () => {
+    setName(mode === 'folder' ? DEFAULT_FOLDER_NAME : DEFAULT_FILE_NAME);
+    setIconName(DEFAULT_ICON);
+    setIconColor(DEFAULT_COLOR);
+    setIconPickerOpen(false);
   };
+
+  useEffect(() => () => handleOpen(), []);
 
   const handleConfirm = () => {
     if (!name.trim()) return;
@@ -70,7 +70,7 @@ const CreateItemModal: FC<CreateItemModalProps> = ({
       }
       size="md"
       centered
-      onTransitionEnd={() => handleOpen(opened)}
+      onEnterTransitionEnd={handleOpen}
     >
       <div className={classes.content}>
         <div className={classes.nameRow}>
