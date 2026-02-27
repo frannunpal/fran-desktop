@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '@/Shared/Testing/__mocks__/jsdom-setup';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
 

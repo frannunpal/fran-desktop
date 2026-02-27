@@ -32,8 +32,11 @@ jobs:
       - name: Run tests
         run: bun run test
 
-      - name: Build
+      - name: Build app
         run: bun run build
+
+      - name: Build Storybook
+        run: bun run build-storybook --output-dir dist/storybook
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

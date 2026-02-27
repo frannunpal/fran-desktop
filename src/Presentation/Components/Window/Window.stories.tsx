@@ -9,10 +9,10 @@ import { useEffect } from 'react';
 import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 import { makeWindow } from '@/Shared/Testing/Utils/makeWindow';
 
-const StoreSeeder = ({ win }: { win: WindowEntity }) => {
+const StoreSeeder = ({ windows }: { windows: WindowEntity[] }) => {
   useEffect(() => {
-    useDesktopStore.setState({ windows: [win] });
-  }, [win]);
+    useDesktopStore.setState({ windows });
+  }, [windows]);
   return null;
 };
 
@@ -20,21 +20,26 @@ const meta: Meta<typeof Window> = {
   title: 'Common components/Window',
   component: Window,
   decorators: [
-    (Story, ctx) => (
-      <WindowButtonRegistryProvider>
-        <StoreSeeder win={ctx.args.window as WindowEntity} />
-        <div
-          style={{
-            position: 'relative',
-            width: '100vw',
-            height: '100vh',
-            background: 'var(--mantine-color-body)',
-          }}
-        >
-          <Story />
-        </div>
-      </WindowButtonRegistryProvider>
-    ),
+    (Story, ctx) => {
+      const wins: WindowEntity[] = Array.isArray(ctx.parameters.windows)
+        ? ctx.parameters.windows
+        : [ctx.args.window as WindowEntity];
+      return (
+        <WindowButtonRegistryProvider>
+          <StoreSeeder windows={wins} />
+          <div
+            style={{
+              position: 'relative',
+              width: '100vw',
+              height: '100vh',
+              background: 'var(--mantine-color-body)',
+            }}
+          >
+            <Story />
+          </div>
+        </WindowButtonRegistryProvider>
+      );
+    },
   ],
   args: {
     window: makeWindow({
@@ -71,6 +76,104 @@ export const NarrowTitle: Story = {
 
 export const NoMaximize: Story = {
   args: { window: makeWindow({ canMaximize: false }) },
+};
+
+// AlwaysOnTop: rendered above all normal windows — shown with a normal window behind it
+export const AlwaysOnTop: Story = {
+  args: {
+    window: makeWindow({
+      id: 'win-always-on-top',
+      title: 'Create Folder',
+      icon: '📁',
+      fcIcon: 'FcNewFolder',
+      alwaysOnTop: true,
+      canMaximize: false,
+      width: 400,
+      height: 300,
+      minWidth: 350,
+      minHeight: 250,
+      zIndex: 10001,
+      x: 200,
+      y: 150,
+    }),
+  },
+  parameters: {
+    windows: [
+      makeWindow({
+        id: 'win-behind',
+        title: 'Background Window',
+        icon: '📝',
+        zIndex: 1,
+        x: 60,
+        y: 60,
+        width: 600,
+        height: 400,
+        minWidth: 300,
+        minHeight: 200,
+      }),
+      makeWindow({
+        id: 'win-always-on-top',
+        title: 'Create Folder',
+        icon: '📁',
+        fcIcon: 'FcNewFolder',
+        alwaysOnTop: true,
+        canMaximize: false,
+        width: 400,
+        height: 300,
+        minWidth: 350,
+        minHeight: 250,
+        zIndex: 10001,
+        x: 200,
+        y: 150,
+      }),
+    ],
+  },
+};
+
+// Unfocused: shows the focus overlay that appears when another window has higher zIndex
+export const Unfocused: Story = {
+  args: {
+    window: makeWindow({
+      id: 'win-unfocused',
+      title: 'Unfocused Window',
+      icon: '📝',
+      zIndex: 1,
+      x: 60,
+      y: 60,
+      width: 600,
+      height: 400,
+      minWidth: 300,
+      minHeight: 200,
+    }),
+  },
+  parameters: {
+    windows: [
+      makeWindow({
+        id: 'win-unfocused',
+        title: 'Unfocused Window',
+        icon: '📝',
+        zIndex: 1,
+        x: 60,
+        y: 60,
+        width: 600,
+        height: 400,
+        minWidth: 300,
+        minHeight: 200,
+      }),
+      makeWindow({
+        id: 'win-focused',
+        title: 'Focused Window',
+        icon: '📝',
+        zIndex: 2,
+        x: 120,
+        y: 120,
+        width: 600,
+        height: 400,
+        minWidth: 300,
+        minHeight: 200,
+      }),
+    ],
+  },
 };
 
 export const CalendarWindow: Story = {
