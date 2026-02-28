@@ -22,7 +22,7 @@ describe('ContextMenu component', () => {
     expect(screen.getByText('Open Notepad')).toBeInTheDocument();
     expect(screen.getByText('Open Terminal')).toBeInTheDocument();
     expect(screen.getByText('Open FilesApp')).toBeInTheDocument();
-    expect(screen.getByText('Open CV')).toBeInTheDocument();
+    expect(screen.getByText('Open PDF Viewer')).toBeInTheDocument();
     expect(screen.getByText('Open Calendar')).toBeInTheDocument();
     expect(screen.getByText('Toggle Theme')).toBeInTheDocument();
   });

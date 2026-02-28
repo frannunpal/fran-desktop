@@ -143,10 +143,9 @@ describe('FilePickerApp', () => {
   describe('Navigation', () => {
     it('should navigate into a folder on double-click', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
 
       // Act
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
@@ -158,10 +157,9 @@ describe('FilePickerApp', () => {
 
     it('should update breadcrumb when navigating into a folder', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
 
       // Act
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
@@ -173,10 +171,9 @@ describe('FilePickerApp', () => {
 
     it('should navigate back to Home via breadcrumb', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
       rerender(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />);
 
@@ -191,10 +188,9 @@ describe('FilePickerApp', () => {
 
     it('should navigate via sidebar click', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
 
       // Act — click Desktop in sidebar
       fireEvent.click(screen.getByLabelText('Desktop'));
@@ -206,10 +202,9 @@ describe('FilePickerApp', () => {
 
     it('should clear selection when navigating into a different folder', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
       fireEvent.click(screen.getByLabelText('Desktop'));
       rerender(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />);
       fireEvent.click(screen.getByLabelText('Select file photo.jpg'));
@@ -229,10 +224,9 @@ describe('FilePickerApp', () => {
   describe('File selection', () => {
     it('should select a file on single click', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
       rerender(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />);
 
@@ -245,10 +239,9 @@ describe('FilePickerApp', () => {
 
     it('should mark selected item with aria-selected=true', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
       rerender(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />);
 
@@ -274,10 +267,9 @@ describe('FilePickerApp', () => {
   describe('Confirm action', () => {
     it('should call onConfirm with the selected node on Open click', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
       rerender(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />);
       fireEvent.click(screen.getByLabelText('Select file photo.jpg'));
@@ -292,10 +284,9 @@ describe('FilePickerApp', () => {
 
     it('should call onConfirm immediately on double-click of a file', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
       rerender(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />);
 
@@ -322,10 +313,9 @@ describe('FilePickerApp', () => {
   describe('MIME type filtering', () => {
     it('should show all files when no acceptedMimeTypes is provided', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
       rerender(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />);
 
@@ -337,20 +327,12 @@ describe('FilePickerApp', () => {
     it('should show only image files when acceptedMimeTypes=["image/*"]', () => {
       // Arrange
       const { rerender } = render(
-        <FilePickerApp
-          acceptedMimeTypes={['image/*']}
-          onConfirm={onConfirm}
-          onCancel={onCancel}
-        />,
+        <FilePickerApp acceptedMimeTypes={['image/*']} onConfirm={onConfirm} onCancel={onCancel} />,
         { wrapper },
       );
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
       rerender(
-        <FilePickerApp
-          acceptedMimeTypes={['image/*']}
-          onConfirm={onConfirm}
-          onCancel={onCancel}
-        />,
+        <FilePickerApp acceptedMimeTypes={['image/*']} onConfirm={onConfirm} onCancel={onCancel} />,
       );
 
       // Assert — only image file visible
@@ -400,10 +382,7 @@ describe('FilePickerApp', () => {
 
     it('should show "No matching files" when no files match the filter', () => {
       // Arrange
-      mockStore.fsNodes = [
-        folderDesktop,
-        { ...filePhoto, parentId: 'folder-desktop' },
-      ];
+      mockStore.fsNodes = [folderDesktop, { ...filePhoto, parentId: 'folder-desktop' }];
       const { rerender } = render(
         <FilePickerApp
           acceptedMimeTypes={['application/pdf']}
@@ -427,10 +406,9 @@ describe('FilePickerApp', () => {
 
     it('should show "This folder is empty" when folder has no children', () => {
       // Arrange
-      const { rerender } = render(
-        <FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />,
-        { wrapper },
-      );
+      const { rerender } = render(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />, {
+        wrapper,
+      });
       fireEvent.doubleClick(screen.getByLabelText('Open folder Documents'));
       rerender(<FilePickerApp onConfirm={onConfirm} onCancel={onCancel} />);
 

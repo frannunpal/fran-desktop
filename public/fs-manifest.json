@@ -18,6 +18,12 @@
       "folder": "Images",
       "mimeType": "image/jpg",
       "url": "Images/wallpaper2.jpg"
+    },
+    {
+      "name": "Quick Start – React.pdf",
+      "folder": "Documents",
+      "mimeType": "application/pdf",
+      "url": "Documents/Quick Start – React.pdf"
     }
   ]
 }

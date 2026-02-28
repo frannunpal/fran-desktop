@@ -15,6 +15,7 @@ import CreateItemApp from '@presentation/Components/Shared/CreateItemApp/CreateI
 import StorybookApp from '@/Presentation/Components/Apps/StorybookApp/StorybookApp';
 import ImageViewerApp from '@/Presentation/Components/Apps/ImageViewerApp/ImageViewerApp';
 import { buildImageViewerMenuBar } from './Presentation/Components/Apps/ImageViewerApp/buildImageViewerMenuBar';
+import { buildPdfViewerMenuBar } from './Presentation/Components/Apps/PdfApp/buildPdfViewerMenuBar';
 import CreateItemContextMenu from '@presentation/Components/ContextMenu/CreateItemContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { useAppVersion } from '@presentation/Hooks/useAppVersion';
@@ -32,6 +33,7 @@ function App() {
   const closeWindow = useDesktopStore(state => state.closeWindow);
   const openContextMenu = useDesktopStore(state => state.openContextMenu);
   const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
+  const [pdfPickerOpenId, setPdfPickerOpenId] = useState<string | null>(null);
   const filesCurrentFolderId = useDesktopStore(state => state.filesCurrentFolderId);
   const desktopFolderId = useDesktopStore(state => state.desktopFolderId);
   const openApp = useOpenApp();
@@ -119,12 +121,22 @@ function App() {
                         () => setPickerOpenId(win.id),
                         () => closeWindow(win.id),
                       )
-                    : undefined
+                    : win.content === 'pdf'
+                      ? buildPdfViewerMenuBar(
+                          () => setPdfPickerOpenId(win.id),
+                          () => closeWindow(win.id),
+                        )
+                      : undefined
                 }
               >
                 {win.content === 'calendar' && <CalendarApp />}
                 {win.content === 'pdf' && (
-                  <PdfApp src={win.contentData?.src as string | undefined} />
+                  <PdfApp
+                    src={win.contentData?.src as string | undefined}
+                    windowId={win.id}
+                    pickerOpen={pdfPickerOpenId === win.id}
+                    onPickerClose={() => setPdfPickerOpenId(null)}
+                  />
                 )}
                 {win.content === 'files' && (
                   <FilesApp

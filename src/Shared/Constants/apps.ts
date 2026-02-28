@@ -39,7 +39,7 @@ export const APPS: AppEntry[] = [
   },
   {
     id: 'pdf',
-    name: 'CV',
+    name: 'PDF Viewer',
     icon: '📄',
     fcIcon: 'FcDocument',
     defaultWidth: 780,
