@@ -6,9 +6,13 @@ on:
       - main
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       version: ${{ steps.version.outputs.version }}
       changelog: ${{ steps.changelog.outputs.changelog }}
@@ -64,6 +68,8 @@ jobs:
   release:
     needs: prepare
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -94,16 +100,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Collect zips
+        shell: bash
+        run: |
+          mkdir -p dist-zips
+          find release -name "*.zip" -exec cp {} dist-zips/ \;
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.platform }}
-          path: release/*.zip
+          path: dist-zips/*.zip
 
   create-release:
     needs: [prepare, release]
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    permissions:
+      contents: write
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
