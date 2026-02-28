@@ -21,6 +21,7 @@ export const useAppVersion = (): void => {
   const addNotification = useDesktopStore(state => state.addNotification);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     if (appVersionCheckStarted) return;
     appVersionCheckStarted = true;
 

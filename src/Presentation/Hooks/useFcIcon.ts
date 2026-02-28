@@ -6,7 +6,7 @@ export const useFcIcon = (name: string): IconType | null => {
   const [Icon, setIcon] = useState<IconType | null>(null);
 
   useEffect(() => {
-    if (!name) return;
+    if (!name || typeof window === 'undefined') return;
     import('react-icons/fc').then(mod => {
       setIcon(() => (mod as unknown as Record<string, IconType>)[name] ?? null);
     });

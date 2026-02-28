@@ -3,13 +3,17 @@ import type { ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 
 const getSystemMode = (): ThemeMode =>
-  window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 
 export const useSystemTheme = (): void => {
   const setThemeMode = useDesktopStore(state => state.setThemeMode);
   const themeSetManually = useDesktopStore(state => state.themeSetManually);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     if (!themeSetManually) {
       setThemeMode(getSystemMode());
     }
