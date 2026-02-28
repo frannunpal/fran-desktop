@@ -5,11 +5,9 @@ import ImageViewerApp from '@/Presentation/Components/Apps/ImageViewerApp/ImageV
 import { buildImageViewerMenuBar } from '@/Presentation/Components/Apps/ImageViewerApp/buildImageViewerMenuBar';
 import PdfApp from '@/Presentation/Components/Apps/PdfApp/PdfApp';
 import { buildPdfViewerMenuBar } from '@/Presentation/Components/Apps/PdfApp/buildPdfViewerMenuBar';
-import Window from '@presentation/Components/Window/Window';
-import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { makeWindow } from '@/Shared/Testing/Utils/makeWindow';
-import type { AppMenuElement } from '@/Shared/Interfaces/IAppMenuElement';
+import AppWithPickerOpen from '@/Shared/Testing/Utils/AppWithPickerOpen';
 import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 
@@ -95,24 +93,6 @@ const cvPdf: FileNode = {
   createdAt: new Date(),
   updatedAt: new Date(),
 };
-
-/* ── Generic helper ───────────────────────────────────────────────────── */
-
-interface AppWithPickerOpenProps {
-  win: ReturnType<typeof makeWindow>;
-  menuBar: AppMenuElement[];
-  children: React.ReactNode;
-}
-
-const AppWithPickerOpen = ({ win, menuBar, children }: AppWithPickerOpenProps) => (
-  <WindowButtonRegistryProvider>
-    <div style={{ position: 'relative', width: win.width, height: win.height }}>
-      <Window window={win} menuBar={menuBar}>
-        {children}
-      </Window>
-    </div>
-  </WindowButtonRegistryProvider>
-);
 
 /* ── Stories ──────────────────────────────────────────────────────────── */
 
@@ -206,5 +186,21 @@ export const PdfOnly: Story = {
     };
 
     return <Wrapper />;
+  },
+};
+
+/** Restricts the picker to PDF files only. */
+export const PdfFilter: Story = {
+  decorators: [containerDecorator],
+  args: {
+    acceptedMimeTypes: ['application/pdf'],
+  },
+};
+
+/** Accepts multiple specific mime types. */
+export const ImagesAndPdf: Story = {
+  decorators: [containerDecorator],
+  args: {
+    acceptedMimeTypes: ['image/*', 'application/pdf'],
   },
 };
