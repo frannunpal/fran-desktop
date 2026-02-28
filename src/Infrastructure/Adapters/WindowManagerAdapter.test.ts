@@ -181,6 +181,81 @@ describe('WindowManagerAdapter', () => {
     });
   });
 
+  describe('loadWindows', () => {
+    it('should restore windows into the adapter', () => {
+      // Arrange — simulate windows previously persisted with high zIndex values
+      const w1 = manager.open(baseInput);
+      const w2 = manager.open(baseInput);
+      const persisted = [
+        { ...w1, zIndex: 5 },
+        { ...w2, zIndex: 8 },
+      ];
+
+      // Act — load into a fresh adapter (simulating app reload)
+      const freshManager = new WindowManagerAdapter();
+      freshManager.loadWindows(persisted);
+
+      // Assert — windows are restored with their persisted zIndex
+      expect(freshManager.getById(w1.id)?.zIndex).toBe(5);
+      expect(freshManager.getById(w2.id)?.zIndex).toBe(8);
+    });
+
+    it('should sync nextZIndex above the highest persisted zIndex', () => {
+      // Arrange — persisted windows with zIndex up to 8
+      const w1 = manager.open(baseInput);
+      const w2 = manager.open(baseInput);
+      const persisted = [
+        { ...w1, zIndex: 5 },
+        { ...w2, zIndex: 8 },
+      ];
+
+      const freshManager = new WindowManagerAdapter();
+      freshManager.loadWindows(persisted);
+
+      // Act — open a new window; its zIndex must exceed all persisted values
+      const newWin = freshManager.open(baseInput);
+
+      // Assert
+      expect(newWin.zIndex).toBeGreaterThan(8);
+    });
+
+    it('should sync nextZIndex correctly when alwaysOnTop windows are present', () => {
+      // Arrange — alwaysOnTop window has raw counter = 3, stored as ALWAYS_ON_TOP_OFFSET + 3
+      const w = manager.open({ ...baseInput, alwaysOnTop: true });
+      const persisted = [{ ...w, zIndex: 10_003 }];
+
+      const freshManager = new WindowManagerAdapter();
+      freshManager.loadWindows(persisted);
+
+      // Act — focus the window; new zIndex must exceed 10_003
+      freshManager.focus(w.id);
+
+      // Assert
+      expect(freshManager.getById(w.id)!.zIndex).toBeGreaterThan(10_003);
+    });
+
+    it('should allow focus to produce the highest zIndex after loading', () => {
+      // Arrange — simulate persistence + reload scenario
+      const w1 = manager.open(baseInput);
+      const w2 = manager.open(baseInput);
+      const persisted = [
+        { ...w1, zIndex: 5 },
+        { ...w2, zIndex: 8 },
+      ];
+
+      const freshManager = new WindowManagerAdapter();
+      freshManager.loadWindows(persisted);
+
+      // Act — focus w1 (currently the lower zIndex)
+      freshManager.focus(w1.id);
+
+      // Assert — w1 must now be above w2
+      const focused = freshManager.getById(w1.id)!;
+      const other = freshManager.getById(w2.id)!;
+      expect(focused.zIndex).toBeGreaterThan(other.zIndex);
+    });
+  });
+
   describe('move', () => {
     it('should update x and y of the window', () => {
       // Arrange

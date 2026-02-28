@@ -357,19 +357,18 @@ export const useDesktopStore = create<DesktopState>()(
       }),
       merge: (persisted, current) => {
         const p = persisted as Partial<DesktopState>;
-        return {
-          ...current,
-          ...p,
-          windows: (p.windows ?? []).map(w => {
-            const app = APPS.find(a => a.id === w.content);
-            return {
-              ...w,
-              icon: w.icon ?? app?.icon,
-              fcIcon: w.fcIcon ?? app?.fcIcon,
-              canMaximize: app?.canMaximize,
-            };
-          }),
-        };
+        const mergedWindows = (p.windows ?? []).map(w => {
+          const app = APPS.find(a => a.id === w.content);
+          return {
+            ...w,
+            icon: w.icon ?? app?.icon,
+            fcIcon: w.fcIcon ?? app?.fcIcon,
+            canMaximize: app?.canMaximize,
+          };
+        });
+        // Restore the adapter state so the counter starts above all persisted zIndex values
+        windowManager.loadWindows(mergedWindows);
+        return { ...current, ...p, windows: mergedWindows };
       },
     },
   ),

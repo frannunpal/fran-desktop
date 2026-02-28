@@ -179,6 +179,26 @@ describe('Window component', () => {
     expect(focused.zIndex).toBeGreaterThan(other.zIndex);
   });
 
+  it('should call focusWindow exactly once when clicking the focus overlay (no event bubble)', () => {
+    // Arrange — open two windows; w1 has lower zIndex
+    useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 1
+    useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 2
+    const w1 = useDesktopStore.getState().windows[0];
+    const w2 = useDesktopStore.getState().windows[1];
+    render(<Window window={w1} />, { wrapper });
+
+    const zIndexBefore = useDesktopStore.getState().windows.find(w => w.id === w2.id)!.zIndex;
+
+    // Act — click overlay; without stopPropagation this would fire focusWindow twice,
+    // advancing the counter by 2 and leaving w2 with an unchanged zIndex that appears
+    // lower than expected. With stopPropagation, counter advances by exactly 1.
+    fireEvent.mouseDown(screen.getByTestId('focus-overlay'));
+
+    // Assert — w2's zIndex must be unchanged (event did not bubble to Rnd.onMouseDown)
+    const w2After = useDesktopStore.getState().windows.find(w => w.id === w2.id)!;
+    expect(w2After.zIndex).toBe(zIndexBefore);
+  });
+
   it('should focus window on mouse down', () => {
     // Arrange — open through the store so windowManager tracks zIndex
     useDesktopStore.getState().openWindow(makeWindowInput()); // zIndex 1

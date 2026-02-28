@@ -179,7 +179,10 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
             <div
               data-testid="focus-overlay"
               className={classes.focusOverlay}
-              onMouseDown={() => focusWindow(win.id)}
+              onMouseDown={e => {
+                e.stopPropagation();
+                focusWindow(win.id);
+              }}
             />
           )}
           {children}

@@ -34,6 +34,24 @@ export class WindowManagerAdapter implements IWindowManager {
     this.nextZIndex = 1;
   }
 
+  /**
+   * Restores persisted windows into the adapter and synchronizes the
+   * nextZIndex counter so that subsequent focus/open calls always produce
+   * a value strictly higher than any already-persisted zIndex.
+   */
+  loadWindows(windows: WindowEntity[]): void {
+    this.windows.clear();
+    let maxZIndex = 0;
+    for (const w of windows) {
+      this.windows.set(w.id, w);
+      // Strip the alwaysOnTop offset so we compare raw counter values
+      const raw =
+        (w.alwaysOnTop ?? false) ? w.zIndex - ALWAYS_ON_TOP_OFFSET : w.zIndex;
+      if (raw > maxZIndex) maxZIndex = raw;
+    }
+    this.nextZIndex = maxZIndex + 1;
+  }
+
   getAll(): WindowEntity[] {
     return Array.from(this.windows.values());
   }

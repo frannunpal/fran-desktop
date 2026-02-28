@@ -12,4 +12,5 @@ export interface IWindowManager {
   focus(id: string): void;
   move(id: string, x: number, y: number): void;
   resize(id: string, width: number, height: number): void;
+  loadWindows(windows: WindowEntity[]): void;
 }
