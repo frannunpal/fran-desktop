@@ -78,8 +78,11 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Run tests
+        run: bun run test
+
       - name: Build Electron app
-        run: bun run electron:dist
+        run: bun run electron:dist:${{ matrix.platform }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

@@ -62,7 +62,9 @@
     "build-storybook": "storybook build",
     "build:electron": "tsc -b && vite build --config vite.config.electron.ts",
     "electron:dev": "bun run build:electron && mkdir -p electron/dist && cpx \"dist-electron/**/*\" electron/dist/ && electron .",
-    "electron:dist": "bun run build:electron && mkdir -p electron/dist && cpx \"dist-electron/**/*\" electron/dist/ && electron-builder --win --mac --linux"
+    "electron:dist:win": "bun run build:electron && mkdir -p electron/dist && cpx \"dist-electron/**/*\" electron/dist/ && electron-builder --win",
+    "electron:dist:mac": "bun run build:electron && mkdir -p electron/dist && cpx \"dist-electron/**/*\" electron/dist/ && electron-builder --mac",
+    "electron:dist:linux": "bun run build:electron && mkdir -p electron/dist && cpx \"dist-electron/**/*\" electron/dist/ && electron-builder --linux"
   },
   "dependencies": {
     "@mantine/core": "^8.3.15",
