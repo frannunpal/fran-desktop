@@ -1,11 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 bun run test || exit 1
 
 # Only bump version when pushing to main
 branch=$(git symbolic-ref HEAD 2>/dev/null | sed 's|refs/heads/||')
 if [ "$branch" = "main" ]; then
-  npm version patch --no-git-tag-version
+  old_version=$(sed -n 's/.*"version": "\([^"]*\)".*/\1/p' package.json | head -1)
+  major=$(echo "$old_version" | cut -d. -f1)
+  minor=$(echo "$old_version" | cut -d. -f2)
+  patch=$(echo "$old_version" | cut -d. -f3)
+  new_patch=$((patch + 1))
+  new_version="$major.$minor.$new_patch"
+  sed -i "s/\"version\": \"$old_version\"/\"version\": \"$new_version\"/" package.json
   git add package.json
-  version=$(node -p "require('./package.json').version")
-  git commit -m "chore: bump version to v$version"
+  git commit -m "chore: bump version to v$new_version"
 fi
