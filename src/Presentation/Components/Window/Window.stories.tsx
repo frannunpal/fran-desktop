@@ -60,16 +60,43 @@ const meta: Meta<typeof Window> = {
 export default meta;
 type Story = StoryObj<typeof Window>;
 
-export const Normal: Story = {};
+export const Normal: Story = {
+  args: {
+    window: {
+      id: 'win-story',
+      title: 'My Window',
+      content: 'notepad',
+      x: 60,
+      y: 60,
+      width: 600,
+      height: 400,
+      minWidth: 300,
+      minHeight: 200,
+      isOpen: true,
+      state: 'normal',
+      zIndex: 1,
+      fcIcon: 'FcEditImage',
+    },
+  },
+};
 
 export const Maximized: Story = {
-  args: { window: makeWindow({ state: 'maximized' }) },
+  args: {
+    window: makeWindow({
+      state: 'maximized',
+      title:
+        'A very long window title that should not be truncated in the title bar since it is maximized',
+      fcIcon: 'FcEditImage',
+    }),
+  },
 };
 
 export const NarrowTitle: Story = {
   args: {
     window: makeWindow({
       title: 'A very long window title that should be truncated in the title bar',
+      width: 200,
+      height: 200,
     }),
   },
 };
@@ -79,12 +106,12 @@ export const NoMaximize: Story = {
 };
 
 // AlwaysOnTop: rendered above all normal windows — shown with a normal window behind it
+// TODO: It only shows one window
 export const AlwaysOnTop: Story = {
   args: {
     window: makeWindow({
       id: 'win-always-on-top',
       title: 'Create Folder',
-      icon: '📁',
       fcIcon: 'FcNewFolder',
       alwaysOnTop: true,
       canMaximize: false,
@@ -102,7 +129,6 @@ export const AlwaysOnTop: Story = {
       makeWindow({
         id: 'win-behind',
         title: 'Background Window',
-        icon: '📝',
         zIndex: 1,
         x: 60,
         y: 60,
@@ -131,6 +157,7 @@ export const AlwaysOnTop: Story = {
 };
 
 // Unfocused: shows the focus overlay that appears when another window has higher zIndex
+// TODO: It only shows one window
 export const Unfocused: Story = {
   args: {
     window: makeWindow({

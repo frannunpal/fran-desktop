@@ -4,7 +4,6 @@ import { APPS } from '@shared/Constants/apps';
 import { PRESET_ICONS } from '@shared/Constants/Icons';
 
 const appIds = APPS.map(a => a.id);
-const fileTypes = PRESET_ICONS.map(a => a);
 
 const meta: Meta<typeof DesktopIcon> = {
   title: 'Common components/DesktopIcon',
@@ -51,21 +50,22 @@ export const AppIcon: StoryObj<{ appId: string }> = {
 
 // ── File node (nodeId present → FileIcon) ────────────────────────────────────
 
-export const FileNode: StoryObj<{ fileTypes: string }> = {
+export const FileNode: StoryObj<{ appId: string }> = {
   argTypes: {
-    fileTypes: { control: 'select', options: fileTypes },
+    appId: { control: 'select', options: appIds },
   },
-  args: { fileTypes: 'files' },
-  render: ({ fileTypes }) => {
-    const FileType = PRESET_ICONS.find(a => a === fileTypes)!;
+  args: { appId: 'files' },
+  render: ({ appId }) => {
+    const app = APPS.find(a => a.id === appId)!;
     return (
       <DesktopIcon
         icon={{
           id: '2',
-          name: 'FILE',
-          icon: FileType,
+          name: 'readme.txt',
+          icon: app.icon,
           x: 20,
           y: 20,
+          appId,
           nodeId: 'node-1',
         }}
         onDoubleClick={() => {}}

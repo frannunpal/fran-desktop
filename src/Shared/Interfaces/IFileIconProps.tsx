@@ -7,5 +7,5 @@ export interface FileIconProps {
   folderNode?: FolderNode;
   fileNode?: FileNode;
   size?: number;
-  iconName: string;
+  iconName?: string;
 }

@@ -31,13 +31,12 @@ const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick, onContextMenu 
             updatedAt: new Date(),
           }}
           size={32}
-          iconName={''}
         />
       );
     }
 
     if (isFileIcon || isPdf) {
-      return <FileIcon type="file" name={icon.name} size={32} iconName={''} />;
+      return <FileIcon type="file" name={icon.name} size={32} />;
     }
 
     if (FcIcon) {

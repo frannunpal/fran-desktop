@@ -61,6 +61,8 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
   const PreviewIcon = VscIcons[iconName as keyof typeof VscIcons] as React.ElementType | undefined;
 
   return (
+    // TODO: La ventana debe cambiar de altura dinámicamente, ahora mismo tiene una altura fija y no cambia cuando se abre el selector de iconos
+    // TODO: Cambiar los iconos VscIcons.VscChevronDown por el mismo icono del  botón del panel (FcCollapse/FcExpand)
     <div className={classes.root}>
       <div className={classes.header}>
         <Text fw={600} size="sm">
