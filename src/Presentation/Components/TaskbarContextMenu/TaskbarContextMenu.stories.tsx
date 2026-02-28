@@ -148,8 +148,9 @@ const InteractiveRender = () => {
   const closeWindow = useDesktopStore(state => state.closeWindow);
   const taskbarBg = useDesktopStore(state => state.theme.taskbar);
 
-  const targetWindowState =
-    targetWindowId ? (windows.find(w => w.id === targetWindowId)?.state ?? null) : null;
+  const targetWindowState = targetWindowId
+    ? (windows.find(w => w.id === targetWindowId)?.state ?? null)
+    : null;
 
   useEffect(() => {
     useDesktopStore.setState({ windows: [] });
@@ -200,10 +201,22 @@ const InteractiveRender = () => {
         menuPosition={menuPosition}
         targetWindowId={targetWindowId}
         targetWindowState={targetWindowState}
-        onCloseWindow={id => { closeWindow(id); setWindowMenuOpened(false); }}
-        onMinimizeWindow={id => { minimizeWindow(id); setWindowMenuOpened(false); }}
-        onMaximizeWindow={id => { maximizeWindow(id); setWindowMenuOpened(false); }}
-        onRestoreWindow={id => { restoreWindow(id); setWindowMenuOpened(false); }}
+        onCloseWindow={id => {
+          closeWindow(id);
+          setWindowMenuOpened(false);
+        }}
+        onMinimizeWindow={id => {
+          minimizeWindow(id);
+          setWindowMenuOpened(false);
+        }}
+        onMaximizeWindow={id => {
+          maximizeWindow(id);
+          setWindowMenuOpened(false);
+        }}
+        onRestoreWindow={id => {
+          restoreWindow(id);
+          setWindowMenuOpened(false);
+        }}
         onWindowMenuClose={() => setWindowMenuOpened(false)}
         onPanelMenuClose={() => setPanelMenuOpened(false)}
       />

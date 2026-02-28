@@ -72,7 +72,13 @@ const win = makeWindow({
   y: 0,
 });
 
-const ImageViewerInWindow = ({ src, pickerOpen = false }: { src?: string; pickerOpen?: boolean }) => {
+const ImageViewerInWindow = ({
+  src,
+  pickerOpen = false,
+}: {
+  src?: string;
+  pickerOpen?: boolean;
+}) => {
   useEffect(() => {
     useDesktopStore.setState({
       fsNodes: [imagesFolder, wallpaper1, wallpaper2],
@@ -88,7 +94,12 @@ const ImageViewerInWindow = ({ src, pickerOpen = false }: { src?: string; picker
         () => {},
       )}
     >
-      <ImageViewerApp src={src} windowId={win.id} pickerOpen={pickerOpen} onPickerClose={() => {}} />
+      <ImageViewerApp
+        src={src}
+        windowId={win.id}
+        pickerOpen={pickerOpen}
+        onPickerClose={() => {}}
+      />
     </AppWithPickerOpen>
   );
 };
@@ -96,9 +107,7 @@ const ImageViewerInWindow = ({ src, pickerOpen = false }: { src?: string; picker
 /* ── Stories ──────────────────────────────────────────────────────────── */
 
 export const WithImage: Story = {
-  render: () => (
-    <ImageViewerInWindow src={`${import.meta.env.BASE_URL}Images/wallpaper.jpg`} />
-  ),
+  render: () => <ImageViewerInWindow src={`${import.meta.env.BASE_URL}Images/wallpaper.jpg`} />,
 };
 
 export const NoImage: Story = {

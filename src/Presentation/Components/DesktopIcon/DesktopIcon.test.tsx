@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import type { ReactNode } from 'react';
-import type { DesktopIconEntity } from "@/Shared/Interfaces/IDesktopIcon";
+import type { DesktopIconEntity } from '@/Shared/Interfaces/IDesktopIcon';
 
 const { default: DesktopIcon } = await import('./DesktopIcon');
 
@@ -27,7 +27,9 @@ const noop = vi.fn();
 describe('DesktopIcon component', () => {
   it('should render the icon name', () => {
     // Act
-    render(<DesktopIcon icon={makeIcon()} onDoubleClick={noop} onContextMenu={noop} />, { wrapper });
+    render(<DesktopIcon icon={makeIcon()} onDoubleClick={noop} onContextMenu={noop} />, {
+      wrapper,
+    });
 
     // Assert
     expect(screen.getByText('Notepad')).toBeInTheDocument();
@@ -35,7 +37,9 @@ describe('DesktopIcon component', () => {
 
   it('should render the icon image', () => {
     // Act
-    render(<DesktopIcon icon={makeIcon()} onDoubleClick={noop} onContextMenu={noop} />, { wrapper });
+    render(<DesktopIcon icon={makeIcon()} onDoubleClick={noop} onContextMenu={noop} />, {
+      wrapper,
+    });
 
     // Assert
     expect(screen.getByText('📝')).toBeInTheDocument();
@@ -46,7 +50,10 @@ describe('DesktopIcon component', () => {
     const handleDoubleClick = vi.fn();
 
     // Act
-    render(<DesktopIcon icon={makeIcon()} onDoubleClick={handleDoubleClick} onContextMenu={noop} />, { wrapper });
+    render(
+      <DesktopIcon icon={makeIcon()} onDoubleClick={handleDoubleClick} onContextMenu={noop} />,
+      { wrapper },
+    );
     fireEvent.dblClick(screen.getByRole('button', { name: 'Notepad' }));
 
     // Assert
@@ -59,7 +66,11 @@ describe('DesktopIcon component', () => {
 
     // Act
     render(
-      <DesktopIcon icon={makeIcon({ nodeId: 'folder-123' })} onDoubleClick={handleDoubleClick} onContextMenu={noop} />,
+      <DesktopIcon
+        icon={makeIcon({ nodeId: 'folder-123' })}
+        onDoubleClick={handleDoubleClick}
+        onContextMenu={noop}
+      />,
       { wrapper },
     );
     fireEvent.dblClick(screen.getByRole('button', { name: 'Notepad' }));
@@ -73,7 +84,10 @@ describe('DesktopIcon component', () => {
     const handleDoubleClick = vi.fn();
 
     // Act
-    render(<DesktopIcon icon={makeIcon()} onDoubleClick={handleDoubleClick} onContextMenu={noop} />, { wrapper });
+    render(
+      <DesktopIcon icon={makeIcon()} onDoubleClick={handleDoubleClick} onContextMenu={noop} />,
+      { wrapper },
+    );
     fireEvent.keyDown(screen.getByRole('button', { name: 'Notepad' }), { key: 'Enter' });
 
     // Assert
@@ -99,7 +113,11 @@ describe('DesktopIcon component', () => {
 
     // Act
     render(
-      <DesktopIcon icon={makeIcon({ nodeId: 'node-abc' })} onDoubleClick={noop} onContextMenu={handleContextMenu} />,
+      <DesktopIcon
+        icon={makeIcon({ nodeId: 'node-abc' })}
+        onDoubleClick={noop}
+        onContextMenu={handleContextMenu}
+      />,
       { wrapper },
     );
     fireEvent.contextMenu(screen.getByRole('button', { name: 'Notepad' }));

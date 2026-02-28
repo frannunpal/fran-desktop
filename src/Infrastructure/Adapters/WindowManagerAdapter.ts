@@ -45,8 +45,7 @@ export class WindowManagerAdapter implements IWindowManager {
     for (const w of windows) {
       this.windows.set(w.id, w);
       // Strip the alwaysOnTop offset so we compare raw counter values
-      const raw =
-        (w.alwaysOnTop ?? false) ? w.zIndex - ALWAYS_ON_TOP_OFFSET : w.zIndex;
+      const raw = (w.alwaysOnTop ?? false) ? w.zIndex - ALWAYS_ON_TOP_OFFSET : w.zIndex;
       if (raw > maxZIndex) maxZIndex = raw;
     }
     this.nextZIndex = maxZIndex + 1;

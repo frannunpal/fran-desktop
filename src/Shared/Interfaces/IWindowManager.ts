@@ -1,5 +1,5 @@
 import type { WindowInput } from '@/Shared/Types/WindowTypes';
-import type { WindowEntity } from "@/Shared/Interfaces/WindowEntity";
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 
 export interface IWindowManager {
   getAll(): WindowEntity[];

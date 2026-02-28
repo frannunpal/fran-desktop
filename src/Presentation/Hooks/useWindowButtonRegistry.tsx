@@ -23,11 +23,17 @@ export const WindowButtonRegistryProvider: FC<{ children: ReactNode }> = ({ chil
     return registry.current.get(id);
   };
 
-  return <RegistryContext.Provider value={{ register, unregister, getRect }}>{children}</RegistryContext.Provider>;
+  return (
+    <RegistryContext.Provider value={{ register, unregister, getRect }}>
+      {children}
+    </RegistryContext.Provider>
+  );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useWindowButtonRegistry = (): RegistryContextValue => {
   const ctx = useContext(RegistryContext);
-  if (!ctx) throw new Error('useWindowButtonRegistry must be used within WindowButtonRegistryProvider');
+  if (!ctx)
+    throw new Error('useWindowButtonRegistry must be used within WindowButtonRegistryProvider');
   return ctx;
 };

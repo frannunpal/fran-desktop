@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { Text, UnstyledButton } from '@mantine/core';
 import type { FSNode } from '@domain/Entities/FileSystem';
-import type { FolderNode } from "@/Shared/Interfaces/FolderNode";
+import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
 import FileIcon from './FileIcon';
 import classes from './FolderTree.module.css';
 

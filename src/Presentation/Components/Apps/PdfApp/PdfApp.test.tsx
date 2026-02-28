@@ -69,10 +69,7 @@ describe('PdfApp', () => {
       render(<PdfApp />, { wrapper });
 
       // Assert
-      expect(screen.getByTitle('PDF viewer')).toHaveAttribute(
-        'src',
-        'Desktop/CV_2026_English.pdf',
-      );
+      expect(screen.getByTitle('PDF viewer')).toHaveAttribute('src', 'Desktop/CV_2026_English.pdf');
     });
 
     it('should use the provided src prop', () => {
@@ -147,7 +144,9 @@ describe('PdfApp', () => {
       // Assert
       expect(onPickerClose).toHaveBeenCalledOnce();
       // After closing the picker the new src should be rendered
-      rerender(<PdfApp src="Desktop/report.pdf" pickerOpen={false} onPickerClose={onPickerClose} />);
+      rerender(
+        <PdfApp src="Desktop/report.pdf" pickerOpen={false} onPickerClose={onPickerClose} />,
+      );
       expect(screen.getByTitle('PDF viewer')).toHaveAttribute('src', 'Desktop/report.pdf');
     });
   });

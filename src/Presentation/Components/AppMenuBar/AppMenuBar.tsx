@@ -66,9 +66,7 @@ const AppMenuBar: FC<AppMenuBarProps> = ({ elements }) => (
     {elements.map((el, idx) => {
       switch (el.type) {
         case 'menu':
-          return (
-            <MenuDropdownElement key={idx} label={el.label} icon={el.icon} items={el.items} />
-          );
+          return <MenuDropdownElement key={idx} label={el.label} icon={el.icon} items={el.items} />;
         case 'combobox':
           return (
             <div key={idx} className={classes.element}>

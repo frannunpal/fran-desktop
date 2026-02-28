@@ -43,7 +43,7 @@ const StoreSetup = ({ contextMenu, fsNodes, clipboard }: StoreSetupProps) => {
       fsNodes: fsNodes ?? [],
       clipboard: clipboard ?? { content: [], action: null },
     });
-  }, []);
+  }, [clipboard, contextMenu, fsNodes]);
   return null;
 };
 

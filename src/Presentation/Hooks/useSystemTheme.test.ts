@@ -27,7 +27,10 @@ describe('useSystemTheme', () => {
 
   it('should set dark mode when system prefers dark', () => {
     // Arrange
-    vi.stubGlobal('matchMedia', vi.fn(() => makeMatchMedia(true)));
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => makeMatchMedia(true)),
+    );
 
     // Act
     renderHook(() => useSystemTheme());
@@ -38,7 +41,10 @@ describe('useSystemTheme', () => {
 
   it('should set light mode when system prefers light', () => {
     // Arrange
-    vi.stubGlobal('matchMedia', vi.fn(() => makeMatchMedia(false)));
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => makeMatchMedia(false)),
+    );
 
     // Act
     renderHook(() => useSystemTheme());
@@ -50,7 +56,10 @@ describe('useSystemTheme', () => {
   it('should add a change event listener on mount', () => {
     // Arrange
     const mq = makeMatchMedia(false);
-    vi.stubGlobal('matchMedia', vi.fn(() => mq));
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => mq),
+    );
 
     // Act
     renderHook(() => useSystemTheme());
@@ -62,7 +71,10 @@ describe('useSystemTheme', () => {
   it('should remove the change event listener on unmount', () => {
     // Arrange
     const mq = makeMatchMedia(false);
-    vi.stubGlobal('matchMedia', vi.fn(() => mq));
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => mq),
+    );
 
     // Act
     const { unmount } = renderHook(() => useSystemTheme());
@@ -77,10 +89,15 @@ describe('useSystemTheme', () => {
     let listener: ((e: MediaQueryListEvent) => void) | null = null;
     const mq = {
       matches: false,
-      addEventListener: vi.fn((_: string, fn: (e: MediaQueryListEvent) => void) => { listener = fn; }),
+      addEventListener: vi.fn((_: string, fn: (e: MediaQueryListEvent) => void) => {
+        listener = fn;
+      }),
       removeEventListener: vi.fn(),
     } as unknown as MediaQueryList;
-    vi.stubGlobal('matchMedia', vi.fn(() => mq));
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => mq),
+    );
 
     renderHook(() => useSystemTheme());
 

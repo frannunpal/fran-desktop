@@ -86,7 +86,12 @@ const mockStore = {
   createFile: vi.fn(),
   createFolder: vi.fn(),
   openWindow: vi.fn(),
-  contextMenu: { x: 0, y: 0, owner: null as string | null, targetNodeId: undefined as string | undefined },
+  contextMenu: {
+    x: 0,
+    y: 0,
+    owner: null as string | null,
+    targetNodeId: undefined as string | undefined,
+  },
   openContextMenu: vi.fn(),
   closeContextMenu: vi.fn(),
 };
