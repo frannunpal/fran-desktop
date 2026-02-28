@@ -2,7 +2,51 @@
   "name": "fran-desktop",
   "private": true,
   "version": "0.0.0",
+  "main": "electron/main.cjs",
   "type": "module",
+  "description": "FDE Fran Desktop Environment",
+  "author": "Francisco Núñez Palomares (frannunpal@gmail.com)",
+  "build": {
+    "appId": "com.fran.desktop",
+    "productName": "Fran Desktop Environment",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -15,7 +59,10 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "build:electron": "tsc -b && vite build --config vite.config.electron.ts",
+    "electron:dev": "npm run build:electron && mkdir -p electron/dist && cp -r dist-electron/* electron/dist/ && electron .",
+    "electron:dist": "npm run build:electron && mkdir -p electron/dist && cp -r dist-electron/* electron/dist/ && electron-builder --win --mac --linux"
   },
   "dependencies": {
     "@mantine/core": "^8.3.15",
@@ -41,6 +88,8 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/coverage-v8": "^4.0.18",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.0.0",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",

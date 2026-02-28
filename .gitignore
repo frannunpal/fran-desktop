@@ -30,5 +30,10 @@ coverage
 # Local dev only — CI generates this at build time
 public/version.json
 
-#KDE directory customizations
+# KDE directory customizations
 .directory
+
+# Electron.js release
+release
+electron/fran-desktop
+dist-electron
