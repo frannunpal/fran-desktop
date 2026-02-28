@@ -16,6 +16,17 @@ const StoreSeeder = ({ windows }: { windows: WindowEntity[] }) => {
   return null;
 };
 
+const AllWindows = () => {
+  const windows = useDesktopStore(state => state.windows);
+  return (
+    <>
+      {windows.map(win => (
+        <Window key={win.id} window={win} />
+      ))}
+    </>
+  );
+};
+
 const meta: Meta<typeof Window> = {
   title: 'Common components/Window',
   component: Window,
@@ -24,6 +35,7 @@ const meta: Meta<typeof Window> = {
       const wins: WindowEntity[] = Array.isArray(ctx.parameters.windows)
         ? ctx.parameters.windows
         : [ctx.args.window as WindowEntity];
+      const multiWindow = Array.isArray(ctx.parameters.windows);
       return (
         <WindowButtonRegistryProvider>
           <StoreSeeder windows={wins} />
@@ -35,7 +47,7 @@ const meta: Meta<typeof Window> = {
               background: 'var(--mantine-color-body)',
             }}
           >
-            <Story />
+            {multiWindow ? <AllWindows /> : <Story />}
           </div>
         </WindowButtonRegistryProvider>
       );
@@ -106,7 +118,6 @@ export const NoMaximize: Story = {
 };
 
 // AlwaysOnTop: rendered above all normal windows — shown with a normal window behind it
-// TODO: It only shows one window
 export const AlwaysOnTop: Story = {
   args: {
     window: makeWindow({
@@ -157,7 +168,6 @@ export const AlwaysOnTop: Story = {
 };
 
 // Unfocused: shows the focus overlay that appears when another window has higher zIndex
-// TODO: It only shows one window
 export const Unfocused: Story = {
   args: {
     window: makeWindow({

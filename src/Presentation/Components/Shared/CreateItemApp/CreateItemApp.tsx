@@ -1,4 +1,4 @@
-import { type FC, useState, createElement } from 'react';
+import { type FC, useState, useEffect, useRef, createElement } from 'react';
 import {
   Text,
   TextInput,
@@ -10,8 +10,21 @@ import {
 } from '@mantine/core';
 import * as VscIcons from 'react-icons/vsc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
+import { useFcIconElement } from '@presentation/Hooks/useFcIcon';
 import IconColorPicker from '../IconColorPicker/IconColorPicker';
 import classes from './CreateItemApp.module.css';
+
+const CSS_COLOR_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+const isValidColor = (color: string) => CSS_COLOR_RE.test(color);
+
+const ICON_PROPS = { size: 14, style: { display: 'block' } };
+
+const CollapseToggleIcon: FC<{ open: boolean }> = ({ open }) =>
+  useFcIconElement(open ? 'FcCollapse' : 'FcExpand', ICON_PROPS);
+
+const CancelIcon: FC = () => useFcIconElement('FcCancel', ICON_PROPS);
+
+const CheckIcon: FC = () => useFcIconElement('FcCheckmark', ICON_PROPS);
 
 export interface CreateItemAppProps {
   windowId?: string;
@@ -24,6 +37,7 @@ const DEFAULT_ICON = 'VscFolder';
 const DEFAULT_COLOR = '#228be6';
 const DEFAULT_FILE_NAME = 'New File';
 const DEFAULT_FOLDER_NAME = 'New Folder';
+const TITLE_BAR_HEIGHT = 36;
 
 const CreateItemApp: FC<CreateItemAppProps> = ({
   windowId,
@@ -36,12 +50,35 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
   const [iconColor, setIconColor] = useState(DEFAULT_COLOR);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
+  const rootRef = useRef<HTMLDivElement>(null);
+
   const closeWindow = useDesktopStore(state => state.closeWindow);
+  const resizeWindow = useDesktopStore(state => state.resizeWindow);
   const createFile = useDesktopStore(state => state.createFile);
   const createFolder = useDesktopStore(state => state.createFolder);
+  const fsNodes = useDesktopStore(state => state.fsNodes);
+  const windowWidth = useDesktopStore(
+    state => state.windows.find(w => w.id === windowId)?.width ?? 400,
+  );
+
+  const duplicateName = fsNodes.some(
+    n => n.parentId === parentId && n.type === mode && n.name === name.trim(),
+  );
+  const colorError = mode === 'folder' && iconPickerOpen && !isValidColor(iconColor);
+  const canConfirm = name.trim().length > 0 && !duplicateName && !colorError;
+
+  useEffect(() => {
+    if (!windowId || !rootRef.current) return;
+    const el = rootRef.current;
+    const observer = new ResizeObserver(() => {
+      resizeWindow(windowId, windowWidth, el.scrollHeight + TITLE_BAR_HEIGHT);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [windowId, windowWidth, resizeWindow]);
 
   const handleConfirm = () => {
-    if (!name.trim()) return;
+    if (!canConfirm) return;
     if (mode === 'folder') {
       createFolder(name.trim(), parentId ?? null, iconName, iconColor);
     } else {
@@ -61,9 +98,7 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
   const PreviewIcon = VscIcons[iconName as keyof typeof VscIcons] as React.ElementType | undefined;
 
   return (
-    // TODO: La ventana debe cambiar de altura dinámicamente, ahora mismo tiene una altura fija y no cambia cuando se abre el selector de iconos
-    // TODO: Cambiar los iconos VscIcons.VscChevronDown por el mismo icono del  botón del panel (FcCollapse/FcExpand)
-    <div className={classes.root}>
+    <div ref={rootRef} className={classes.root}>
       <div className={classes.header}>
         <Text fw={600} size="sm">
           {mode === 'folder' ? 'Create new folder' : 'Create new file'} in {currentPath}:
@@ -80,6 +115,7 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
             value={name}
             onChange={e => setName(e.currentTarget.value)}
             onKeyDown={e => e.key === 'Enter' && handleConfirm()}
+            error={duplicateName ? `There is already a ${mode} with that name` : undefined}
             rightSection={
               name ? (
                 <ActionIcon
@@ -88,7 +124,7 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
                   onClick={() => setName('')}
                   aria-label="Clear name"
                 >
-                  <VscIcons.VscClose size={14} />
+                  <CancelIcon />
                 </ActionIcon>
               ) : null
             }
@@ -105,13 +141,7 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
               onClick={() => setIconPickerOpen(o => !o)}
               aria-expanded={iconPickerOpen}
             >
-              <VscIcons.VscChevronDown
-                size={14}
-                style={{
-                  transform: iconPickerOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
-                  transition: 'transform 0.2s',
-                }}
-              />
+              <CollapseToggleIcon open={iconPickerOpen} />
               <Text size="sm" ml={6}>
                 Choose custom icon or color
               </Text>
@@ -124,6 +154,7 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
                   selectedColor={iconColor}
                   onIconChange={setIconName}
                   onColorChange={setIconColor}
+                  colorError={colorError ? 'Enter a valid hex color (e.g. #ff0000)' : undefined}
                 />
               </div>
             </Collapse>
@@ -135,15 +166,15 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
         )}
 
         <Group justify="flex-end" mt="md">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleCancel}
-            leftSection={<VscIcons.VscClose size={14} />}
-          >
+          <Button variant="default" size="sm" onClick={handleCancel} leftSection={<CancelIcon />}>
             Cancel
           </Button>
-          <Button size="sm" onClick={handleConfirm} leftSection={<VscIcons.VscCheck size={14} />}>
+          <Button
+            size="sm"
+            onClick={handleConfirm}
+            leftSection={<CheckIcon />}
+            disabled={!canConfirm}
+          >
             OK
           </Button>
         </Group>

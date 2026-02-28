@@ -5,7 +5,7 @@ import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import type { LauncherProps } from '@/Shared/Interfaces/IComponentProps';
 import { panelVariants, randomWindowPosition } from '@shared/Constants/Animations';
-import { useFcIcon } from '@presentation/Hooks/useFcIcon';
+import { useFcIconElement } from '@presentation/Hooks/useFcIcon';
 import classes from './Launcher.module.css';
 
 interface AppIconProps {
@@ -14,15 +14,13 @@ interface AppIconProps {
 }
 
 const AppIcon: FC<AppIconProps> = ({ fcIcon, fallback }) => {
-  const FcIcon = useFcIcon(fcIcon ?? '');
-  // eslint-disable-next-line react-hooks/static-components
-  if (FcIcon) return <FcIcon size={20} />;
+  const fcElement = useFcIconElement(fcIcon ?? '', { size: 20 });
+  if (fcElement) return fcElement;
   return <span aria-hidden="true">{fallback}</span>;
 };
 
 const Launcher: FC<LauncherProps> = ({ fcIcon = 'FcDebian' }) => {
-  // eslint-disable-next-line react-hooks/static-components
-  const Icon = useFcIcon(fcIcon);
+  const icon = useFcIconElement(fcIcon, { size: 22, style: { display: 'block' } });
   const [open, setOpen] = useState(false);
   const openWindow = useDesktopStore(state => state.openWindow);
   const taskbar = useDesktopStore(state => state.theme.taskbar);
@@ -57,7 +55,7 @@ const Launcher: FC<LauncherProps> = ({ fcIcon = 'FcDebian' }) => {
         aria-label="Launcher"
         aria-expanded={open}
       >
-        {Icon && <Icon size={22} style={{ display: 'block' }} />}
+        {icon}
       </button>
 
       <AnimatePresence>

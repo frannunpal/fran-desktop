@@ -1,4 +1,4 @@
-import { type FC, useEffect, useRef, createElement } from 'react';
+import { type FC, useEffect, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { motion, useAnimationControls } from 'framer-motion';
 import { ActionIcon, Group, Text } from '@mantine/core';
@@ -11,7 +11,7 @@ import {
 import { useShallow } from 'zustand/react/shallow';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
-import { useFcIcon } from '@presentation/Hooks/useFcIcon';
+import { useFcIconElement } from '@presentation/Hooks/useFcIcon';
 import type { WindowProps } from '@/Shared/Interfaces/IComponentProps';
 import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 import {
@@ -24,8 +24,8 @@ import {
 import classes from './Window.module.css';
 
 const TitleIcon: FC<{ win: WindowEntity }> = ({ win }) => {
-  const FcIcon = useFcIcon(win.fcIcon ?? '');
-  if (FcIcon) return createElement(FcIcon, { size: 14, 'aria-hidden': 'true' });
+  const fcElement = useFcIconElement(win.fcIcon ?? '', { size: 14, 'aria-hidden': 'true' });
+  if (fcElement) return fcElement;
   if (win.icon) return <span aria-hidden="true">{win.icon}</span>;
   return null;
 };

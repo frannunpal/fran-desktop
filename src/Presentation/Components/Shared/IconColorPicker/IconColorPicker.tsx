@@ -11,6 +11,7 @@ export interface IconColorPickerProps {
   selectedColor: string;
   onIconChange: (icon: string) => void;
   onColorChange: (color: string) => void;
+  colorError?: string;
 }
 
 const IconColorPicker: FC<IconColorPickerProps> = ({
@@ -18,6 +19,7 @@ const IconColorPicker: FC<IconColorPickerProps> = ({
   selectedColor,
   onIconChange,
   onColorChange,
+  colorError,
 }) => {
   return (
     <div className={classes.root}>
@@ -63,6 +65,7 @@ const IconColorPicker: FC<IconColorPickerProps> = ({
         size="xs"
         className={classes.colorInput}
         aria-label="Custom color picker"
+        error={colorError}
       />
     </div>
   );

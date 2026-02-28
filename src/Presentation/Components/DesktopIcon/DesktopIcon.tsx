@@ -3,7 +3,7 @@ import { Text } from '@mantine/core';
 import type { DesktopIconProps } from '@/Shared/Interfaces/IComponentProps';
 import FileIcon from '@/Presentation/Components/FilesApp/components/FileIcon';
 import { APPS } from '@shared/Constants/apps';
-import { useFcIcon } from '@/Presentation/Hooks/useFcIcon';
+import { useFcIconElement } from '@/Presentation/Hooks/useFcIcon';
 import classes from './DesktopIcon.module.css';
 
 const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick, onContextMenu }) => {
@@ -11,7 +11,7 @@ const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick, onContextMenu 
   const hasCustomIcon = icon.iconName !== undefined;
   const isFileIcon = icon.nodeId !== undefined;
   const isPdf = icon.appId === 'pdf';
-  const FcIcon = useFcIcon(app?.fcIcon ?? '');
+  const fcElement = useFcIconElement(app?.fcIcon ?? '', { size: 32 });
 
   const renderIcon = () => {
     if (hasCustomIcon) {
@@ -39,9 +39,7 @@ const DesktopIcon: FC<DesktopIconProps> = ({ icon, onDoubleClick, onContextMenu 
       return <FileIcon type="file" name={icon.name} size={32} />;
     }
 
-    if (FcIcon) {
-      return <FcIcon size={32} />;
-    }
+    if (fcElement) return fcElement;
 
     return icon.icon;
   };

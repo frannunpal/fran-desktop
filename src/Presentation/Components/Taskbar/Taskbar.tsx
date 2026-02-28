@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/static-components */
 import { type FC, useState, useRef, useEffect } from 'react';
 import { Text, Popover, Notification } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useClock } from '@presentation/Hooks/useClock';
-import { useFcIcon } from '@presentation/Hooks/useFcIcon';
+import { useFcIconElement } from '@presentation/Hooks/useFcIcon';
 import { useContextMenu } from '@presentation/Hooks/useContextMenu';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
 import Launcher from '@presentation/Components/Launcher/Launcher';
@@ -17,23 +16,19 @@ interface WindowButtonIconProps {
 }
 
 const WindowButtonIcon: FC<WindowButtonIconProps> = ({ win }) => {
-  const FcIcon = useFcIcon(win.fcIcon ?? '');
-  if (FcIcon) return <FcIcon size={14} />;
+  const fcElement = useFcIconElement(win.fcIcon ?? '', { size: 14 });
+  if (fcElement) return fcElement;
   if (win.icon) return <span aria-hidden="true">{win.icon}</span>;
   return null;
 };
 
-const NotifButtonIcon: FC<{ open: boolean }> = ({ open }) => {
-  const FcIcon = useFcIcon(open ? 'FcCollapse' : 'FcExpand');
-  if (FcIcon) return <FcIcon size={18} style={{ display: 'block' }} />;
-  return null;
-};
+const NOTIF_ICON_PROPS = { size: 18, style: { display: 'block' } };
 
-const NotificationIcon: FC<{ fcIcon?: string }> = ({ fcIcon }) => {
-  const FcIcon = useFcIcon(fcIcon ?? '');
-  if (FcIcon) return <FcIcon size={18} style={{ display: 'block' }} />;
-  return null;
-};
+const NotifButtonIcon: FC<{ open: boolean }> = ({ open }) =>
+  useFcIconElement(open ? 'FcCollapse' : 'FcExpand', NOTIF_ICON_PROPS);
+
+const NotificationIcon: FC<{ fcIcon?: string }> = ({ fcIcon }) =>
+  useFcIconElement(fcIcon ?? '', NOTIF_ICON_PROPS);
 
 interface WindowButtonProps {
   win: WindowEntity;

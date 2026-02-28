@@ -15,6 +15,7 @@ import CreateItemApp from '@presentation/Components/Shared/CreateItemApp/CreateI
 import StorybookApp from '@presentation/Components/StorybookApp/StorybookApp';
 import CreateItemContextMenu from '@presentation/Components/ContextMenu/CreateItemContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
+import { useAppVersion } from '@presentation/Hooks/useAppVersion';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
 import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
 import { randomWindowPosition } from '@shared/Constants/Animations';
@@ -50,6 +51,7 @@ function App() {
   );
 
   useSystemTheme();
+  useAppVersion();
 
   // Seed demo data and filesystem on first mount
   useEffect(() => {

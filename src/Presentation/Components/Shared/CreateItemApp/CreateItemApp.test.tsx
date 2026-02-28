@@ -1,11 +1,17 @@
 // @vitest-environment jsdom
 import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
+import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
 
 vi.mock('../IconColorPicker/IconColorPicker', () => ({
-  default: () => <div>IconPicker</div>,
+  default: ({ colorError }: { colorError?: string }) => (
+    <div>
+      IconPicker
+      {colorError && <span role="alert">{colorError}</span>}
+    </div>
+  ),
   PRESET_ICONS: ['VscFolder'],
   PRESET_COLORS: ['#868e96'],
 }));
@@ -17,12 +23,30 @@ vi.mock('react-icons/vsc', () => ({
   VscCheck: () => <svg />,
 }));
 
+const existingFolder: FolderNode = {
+  id: 'node-1',
+  type: 'folder',
+  name: 'Existing Folder',
+  parentId: 'folder-desktop',
+  children: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const makeStoreMock = (fsNodes = [existingFolder]) =>
+  vi.fn((selector: (s: object) => unknown) =>
+    selector({
+      closeWindow: () => {},
+      createFile: () => {},
+      createFolder: () => {},
+      resizeWindow: () => {},
+      windows: [],
+      fsNodes,
+    }),
+  );
+
 vi.mock('@presentation/Store/desktopStore', () => ({
-  useDesktopStore: () => ({
-    closeWindow: () => {},
-    createFile: () => {},
-    createFolder: () => {},
-  }),
+  useDesktopStore: makeStoreMock(),
 }));
 
 const { default: CreateItemApp } = await import('./CreateItemApp');
@@ -77,5 +101,42 @@ describe('CreateItemApp', () => {
       { wrapper },
     );
     expect(screen.getByText(/\/home\/Documents\/Work/)).toBeInTheDocument();
+  });
+
+  it('should show duplicate name error and disable OK when folder name already exists', () => {
+    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
+      wrapper,
+    });
+
+    // Arrange: type the name of the existing folder
+    const input = screen.getByLabelText('Item name');
+    fireEvent.change(input, { target: { value: 'Existing Folder' } });
+
+    // Assert: error message shown and OK disabled
+    expect(screen.getByText('There is already a folder with that name')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /ok/i })).toBeDisabled();
+  });
+
+  it('should not show duplicate error when name is unique', () => {
+    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
+      wrapper,
+    });
+
+    const input = screen.getByLabelText('Item name');
+    fireEvent.change(input, { target: { value: 'Brand New Folder' } });
+
+    expect(screen.queryByText(/There is already a folder/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /ok/i })).not.toBeDisabled();
+  });
+
+  it('should disable OK when name is empty', () => {
+    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
+      wrapper,
+    });
+
+    const input = screen.getByLabelText('Item name');
+    fireEvent.change(input, { target: { value: '' } });
+
+    expect(screen.getByRole('button', { name: /ok/i })).toBeDisabled();
   });
 });
