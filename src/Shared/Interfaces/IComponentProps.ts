@@ -36,7 +36,11 @@ export interface TaskbarContextMenuProps {
   panelMenuOpened: boolean;
   menuPosition: MenuPosition;
   targetWindowId: string | null;
+  targetWindowState: string | null;
   onCloseWindow: (id: string) => void;
+  onMinimizeWindow: (id: string) => void;
+  onMaximizeWindow: (id: string) => void;
+  onRestoreWindow: (id: string) => void;
   onWindowMenuClose: () => void;
   onPanelMenuClose: () => void;
 }

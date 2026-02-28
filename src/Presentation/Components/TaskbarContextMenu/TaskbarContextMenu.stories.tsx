@@ -13,7 +13,11 @@ const meta: Meta<typeof TaskbarContextMenu> = {
   args: {
     menuPosition: { x: 200, y: 350 },
     targetWindowId: 'win-1',
+    targetWindowState: 'normal',
     onCloseWindow: () => {},
+    onMinimizeWindow: () => {},
+    onMaximizeWindow: () => {},
+    onRestoreWindow: () => {},
     onWindowMenuClose: () => {},
     onPanelMenuClose: () => {},
   },
@@ -31,10 +35,30 @@ const meta: Meta<typeof TaskbarContextMenu> = {
 export default meta;
 type Story = StoryObj<typeof TaskbarContextMenu>;
 
-export const WindowMenu: Story = {
+export const WindowMenuNormal: Story = {
+  name: 'Window menu — normal',
   args: {
     windowMenuOpened: true,
     panelMenuOpened: false,
+    targetWindowState: 'normal',
+  },
+};
+
+export const WindowMenuMinimized: Story = {
+  name: 'Window menu — minimized',
+  args: {
+    windowMenuOpened: true,
+    panelMenuOpened: false,
+    targetWindowState: 'minimized',
+  },
+};
+
+export const WindowMenuMaximized: Story = {
+  name: 'Window menu — maximized',
+  args: {
+    windowMenuOpened: true,
+    panelMenuOpened: false,
+    targetWindowState: 'maximized',
   },
 };
 
@@ -115,10 +139,17 @@ const InteractiveRender = () => {
   const [windowMenuOpened, setWindowMenuOpened] = useState(false);
   const [panelMenuOpened, setPanelMenuOpened] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const [targetWindowId, setTargetWindowId] = useState('');
+  const [targetWindowId, setTargetWindowId] = useState<string | null>(null);
   const windows = useDesktopStore(state => state.windows);
   const openWindow = useDesktopStore(state => state.openWindow);
+  const minimizeWindow = useDesktopStore(state => state.minimizeWindow);
+  const maximizeWindow = useDesktopStore(state => state.maximizeWindow);
+  const restoreWindow = useDesktopStore(state => state.restoreWindow);
+  const closeWindow = useDesktopStore(state => state.closeWindow);
   const taskbarBg = useDesktopStore(state => state.theme.taskbar);
+
+  const targetWindowState =
+    targetWindowId ? (windows.find(w => w.id === targetWindowId)?.state ?? null) : null;
 
   useEffect(() => {
     useDesktopStore.setState({ windows: [] });
@@ -168,7 +199,11 @@ const InteractiveRender = () => {
         panelMenuOpened={panelMenuOpened}
         menuPosition={menuPosition}
         targetWindowId={targetWindowId}
-        onCloseWindow={() => {}}
+        targetWindowState={targetWindowState}
+        onCloseWindow={id => { closeWindow(id); setWindowMenuOpened(false); }}
+        onMinimizeWindow={id => { minimizeWindow(id); setWindowMenuOpened(false); }}
+        onMaximizeWindow={id => { maximizeWindow(id); setWindowMenuOpened(false); }}
+        onRestoreWindow={id => { restoreWindow(id); setWindowMenuOpened(false); }}
         onWindowMenuClose={() => setWindowMenuOpened(false)}
         onPanelMenuClose={() => setPanelMenuOpened(false)}
       />

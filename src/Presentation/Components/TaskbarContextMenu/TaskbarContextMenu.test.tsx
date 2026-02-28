@@ -10,7 +10,11 @@ const baseProps = {
   panelMenuOpened: false,
   menuPosition: { x: 100, y: 400 },
   targetWindowId: null,
+  targetWindowState: null,
   onCloseWindow: vi.fn(),
+  onMinimizeWindow: vi.fn(),
+  onMaximizeWindow: vi.fn(),
+  onRestoreWindow: vi.fn(),
   onWindowMenuClose: vi.fn(),
   onPanelMenuClose: vi.fn(),
 };
@@ -18,11 +22,20 @@ const baseProps = {
 describe('TaskbarContextMenu', () => {
   it('should render window menu items when windowMenuOpened is true', () => {
     // Act
-    render(<TaskbarContextMenu {...baseProps} windowMenuOpened={true} targetWindowId="win-1" />, { wrapper });
+    render(
+      <TaskbarContextMenu
+        {...baseProps}
+        windowMenuOpened={true}
+        targetWindowId="win-1"
+        targetWindowState="normal"
+      />,
+      { wrapper },
+    );
 
     // Assert
     expect(screen.getByText('Close window')).toBeInTheDocument();
-    expect(screen.getByText('Pin window (coming soon)')).toBeInTheDocument();
+    expect(screen.getByText('Minimize')).toBeInTheDocument();
+    expect(screen.getByText('Maximize')).toBeInTheDocument();
   });
 
   it('should render panel menu items when panelMenuOpened is true', () => {
@@ -44,6 +57,7 @@ describe('TaskbarContextMenu', () => {
         {...baseProps}
         windowMenuOpened={true}
         targetWindowId="win-42"
+        targetWindowState="normal"
         onCloseWindow={handleClose}
         onWindowMenuClose={handleWindowMenuClose}
       />,
@@ -66,6 +80,7 @@ describe('TaskbarContextMenu', () => {
         {...baseProps}
         windowMenuOpened={true}
         targetWindowId={null}
+        targetWindowState={null}
         onCloseWindow={handleClose}
       />,
       { wrapper },
@@ -82,5 +97,124 @@ describe('TaskbarContextMenu', () => {
 
     // Assert
     expect(screen.queryByText('Close window')).not.toBeInTheDocument();
+  });
+
+  it('should call onMinimizeWindow when Minimize is clicked', () => {
+    // Arrange
+    const handleMinimize = vi.fn();
+
+    // Act
+    render(
+      <TaskbarContextMenu
+        {...baseProps}
+        windowMenuOpened={true}
+        targetWindowId="win-1"
+        targetWindowState="normal"
+        onMinimizeWindow={handleMinimize}
+      />,
+      { wrapper },
+    );
+    fireEvent.click(screen.getByText('Minimize'));
+
+    // Assert
+    expect(handleMinimize).toHaveBeenCalledWith('win-1');
+  });
+
+  it('should call onMaximizeWindow when Maximize is clicked', () => {
+    // Arrange
+    const handleMaximize = vi.fn();
+
+    // Act
+    render(
+      <TaskbarContextMenu
+        {...baseProps}
+        windowMenuOpened={true}
+        targetWindowId="win-1"
+        targetWindowState="normal"
+        onMaximizeWindow={handleMaximize}
+      />,
+      { wrapper },
+    );
+    fireEvent.click(screen.getByText('Maximize'));
+
+    // Assert
+    expect(handleMaximize).toHaveBeenCalledWith('win-1');
+  });
+
+  it('should show Restore instead of Maximize when window is minimized', () => {
+    // Act
+    render(
+      <TaskbarContextMenu
+        {...baseProps}
+        windowMenuOpened={true}
+        targetWindowId="win-1"
+        targetWindowState="minimized"
+      />,
+      { wrapper },
+    );
+
+    // Assert
+    expect(screen.getByText('Restore')).toBeInTheDocument();
+    expect(screen.queryByText('Maximize')).not.toBeInTheDocument();
+    expect(screen.queryByText('Minimize')).not.toBeInTheDocument();
+  });
+
+  it('should call onRestoreWindow when Restore is clicked on a minimized window', () => {
+    // Arrange
+    const handleRestore = vi.fn();
+
+    // Act
+    render(
+      <TaskbarContextMenu
+        {...baseProps}
+        windowMenuOpened={true}
+        targetWindowId="win-1"
+        targetWindowState="minimized"
+        onRestoreWindow={handleRestore}
+      />,
+      { wrapper },
+    );
+    fireEvent.click(screen.getByText('Restore'));
+
+    // Assert
+    expect(handleRestore).toHaveBeenCalledWith('win-1');
+  });
+
+  it('should show Restore instead of Maximize when window is maximized', () => {
+    // Act
+    render(
+      <TaskbarContextMenu
+        {...baseProps}
+        windowMenuOpened={true}
+        targetWindowId="win-1"
+        targetWindowState="maximized"
+      />,
+      { wrapper },
+    );
+
+    // Assert
+    expect(screen.getByText('Restore')).toBeInTheDocument();
+    expect(screen.queryByText('Maximize')).not.toBeInTheDocument();
+  });
+
+  it('should call onRestoreWindow when Restore is clicked on a maximized window', () => {
+    // Arrange
+    const handleRestore = vi.fn();
+
+    // Act
+    render(
+      <TaskbarContextMenu
+        {...baseProps}
+        windowMenuOpened={true}
+        targetWindowId="win-1"
+        targetWindowState="maximized"
+        onRestoreWindow={handleRestore}
+      />,
+      { wrapper },
+    );
+    fireEvent.click(screen.getByText('Restore'));
+
+    // Assert
+    expect(handleRestore).toHaveBeenCalledWith('win-1');
   });
 });

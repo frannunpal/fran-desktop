@@ -56,11 +56,15 @@ const Taskbar: FC = () => {
   const minimizeWindow = useDesktopStore(state => state.minimizeWindow);
   const focusWindow = useDesktopStore(state => state.focusWindow);
   const closeWindow = useDesktopStore(state => state.closeWindow);
+  const maximizeWindow = useDesktopStore(state => state.maximizeWindow);
   const toggleTheme = useDesktopStore(state => state.toggleTheme);
   const time = useClock();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [targetWindowId, setTargetWindowId] = useState<string | null>(null);
+  const targetWindowState = targetWindowId
+    ? (windows.find(w => w.id === targetWindowId)?.state ?? null)
+    : null;
 
   const prevNotifLenRef = useRef(0);
   useEffect(() => {
@@ -188,7 +192,11 @@ const Taskbar: FC = () => {
         panelMenuOpened={panelMenu.opened}
         menuPosition={windowMenu.opened ? windowMenu.position : panelMenu.position}
         targetWindowId={targetWindowId}
+        targetWindowState={targetWindowState}
         onCloseWindow={closeWindow}
+        onMinimizeWindow={minimizeWindow}
+        onMaximizeWindow={maximizeWindow}
+        onRestoreWindow={restoreWindow}
         onWindowMenuClose={windowMenu.close}
         onPanelMenuClose={panelMenu.close}
       />

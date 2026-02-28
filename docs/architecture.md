@@ -62,6 +62,12 @@ The adapters that connect the real world with our logic:
 This is where all the React stuff lives:
 
 - **Components/**: UI components (Window, Taskbar, DesktopIcon, Apps, etc.)
+  - **Taskbar/**: The bottom bar showing open windows and system controls
+  - **TaskbarContextMenu/**: Right-click menu for taskbar items (window controls, exit)
+  - **Launcher/**: Start menu / app launcher
+  - **Window/**: Draggable, resizable window component using react-rnd
+  - **DesktopIcon/**: Icons on the desktop that open apps
+  - **Apps/**: Built-in applications (Files, Terminal, Settings, etc.)
 - **Hooks/**: Custom hooks (useOpenApp, useClock, useSystemTheme...)
 - **Store/**: The Zustand store (desktopStore.ts)
 
@@ -70,6 +76,7 @@ This is where all the React stuff lives:
 Code shared across all layers:
 
 - **Interfaces/**: TypeScript contracts (IWindowManager, IFileSystem, AppEntry, etc.)
+  - **IComponentProps.ts**: Props interfaces for all presentation components (TaskbarProps, TaskbarContextMenuProps, WindowProps, etc.)
 - **Types/**: Utility types
 - **Constants/**: Global constants (APPS, Colors, Icons, Animations)
 - **Utils/**: Utility functions
@@ -122,3 +129,22 @@ This guarantees they're always above normal ones, no matter how many normal wind
 ## Next Step
 
 Now that you know how the architecture works, check out [folder-structure.md](./folder-structure.md) to see how the code is organized on disk.
+
+## Recent Changes
+
+### Commit "TLC for taskbar part 1" (b84c2df)
+
+Added tests and CSS for the Taskbar/Launcher components:
+
+- **Launcher.test.tsx**: Added 3 new tests for panel behavior (close on outside click, close on Escape, stay open on inside click)
+- **TaskbarContextMenu.module.css**: New CSS module with `.menuItem` class for menu item layout
+
+### Working Directory Changes (uncommitted)
+
+Enhanced TaskbarContextMenu with window state controls:
+
+- **IComponentProps.ts**: Added `targetWindowState`, `onMinimizeWindow`, `onMaximizeWindow`, `onRestoreWindow` props
+- **TaskbarContextMenu.tsx**: Added Minimize, Maximize, and Restore menu options based on window state. Removed "Pin window (coming soon)" placeholder
+- **TaskbarContextMenu.stories.tsx**: Updated stories to reflect new props
+- **TaskbarContextMenu.test.tsx**: Added 138 new lines of tests for the new functionality
+- **Taskbar.tsx**: Minor additions (8 lines)
