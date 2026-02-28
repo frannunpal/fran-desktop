@@ -3,9 +3,10 @@ import { resolve } from 'path';
 
 export default defineConfig({
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     globals: true,
     isolate: true,
+    setupFiles: ['src/Shared/Testing/__mocks__/jsdom-setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

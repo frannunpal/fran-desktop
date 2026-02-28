@@ -37,6 +37,17 @@ jobs:
           sed -i "s/\"version\": \"$CURRENT_VERSION\"/\"version\": \"$NEW_VERSION\"/" package.json
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run tests
+        run: bun run test:run
+
       - name: Generate changelog
         id: changelog
         run: |
@@ -77,9 +88,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-
-      - name: Run tests
-        run: bun run test
 
       - name: Build Electron app
         run: bun run electron:dist:${{ matrix.platform }}
