@@ -1,23 +1,47 @@
-import type { FC } from 'react';
+import { type FC, useState } from 'react';
 import { Text } from '@mantine/core';
+import type { FileNode } from '@/Shared/Interfaces/FileNode';
+import { FilePickerModal } from '@presentation/Components/Shared/FilePickerApp/FilePickerApp';
 import classes from './ImageViewerApp.module.css';
+import { IMAGE_MIME_TYPES } from '@/Shared/Utils/getAppIdForMime';
 
-interface ImageViewerAppProps {
+const ACCEPTED_IMAGE_TYPES = [...IMAGE_MIME_TYPES, 'image/*'];
+
+export interface ImageViewerAppProps {
   src?: string;
+  windowId?: string;
+  pickerOpen?: boolean;
+  onPickerClose?: () => void;
 }
 
-const ImageViewerApp: FC<ImageViewerAppProps> = ({ src }) => {
-  if (!src) {
-    return (
-      <div className={classes.container}>
-        <Text className={classes.placeholder}>No image to display</Text>
-      </div>
-    );
-  }
+const ImageViewerApp: FC<ImageViewerAppProps> = ({
+  src: initialSrc,
+  windowId,
+  pickerOpen = false,
+  onPickerClose,
+}) => {
+  const [src, setSrc] = useState(initialSrc);
+
+  const handleFileSelected = (node: FileNode) => {
+    setSrc(node.url ?? node.name);
+    onPickerClose?.();
+  };
+
+  const content = src ? (
+    <img src={src} alt={src.split('/').pop()} className={classes.image} />
+  ) : (
+    <Text className={classes.placeholder}>No image to display</Text>
+  );
 
   return (
-    <div className={classes.container}>
-      <img src={src} alt={src.split('/').pop()} className={classes.image} />
+    <div className={classes.container} data-windowid={windowId}>
+      {content}
+      <FilePickerModal
+        opened={pickerOpen}
+        acceptedMimeTypes={ACCEPTED_IMAGE_TYPES}
+        onConfirm={handleFileSelected}
+        onCancel={() => onPickerClose?.()}
+      />
     </div>
   );
 };

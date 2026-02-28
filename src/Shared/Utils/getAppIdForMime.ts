@@ -1,4 +1,4 @@
-const IMAGE_MIME_TYPES = new Set([
+export const IMAGE_MIME_TYPES = new Set([
   'image/jpeg',
   'image/png',
   'image/gif',

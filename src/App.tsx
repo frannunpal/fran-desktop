@@ -1,5 +1,5 @@
 import '@mantine/core/styles.css';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { MantineProvider } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
@@ -14,6 +14,7 @@ import FilesApp from '@presentation/Components/Apps/FilesApp/FilesApp';
 import CreateItemApp from '@presentation/Components/Shared/CreateItemApp/CreateItemApp';
 import StorybookApp from '@/Presentation/Components/Apps/StorybookApp/StorybookApp';
 import ImageViewerApp from '@/Presentation/Components/Apps/ImageViewerApp/ImageViewerApp';
+import { buildImageViewerMenuBar } from './Presentation/Components/Apps/ImageViewerApp/buildImageViewerMenuBar';
 import CreateItemContextMenu from '@presentation/Components/ContextMenu/CreateItemContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { useAppVersion } from '@presentation/Hooks/useAppVersion';
@@ -28,7 +29,9 @@ function App() {
   const icons = useDesktopStore(state => state.icons);
   const initFs = useDesktopStore(state => state.initFs);
   const fsNodes = useDesktopStore(state => state.fsNodes);
+  const closeWindow = useDesktopStore(state => state.closeWindow);
   const openContextMenu = useDesktopStore(state => state.openContextMenu);
+  const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
   const filesCurrentFolderId = useDesktopStore(state => state.filesCurrentFolderId);
   const desktopFolderId = useDesktopStore(state => state.desktopFolderId);
   const openApp = useOpenApp();
@@ -107,7 +110,18 @@ function App() {
           ))}
           <AnimatePresence>
             {windows.map(win => (
-              <Window key={win.id} window={win}>
+              <Window
+                key={win.id}
+                window={win}
+                menuBar={
+                  win.content === 'image-viewer'
+                    ? buildImageViewerMenuBar(
+                        () => setPickerOpenId(win.id),
+                        () => closeWindow(win.id),
+                      )
+                    : undefined
+                }
+              >
                 {win.content === 'calendar' && <CalendarApp />}
                 {win.content === 'pdf' && (
                   <PdfApp src={win.contentData?.src as string | undefined} />
@@ -127,7 +141,12 @@ function App() {
                 )}
                 {win.content === 'storybook' && <StorybookApp />}
                 {win.content === 'image-viewer' && (
-                  <ImageViewerApp src={win.contentData?.src as string | undefined} />
+                  <ImageViewerApp
+                    src={win.contentData?.src as string | undefined}
+                    windowId={win.id}
+                    pickerOpen={pickerOpenId === win.id}
+                    onPickerClose={() => setPickerOpenId(null)}
+                  />
                 )}
               </Window>
             ))}
