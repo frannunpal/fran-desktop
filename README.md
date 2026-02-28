@@ -4,6 +4,9 @@ Since a few years back, I wanted to recreate the feeling of a real desktop insid
 
 Built this with React and TypeScript because I needed the type safety for the window state management. The dragging and resizing comes from react-rnd, which saved me weeks of writing that logic from scratch also zustand, becasuse that's what __we__ the cool guys use nowadays :D.
 
+
+You can access the app RIGHT NOW(!!!) as a website hosted in **[github-pages](https://frannunpal.github.io/fran-desktop/)** or **[Download the latest release](https://github.com/frannunpal/fran-desktop/releases)** for your operating system
+
 ## What it actually does
 
 You get a working desktop in the browser in which everything works as you expect:
@@ -58,8 +61,8 @@ This means I could theoretically port this to Vue or even native desktop without
 ## Quick start
 
 ```bash
-git clone https://github.com/yourusername/web-desktop.git
-cd web-desktop
+git clone https://github.com/frannunpal/fran-desktop.git
+cd fran-desktop
 bun install
 bun run dev
 ```
@@ -86,7 +89,7 @@ I'm honestly not sure if anyone should use this for production. It's more of a p
 - [x] Global Zustand store with localStorage persistence
 - [x] ESLint + Prettier configured
 - [x] unit tests passing (Vitest)
-- [ ] UI components
+- [x] UI components
 - [ ] Full feature set
 - [ ] Built-in apps
 
