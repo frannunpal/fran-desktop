@@ -47,6 +47,22 @@ const nextFreeIconSlot = (icons: { x: number; y: number }[]): { x: number; y: nu
   }
 };
 
+type DesktopIconEntity = ReturnType<typeof createDesktopIcon>;
+type DesktopIconInput = Omit<Parameters<typeof createDesktopIcon>[0], 'x' | 'y'>;
+
+/**
+ * Pure helper: returns a new icons array with one icon appended at the next
+ * free grid slot. Does not call `set` directly — call sites decide when to
+ * commit to the store, keeping the helper testable and side-effect free.
+ */
+const appendDesktopIcon = (
+  current: DesktopIconEntity[],
+  input: DesktopIconInput,
+): DesktopIconEntity[] => {
+  const pos = nextFreeIconSlot(current);
+  return [...current, createDesktopIcon({ ...input, ...pos })];
+};
+
 // ─── Store ───────────────────────────────────────────────────────────────────
 export const useDesktopStore = create<DesktopState>()(
   persist(
@@ -139,15 +155,8 @@ export const useDesktopStore = create<DesktopState>()(
           DESKTOP_APPS.forEach(appId => {
             const app = APPS.find(a => a.id === appId);
             if (!app) return;
-            const alreadyAdded = get().icons.some(ic => ic.appId === appId);
-            if (!alreadyAdded) {
-              const pos = nextFreeIconSlot(get().icons);
-              set(state => ({
-                icons: [
-                  ...state.icons,
-                  createDesktopIcon({ name: app.name, icon: app.icon, ...pos, appId }),
-                ],
-              }));
+            if (!get().icons.some(ic => ic.appId === appId)) {
+              set({ icons: appendDesktopIcon(get().icons, { name: app.name, icon: app.icon, appId }) });
             }
           });
 
@@ -157,17 +166,15 @@ export const useDesktopStore = create<DesktopState>()(
           const desktopFiles = fileSystem.getChildren(desktopFolderId);
           desktopFiles.forEach(node => {
             if (node.type !== 'file') return;
-            const alreadyOnDesktop = get().icons.some(ic => ic.name === node.name);
-            if (!alreadyOnDesktop) {
-              const pos = nextFreeIconSlot(get().icons);
-              const icon = createDesktopIcon({
-                name: node.name,
-                icon: '📄',
-                ...pos,
-                appId: node.mimeType === 'application/pdf' ? 'pdf' : 'files',
-                nodeId: node.id,
+            if (!get().icons.some(ic => ic.name === node.name)) {
+              set({
+                icons: appendDesktopIcon(get().icons, {
+                  name: node.name,
+                  icon: '📄',
+                  appId: node.mimeType === 'application/pdf' ? 'pdf' : 'files',
+                  nodeId: node.id,
+                }),
               });
-              set(state => ({ icons: [...state.icons, icon] }));
             }
           });
         } catch {
@@ -184,15 +191,14 @@ export const useDesktopStore = create<DesktopState>()(
         if (parentId && parentId === desktopFolderId) {
           const { icons } = get();
           if (!icons.some(ic => ic.name === file.name)) {
-            const pos = nextFreeIconSlot(icons);
-            const icon = createDesktopIcon({
-              name: file.name,
-              icon: '📄',
-              ...pos,
-              appId: file.mimeType === 'application/pdf' ? 'pdf' : 'files',
-              nodeId: file.id,
+            set({
+              icons: appendDesktopIcon(icons, {
+                name: file.name,
+                icon: '📄',
+                appId: file.mimeType === 'application/pdf' ? 'pdf' : 'files',
+                nodeId: file.id,
+              }),
             });
-            set(state => ({ icons: [...state.icons, icon] }));
           }
         }
 
@@ -208,17 +214,16 @@ export const useDesktopStore = create<DesktopState>()(
         if (parentId && parentId === desktopFolderId) {
           const { icons } = get();
           if (!icons.some(ic => ic.name === folder.name)) {
-            const pos = nextFreeIconSlot(icons);
-            const icon = createDesktopIcon({
-              name: folder.name,
-              icon: '📁',
-              iconName: folder.iconName,
-              iconColor: folder.iconColor,
-              ...pos,
-              appId: 'files',
-              nodeId: folder.id,
+            set({
+              icons: appendDesktopIcon(icons, {
+                name: folder.name,
+                icon: '📁',
+                iconName: folder.iconName,
+                iconColor: folder.iconColor,
+                appId: 'files',
+                nodeId: folder.id,
+              }),
             });
-            set(state => ({ icons: [...state.icons, icon] }));
           }
         }
 
@@ -309,28 +314,21 @@ export const useDesktopStore = create<DesktopState>()(
           const app = APPS.find(a => a.id === appId);
           if (!app) continue;
           if (get().icons.some(ic => ic.appId === appId)) continue;
-          const pos = nextFreeIconSlot(get().icons);
-          set(state => ({
-            icons: [
-              ...state.icons,
-              createDesktopIcon({ name: app.name, icon: app.icon, ...pos, appId }),
-            ],
-          }));
+          set({ icons: appendDesktopIcon(get().icons, { name: app.name, icon: app.icon, appId }) });
         }
         const desktopFolderId = getDesktopFolderId();
         if (!desktopFolderId) return;
         for (const node of fileSystem.getChildren(desktopFolderId)) {
           if (node.type !== 'file') continue;
           if (get().icons.some(ic => ic.name === node.name)) continue;
-          const pos = nextFreeIconSlot(get().icons);
-          const icon = createDesktopIcon({
-            name: node.name,
-            icon: '📄',
-            ...pos,
-            appId: node.mimeType === 'application/pdf' ? 'pdf' : 'files',
-            nodeId: node.id,
+          set({
+            icons: appendDesktopIcon(get().icons, {
+              name: node.name,
+              icon: '📄',
+              appId: node.mimeType === 'application/pdf' ? 'pdf' : 'files',
+              nodeId: node.id,
+            }),
           });
-          set(state => ({ icons: [...state.icons, icon] }));
         }
       },
 

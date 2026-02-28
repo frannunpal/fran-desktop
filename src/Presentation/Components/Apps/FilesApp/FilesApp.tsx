@@ -2,8 +2,7 @@ import { type FC, useCallback, useState, useEffect } from 'react';
 import { Text, Breadcrumbs, Anchor } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
-import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
-import { randomWindowPosition } from '@shared/Constants/Animations';
+import { useOpenApp } from '@presentation/Hooks/useOpenApp';
 import FolderTree from './components/FolderTree';
 import FileList from './components/FileList';
 import classes from './FilesApp.module.css';
@@ -14,9 +13,9 @@ interface FilesAppProps {
 
 const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
   const fsNodes = useDesktopStore(state => state.fsNodes);
-  const openWindow = useDesktopStore(state => state.openWindow);
   const openContextMenu = useDesktopStore(state => state.openContextMenu);
   const setFilesCurrentFolderId = useDesktopStore(state => state.setFilesCurrentFolderId);
+  const openApp = useOpenApp();
   const [currentFolderId, setCurrentFolderIdLocal] = useState<string | null>(initialFolderId);
 
   const setCurrentFolderId = useCallback(
@@ -70,24 +69,10 @@ const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
   const handleOpenFile = useCallback(
     (node: FileNode) => {
       if (node.mimeType === 'application/pdf') {
-        const app = APPS.find(a => a.id === 'pdf');
-        const { x, y } = randomWindowPosition();
-        openWindow({
-          title: node.name,
-          content: 'pdf',
-          icon: app?.icon,
-          fcIcon: app?.fcIcon,
-          x,
-          y,
-          width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
-          height: app?.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
-          minWidth: app?.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
-          minHeight: app?.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
-          contentData: { src: node.url ?? node.name },
-        });
+        openApp('pdf', { contentData: { src: node.url ?? node.name } });
       }
     },
-    [openWindow],
+    [openApp],
   );
 
   const crumbs = buildBreadcrumbs();

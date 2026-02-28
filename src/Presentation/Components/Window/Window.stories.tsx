@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import Window from './Window';
-import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
+import CalendarApp from '@/Presentation/Components/Apps/CalendarApp/CalendarApp';
 
 // Storybook needs a real store for Window — provide a minimal mock via decorators
 import { useDesktopStore } from '@presentation/Store/desktopStore';

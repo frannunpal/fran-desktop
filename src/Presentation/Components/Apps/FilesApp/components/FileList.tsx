@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { Text, UnstyledButton } from '@mantine/core';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
+import { sortNodes } from '@/Shared/Utils/sortNodes';
 import FileIcon from './FileIcon';
 import classes from './FileList.module.css';
 import type { FileListProps, FileListItemProps } from '@/Shared/Interfaces/IFileListProps';
@@ -51,12 +52,7 @@ const FileList: FC<FileListProps> = ({ nodes, onNavigate, onOpenFile, onNodeCont
     );
   }
 
-  const folders = nodes.filter(n => n.type === 'folder');
-  const files = nodes.filter(n => n.type === 'file');
-  const sorted = [
-    ...folders.sort((a, b) => a.name.localeCompare(b.name)),
-    ...files.sort((a, b) => a.name.localeCompare(b.name)),
-  ];
+  const sorted = sortNodes(nodes);
 
   return (
     <div className={classes.grid} role="listbox" aria-label="Files">

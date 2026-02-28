@@ -2,33 +2,14 @@ import { type FC, useState, useRef, useEffect } from 'react';
 import { Text, Popover, Notification } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useClock } from '@presentation/Hooks/useClock';
-import { useFcIconElement } from '@presentation/Hooks/useFcIcon';
 import { useContextMenu } from '@presentation/Hooks/useContextMenu';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
 import Launcher from '@presentation/Components/Launcher/Launcher';
-import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
+import AppIcon from '@presentation/Components/Shared/AppIcon/AppIcon';
+import CalendarApp from '@/Presentation/Components/Apps/CalendarApp/CalendarApp';
 import TaskbarContextMenu from '@presentation/Components/TaskbarContextMenu/TaskbarContextMenu';
 import classes from './Taskbar.module.css';
 import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
-
-interface WindowButtonIconProps {
-  win: WindowEntity;
-}
-
-const WindowButtonIcon: FC<WindowButtonIconProps> = ({ win }) => {
-  const fcElement = useFcIconElement(win.fcIcon ?? '', { size: 14 });
-  if (fcElement) return fcElement;
-  if (win.icon) return <span aria-hidden="true">{win.icon}</span>;
-  return null;
-};
-
-const NOTIF_ICON_PROPS = { size: 18, style: { display: 'block' } };
-
-const NotifButtonIcon: FC<{ open: boolean }> = ({ open }) =>
-  useFcIconElement(open ? 'FcCollapse' : 'FcExpand', NOTIF_ICON_PROPS);
-
-const NotificationIcon: FC<{ fcIcon?: string }> = ({ fcIcon }) =>
-  useFcIconElement(fcIcon ?? '', NOTIF_ICON_PROPS);
 
 interface WindowButtonProps {
   win: WindowEntity;
@@ -57,7 +38,7 @@ const WindowButton: FC<WindowButtonProps> = ({ win, onClick, onContextMenu }) =>
       onContextMenu={onContextMenu}
       aria-label={win.title}
     >
-      <WindowButtonIcon win={win} />
+      <AppIcon fcIcon={win.fcIcon} fallback={win.icon} size={14} />
       <Text size="xs" truncate>
         {win.title}
       </Text>
@@ -140,7 +121,7 @@ const Taskbar: FC = () => {
                 onClick={() => setNotifOpen(o => !o)}
                 aria-label={notifOpen ? 'Hide notifications' : 'Show notifications'}
               >
-                <NotifButtonIcon open={notifOpen} />
+                <AppIcon fcIcon={notifOpen ? 'FcCollapse' : 'FcExpand'} size={18} />
               </button>
             </Popover.Target>
             <Popover.Dropdown style={{ background: 'transparent', border: 'none', padding: 0 }}>
@@ -157,7 +138,7 @@ const Taskbar: FC = () => {
                     <Notification
                       key={n.id}
                       withBorder
-                      icon={<NotificationIcon fcIcon={n.fcIcon} />}
+                      icon={n.fcIcon ? <AppIcon fcIcon={n.fcIcon} size={18} /> : undefined}
                       title={n.title}
                       onClose={() => {
                         removeNotification(n.id);

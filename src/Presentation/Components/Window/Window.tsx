@@ -11,9 +11,8 @@ import {
 import { useShallow } from 'zustand/react/shallow';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
-import { useFcIconElement } from '@presentation/Hooks/useFcIcon';
 import type { WindowProps } from '@/Shared/Interfaces/IComponentProps';
-import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
+import AppIcon from '@presentation/Components/Shared/AppIcon/AppIcon';
 import {
   windowVariants,
   minimizeVariant,
@@ -22,13 +21,6 @@ import {
   EASE_IN,
 } from '@shared/Constants/Animations';
 import classes from './Window.module.css';
-
-const TitleIcon: FC<{ win: WindowEntity }> = ({ win }) => {
-  const fcElement = useFcIconElement(win.fcIcon ?? '', { size: 14, 'aria-hidden': 'true' });
-  if (fcElement) return fcElement;
-  if (win.icon) return <span aria-hidden="true">{win.icon}</span>;
-  return null;
-};
 
 const Window: FC<WindowProps> = ({ window: win, children }) => {
   const {
@@ -153,7 +145,7 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
         transition={maximizeTransition}
       >
         <div className={classes.titleBar}>
-          <TitleIcon win={win} />
+          <AppIcon fcIcon={win.fcIcon} fallback={win.icon} size={14} />
           <Text size="sm" fw={500} truncate className={classes.title}>
             {win.title}
           </Text>

@@ -2,49 +2,26 @@ import { type FC, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
-import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
+import { APPS } from '@shared/Constants/apps';
 import type { LauncherProps } from '@/Shared/Interfaces/IComponentProps';
-import { panelVariants, randomWindowPosition } from '@shared/Constants/Animations';
+import { panelVariants } from '@shared/Constants/Animations';
 import { useFcIconElement } from '@presentation/Hooks/useFcIcon';
+import { useOpenApp } from '@presentation/Hooks/useOpenApp';
+import AppIcon from '@presentation/Components/Shared/AppIcon/AppIcon';
 import classes from './Launcher.module.css';
-
-interface AppIconProps {
-  fcIcon?: string;
-  fallback: string;
-}
-
-const AppIcon: FC<AppIconProps> = ({ fcIcon, fallback }) => {
-  const fcElement = useFcIconElement(fcIcon ?? '', { size: 20 });
-  if (fcElement) return fcElement;
-  return <span aria-hidden="true">{fallback}</span>;
-};
 
 const Launcher: FC<LauncherProps> = ({ fcIcon = 'FcDebian' }) => {
   const icon = useFcIconElement(fcIcon, { size: 22, style: { display: 'block' } });
   const [open, setOpen] = useState(false);
-  const openWindow = useDesktopStore(state => state.openWindow);
+  const openApp = useOpenApp();
   const taskbar = useDesktopStore(state => state.theme.taskbar);
 
   const handleOpen = useCallback(
     (appId: string) => {
-      const app = APPS.find(a => a.id === appId);
-      const { x, y } = randomWindowPosition();
-      openWindow({
-        title: app?.name ?? appId,
-        content: appId,
-        icon: app?.icon,
-        fcIcon: app?.fcIcon,
-        canMaximize: app?.canMaximize,
-        x,
-        y,
-        width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
-        height: app?.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
-        minWidth: app?.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
-        minHeight: app?.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
-      });
+      openApp(appId);
       setOpen(false);
     },
-    [openWindow],
+    [openApp],
   );
 
   return (

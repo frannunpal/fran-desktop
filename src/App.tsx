@@ -8,17 +8,16 @@ import DesktopArea from '@presentation/Components/DesktopArea/DesktopArea';
 import Window from '@presentation/Components/Window/Window';
 import Taskbar from '@presentation/Components/Taskbar/Taskbar';
 import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
-import CalendarApp from '@presentation/Components/CalendarApp/CalendarApp';
-import PdfApp from '@presentation/Components/PdfApp/PdfApp';
-import FilesApp from '@presentation/Components/FilesApp/FilesApp';
+import CalendarApp from '@/Presentation/Components/Apps/CalendarApp/CalendarApp';
+import PdfApp from '@/Presentation/Components/Apps/PdfApp/PdfApp';
+import FilesApp from '@presentation/Components/Apps/FilesApp/FilesApp';
 import CreateItemApp from '@presentation/Components/Shared/CreateItemApp/CreateItemApp';
-import StorybookApp from '@presentation/Components/StorybookApp/StorybookApp';
+import StorybookApp from '@/Presentation/Components/Apps/StorybookApp/StorybookApp';
 import CreateItemContextMenu from '@presentation/Components/ContextMenu/CreateItemContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { useAppVersion } from '@presentation/Hooks/useAppVersion';
+import { useOpenApp } from '@presentation/Hooks/useOpenApp';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
-import { APPS, DEFAULT_WINDOW_DIMENSIONS } from '@shared/Constants/apps';
-import { randomWindowPosition } from '@shared/Constants/Animations';
 
 let seedStarted = false;
 
@@ -26,12 +25,12 @@ function App() {
   const theme = useDesktopStore(state => state.theme);
   const windows = useDesktopStore(state => state.windows);
   const icons = useDesktopStore(state => state.icons);
-  const openWindow = useDesktopStore(state => state.openWindow);
   const initFs = useDesktopStore(state => state.initFs);
   const fsNodes = useDesktopStore(state => state.fsNodes);
   const openContextMenu = useDesktopStore(state => state.openContextMenu);
   const filesCurrentFolderId = useDesktopStore(state => state.filesCurrentFolderId);
   const desktopFolderId = useDesktopStore(state => state.desktopFolderId);
+  const openApp = useOpenApp();
 
   const handleDesktopContextMenu = useCallback(
     (e: React.MouseEvent) => {
@@ -58,46 +57,19 @@ function App() {
     if (seedStarted) return;
     seedStarted = true;
     initFs();
-    const pdf = APPS.find(a => a.id === 'pdf')!;
     if (windows.length === 0) {
-      openWindow({
-        title: pdf.name,
-        content: pdf.id,
-        icon: pdf.icon,
-        fcIcon: pdf.fcIcon,
-        x: 120,
-        y: 80,
-        width: pdf.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
-        height: pdf.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
-        minWidth: pdf.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
-        minHeight: pdf.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
-      });
+      openApp('pdf', { position: { x: 120, y: 80 } });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleOpenApp = useCallback(
     (appId: string, nodeId?: string) => {
-      const app = APPS.find(a => a.id === appId);
-      const { x, y } = randomWindowPosition();
       const contentData: Record<string, unknown> | undefined =
         appId === 'files' && nodeId ? { initialFolderId: nodeId } : undefined;
-      openWindow({
-        title: app?.name ?? appId.charAt(0).toUpperCase() + appId.slice(1),
-        content: appId,
-        icon: app?.icon,
-        fcIcon: app?.fcIcon,
-        canMaximize: app?.canMaximize,
-        x,
-        y,
-        width: app?.defaultWidth ?? DEFAULT_WINDOW_DIMENSIONS.defaultWidth,
-        height: app?.defaultHeight ?? DEFAULT_WINDOW_DIMENSIONS.defaultHeight,
-        minWidth: app?.minWidth ?? DEFAULT_WINDOW_DIMENSIONS.minWidth,
-        minHeight: app?.minHeight ?? DEFAULT_WINDOW_DIMENSIONS.minHeight,
-        contentData,
-      });
+      openApp(appId, { contentData });
     },
-    [openWindow],
+    [openApp],
   );
 
   const buildFilesPath = (): string => {
