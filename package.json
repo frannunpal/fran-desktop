@@ -61,8 +61,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "build:electron": "tsc -b && vite build --config vite.config.electron.ts",
-    "electron:dev": "npm run build:electron && mkdir -p electron/dist && cp -r dist-electron/* electron/dist/ && electron .",
-    "electron:dist": "npm run build:electron && mkdir -p electron/dist && cp -r dist-electron/* electron/dist/ && electron-builder --win --mac --linux"
+    "electron:dev": "bun run build:electron && mkdir -p electron/dist && cpx \"dist-electron/**/*\" electron/dist/ && electron .",
+    "electron:dist": "bun run build:electron && mkdir -p electron/dist && cpx \"dist-electron/**/*\" electron/dist/ && electron-builder --win --mac --linux"
   },
   "dependencies": {
     "@mantine/core": "^8.3.15",
@@ -88,6 +88,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/coverage-v8": "^4.0.18",
+    "cpx": "^1.5.0",
     "electron": "^30.0.0",
     "electron-builder": "^24.0.0",
     "eslint": "^9.39.3",
