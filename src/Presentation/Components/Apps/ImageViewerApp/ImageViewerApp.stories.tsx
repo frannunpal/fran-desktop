@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import ImageViewerApp from './ImageViewerApp';
 
 const meta: Meta<typeof ImageViewerApp> = {
@@ -33,7 +33,7 @@ const windowDecorator = (width: number, height: number) =>
     >
       <Story />
     </div>
-  )) as Story['decorators'];
+  )) as Decorator;
 
 export const WithImage: Story = {
   args: { src: `${import.meta.env.BASE_URL}Images/wallpaper.jpg` },
