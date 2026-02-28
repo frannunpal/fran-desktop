@@ -93,6 +93,44 @@ describe('Launcher component', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
+  it('should close the panel when clicking outside', () => {
+    // Arrange
+    render(<Launcher />, { wrapper });
+    fireEvent.click(screen.getByLabelText('Launcher'));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    // Act — mousedown outside the launcher root
+    fireEvent.mouseDown(document.body);
+
+    // Assert
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('should close the panel when Escape is pressed', () => {
+    // Arrange
+    render(<Launcher />, { wrapper });
+    fireEvent.click(screen.getByLabelText('Launcher'));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    // Act
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    // Assert
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('should not close the panel when clicking inside', () => {
+    // Arrange
+    render(<Launcher />, { wrapper });
+    fireEvent.click(screen.getByLabelText('Launcher'));
+
+    // Act — mousedown inside the panel
+    fireEvent.mouseDown(screen.getByRole('menu'));
+
+    // Assert — panel stays open
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+  });
+
   it('should set aria-expanded on the trigger reflecting panel state', () => {
     // Act
     render(<Launcher />, { wrapper });

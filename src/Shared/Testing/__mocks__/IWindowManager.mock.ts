@@ -12,4 +12,5 @@ export const createMockWindowManager = (): IWindowManager => ({
   focus: vi.fn(),
   move: vi.fn(),
   resize: vi.fn(),
+  loadWindows: vi.fn(),
 });

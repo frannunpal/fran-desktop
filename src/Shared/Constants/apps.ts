@@ -69,18 +69,6 @@ export const APPS: AppEntry[] = [
     minHeight: 400,
   },
   {
-    id: 'createItem',
-    name: 'Create',
-    icon: '➕',
-    fcIcon: 'FcAddDatabase',
-    defaultWidth: 400,
-    defaultHeight: 320,
-    minWidth: 350,
-    minHeight: 270,
-    canMaximize: false,
-    alwaysOnTop: true,
-  },
-  {
     id: 'image-viewer',
     name: 'Image Viewer',
     icon: '🖼️',

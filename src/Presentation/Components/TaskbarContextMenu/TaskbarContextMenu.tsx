@@ -2,6 +2,9 @@ import type { FC } from 'react';
 import { Menu } from '@mantine/core';
 import type { TaskbarContextMenuProps } from '@/Shared/Interfaces/IComponentProps';
 import ContextMenuAnchor from '@presentation/Components/ContextMenu/ContextMenuAnchor';
+import { useFcIconElement } from '@/Presentation/Hooks/useFcIcon';
+
+import styles from './TaskbarContextMenu.module.css';
 
 const TaskbarContextMenu: FC<TaskbarContextMenuProps> = ({
   windowMenuOpened,
@@ -12,6 +15,9 @@ const TaskbarContextMenu: FC<TaskbarContextMenuProps> = ({
   onWindowMenuClose,
   onPanelMenuClose,
 }) => {
+  const ICON_PROPS = { size: 14, style: { display: 'block' } };
+  const DeleteRow: FC = () => useFcIconElement('FcCancel', ICON_PROPS);
+
   return (
     <>
       <Menu
@@ -29,7 +35,9 @@ const TaskbarContextMenu: FC<TaskbarContextMenuProps> = ({
               if (targetWindowId) onCloseWindow(targetWindowId);
             }}
           >
-            Close window
+            <div className={styles.menuItem}>
+              <DeleteRow /> Close window
+            </div>
           </Menu.Item>
           <Menu.Divider />
           <Menu.Item disabled>Pin window (coming soon)</Menu.Item>

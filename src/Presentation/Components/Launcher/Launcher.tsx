@@ -1,4 +1,4 @@
-import { type FC, useState, useCallback } from 'react';
+import { type FC, useState, useCallback, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
@@ -15,6 +15,25 @@ const Launcher: FC<LauncherProps> = ({ fcIcon = 'FcDebian' }) => {
   const [open, setOpen] = useState(false);
   const openApp = useOpenApp();
   const taskbar = useDesktopStore(state => state.theme.taskbar);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open]);
 
   const handleOpen = useCallback(
     (appId: string) => {
@@ -25,7 +44,7 @@ const Launcher: FC<LauncherProps> = ({ fcIcon = 'FcDebian' }) => {
   );
 
   return (
-    <>
+    <div ref={rootRef}>
       <button
         className={classes.trigger}
         onClick={() => setOpen(o => !o)}
@@ -65,7 +84,7 @@ const Launcher: FC<LauncherProps> = ({ fcIcon = 'FcDebian' }) => {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 };
 
