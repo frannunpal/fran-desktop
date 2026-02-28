@@ -1,5 +1,5 @@
 #!/bin/sh
-bun run test:run --trace-warnings || exit 1
+bun run test || exit 1
 
 # Only bump version when pushing to main
 branch=$(git symbolic-ref HEAD 2>/dev/null | sed 's|refs/heads/||')
