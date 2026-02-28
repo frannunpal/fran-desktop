@@ -4,7 +4,7 @@ bun run test || exit 1
 # Only bump version when pushing to main
 branch=$(git symbolic-ref HEAD 2>/dev/null | sed 's|refs/heads/||')
 if [ "$branch" = "main" ]; then
-  bun version patch --no-git-tag-version
+  npm version patch --no-git-tag-version
   git add package.json
   version=$(node -p "require('./package.json').version")
   git commit -m "chore: bump version to v$version"
