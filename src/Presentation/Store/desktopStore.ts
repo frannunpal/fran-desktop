@@ -7,6 +7,7 @@ import { createDesktopIcon } from '@domain/Entities/DesktopIcon';
 import type { DesktopState, NotificationItem } from '@/Shared/Interfaces/IDesktopState';
 import type { ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import { APPS } from '@shared/Constants/apps';
+import { getAppIdForMime } from '@/Shared/Utils/getAppIdForMime';
 import { getFsInitStarted, setFsInitStarted } from './fsInitFlag';
 export { resetFsInitFlag } from './fsInitFlag';
 
@@ -173,7 +174,7 @@ export const useDesktopStore = create<DesktopState>()(
                 icons: appendDesktopIcon(get().icons, {
                   name: node.name,
                   icon: '📄',
-                  appId: node.mimeType === 'application/pdf' ? 'pdf' : 'files',
+                  appId: getAppIdForMime(node.mimeType),
                   nodeId: node.id,
                 }),
               });
@@ -197,7 +198,7 @@ export const useDesktopStore = create<DesktopState>()(
               icons: appendDesktopIcon(icons, {
                 name: file.name,
                 icon: '📄',
-                appId: file.mimeType === 'application/pdf' ? 'pdf' : 'files',
+                appId: getAppIdForMime(file.mimeType),
                 nodeId: file.id,
               }),
             });
@@ -327,7 +328,7 @@ export const useDesktopStore = create<DesktopState>()(
             icons: appendDesktopIcon(get().icons, {
               name: node.name,
               icon: '📄',
-              appId: node.mimeType === 'application/pdf' ? 'pdf' : 'files',
+              appId: getAppIdForMime(node.mimeType),
               nodeId: node.id,
             }),
           });

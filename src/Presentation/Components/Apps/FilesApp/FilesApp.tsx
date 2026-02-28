@@ -3,6 +3,7 @@ import { Text, Breadcrumbs, Anchor } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import { useOpenApp } from '@presentation/Hooks/useOpenApp';
+import { getAppIdForMime } from '@/Shared/Utils/getAppIdForMime';
 import FolderTree from './components/FolderTree';
 import FileList from './components/FileList';
 import classes from './FilesApp.module.css';
@@ -68,8 +69,9 @@ const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
 
   const handleOpenFile = useCallback(
     (node: FileNode) => {
-      if (node.mimeType === 'application/pdf') {
-        openApp('pdf', { contentData: { src: node.url ?? node.name } });
+      const appId = getAppIdForMime(node.mimeType);
+      if (appId !== 'files') {
+        openApp(appId, { contentData: { src: node.url ?? node.name } });
       }
     },
     [openApp],

@@ -12,6 +12,12 @@
       "folder": "Images",
       "mimeType": "image/jpg",
       "url": "Images/wallpaper.jpg"
+    },
+    {
+      "name": "wallpaper2.jpg",
+      "folder": "Images",
+      "mimeType": "image/jpg",
+      "url": "Images/wallpaper2.jpg"
     }
   ]
 }

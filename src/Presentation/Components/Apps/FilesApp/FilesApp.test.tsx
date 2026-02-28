@@ -64,6 +64,17 @@ const mockFsNodes = [
     createdAt: new Date(),
     updatedAt: new Date(),
   },
+  {
+    id: 'file-wallpaper',
+    name: 'wallpaper.jpg',
+    type: 'file' as const,
+    parentId: 'folder-desktop',
+    content: '',
+    mimeType: 'image/jpg',
+    url: 'Desktop/wallpaper.jpg',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
 ];
 
 const mockStore = {
@@ -215,5 +226,50 @@ describe('FilesApp', () => {
         contentData: { src: 'Desktop/CV_2026_English.pdf' },
       }),
     );
+  });
+
+  it('should call openWindow with image-viewer content on double-click of image file', () => {
+    // Arrange
+    const { rerender } = render(<FilesApp />, { wrapper });
+    fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
+    rerender(<FilesApp />);
+
+    // Act
+    fireEvent.doubleClick(screen.getByLabelText('Open file wallpaper.jpg'));
+
+    // Assert
+    expect(mockStore.openWindow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: 'image-viewer',
+        contentData: { src: 'Desktop/wallpaper.jpg' },
+      }),
+    );
+  });
+
+  it('should not open any app on double-click of a file with unknown mimeType', () => {
+    // Arrange
+    mockStore.fsNodes = [
+      ...mockFsNodes,
+      {
+        id: 'file-txt',
+        name: 'notes.txt',
+        type: 'file' as const,
+        parentId: 'folder-desktop',
+        content: '',
+        mimeType: 'text/plain',
+        url: 'Desktop/notes.txt',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+    const { rerender } = render(<FilesApp />, { wrapper });
+    fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
+    rerender(<FilesApp />);
+
+    // Act
+    fireEvent.doubleClick(screen.getByLabelText('Open file notes.txt'));
+
+    // Assert
+    expect(mockStore.openWindow).not.toHaveBeenCalled();
   });
 });

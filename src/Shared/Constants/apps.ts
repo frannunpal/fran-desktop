@@ -80,4 +80,14 @@ export const APPS: AppEntry[] = [
     canMaximize: false,
     alwaysOnTop: true,
   },
+  {
+    id: 'image-viewer',
+    name: 'Image Viewer',
+    icon: '🖼️',
+    fcIcon: 'FcPicture',
+    defaultWidth: 700,
+    defaultHeight: 520,
+    minWidth: 300,
+    minHeight: 200,
+  },
 ];

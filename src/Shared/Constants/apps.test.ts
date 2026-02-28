@@ -12,7 +12,8 @@ describe('APPS constant', () => {
     expect(ids).toContain('pdf');
     expect(ids).toContain('createItem');
     expect(ids).toContain('storybook');
-    expect(ids).toHaveLength(8);
+    expect(ids).toContain('image-viewer');
+    expect(ids).toHaveLength(9);
   });
 
   it('should have unique ids', () => {

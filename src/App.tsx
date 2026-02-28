@@ -13,6 +13,7 @@ import PdfApp from '@/Presentation/Components/Apps/PdfApp/PdfApp';
 import FilesApp from '@presentation/Components/Apps/FilesApp/FilesApp';
 import CreateItemApp from '@presentation/Components/Shared/CreateItemApp/CreateItemApp';
 import StorybookApp from '@/Presentation/Components/Apps/StorybookApp/StorybookApp';
+import ImageViewerApp from '@/Presentation/Components/Apps/ImageViewerApp/ImageViewerApp';
 import CreateItemContextMenu from '@presentation/Components/ContextMenu/CreateItemContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { useAppVersion } from '@presentation/Hooks/useAppVersion';
@@ -65,11 +66,18 @@ function App() {
 
   const handleOpenApp = useCallback(
     (appId: string, nodeId?: string) => {
-      const contentData: Record<string, unknown> | undefined =
-        appId === 'files' && nodeId ? { initialFolderId: nodeId } : undefined;
+      let contentData: Record<string, unknown> | undefined;
+      if (nodeId) {
+        const node = fsNodes.find(n => n.id === nodeId);
+        if (node?.type === 'folder') {
+          contentData = { initialFolderId: nodeId };
+        } else if (node?.type === 'file') {
+          contentData = { src: node.url ?? node.name };
+        }
+      }
       openApp(appId, { contentData });
     },
-    [openApp],
+    [openApp, fsNodes],
   );
 
   const buildFilesPath = (): string => {
@@ -118,6 +126,9 @@ function App() {
                   />
                 )}
                 {win.content === 'storybook' && <StorybookApp />}
+                {win.content === 'image-viewer' && (
+                  <ImageViewerApp src={win.contentData?.src as string | undefined} />
+                )}
               </Window>
             ))}
           </AnimatePresence>
