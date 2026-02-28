@@ -175,6 +175,11 @@ const CreateItemContextMenu: FC<CreateItemContextMenuProps> = ({
               <Menu.Item leftSection={<VscClippy size={14} />} onClick={handleCopy}>
                 Copy
               </Menu.Item>
+              {canPaste && (
+                <Menu.Item leftSection={<VscCopy size={14} />} onClick={handlePasteClick}>
+                  Paste {clipboard.content.length > 1 ? `(${clipboard.content.length} items)` : ''}
+                </Menu.Item>
+              )}
               <Menu.Divider />
               <Menu.Item leftSection={<VscTrash size={14} />} color="red" onClick={handleDelete}>
                 Delete

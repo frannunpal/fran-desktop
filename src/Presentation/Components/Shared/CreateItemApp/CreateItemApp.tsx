@@ -31,6 +31,7 @@ export interface CreateItemAppProps {
   mode?: 'file' | 'folder';
   parentId?: string | null;
   currentPath?: string;
+  iconPickerOpen?: boolean;
 }
 
 const DEFAULT_ICON = 'VscFolder';
@@ -44,11 +45,16 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
   mode = 'folder',
   parentId = null,
   currentPath = '/home',
+  iconPickerOpen: initialIconPickerOpen = false,
 }) => {
   const [name, setName] = useState(mode === 'folder' ? DEFAULT_FOLDER_NAME : DEFAULT_FILE_NAME);
   const [iconName, setIconName] = useState(DEFAULT_ICON);
   const [iconColor, setIconColor] = useState(DEFAULT_COLOR);
-  const [iconPickerOpen, setIconPickerOpen] = useState(false);
+  const [iconPickerOpen, setIconPickerOpen] = useState(initialIconPickerOpen);
+
+  useEffect(() => {
+    setIconPickerOpen(initialIconPickerOpen);
+  }, [initialIconPickerOpen]);
 
   const rootRef = useRef<HTMLDivElement>(null);
 

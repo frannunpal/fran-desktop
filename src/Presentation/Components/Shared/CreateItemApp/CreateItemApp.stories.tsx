@@ -11,10 +11,14 @@ export default meta;
 type Story = StoryObj<typeof CreateItemApp>;
 
 export const NewFolder: Story = {
+  argTypes: {
+    iconPickerOpen: { control: 'boolean', name: 'Icon picker open' },
+  },
   args: {
     mode: 'folder',
     parentId: 'folder-desktop',
     currentPath: '/home/Desktop',
+    iconPickerOpen: false,
   },
 };
 

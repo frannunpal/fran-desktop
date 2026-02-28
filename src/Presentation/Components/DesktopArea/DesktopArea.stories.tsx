@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import DesktopArea from './DesktopArea';
+import DesktopIcon from '../DesktopIcon/DesktopIcon';
+import { APPS } from '@/Shared/Constants/apps';
 
 const meta: Meta<typeof DesktopArea> = {
   title: 'Common components/DesktopArea',
@@ -7,28 +9,28 @@ const meta: Meta<typeof DesktopArea> = {
   parameters: { layout: 'fullscreen' },
 };
 
+const appIds = APPS.map(a => a.id);
+
 export default meta;
 type Story = StoryObj<typeof DesktopArea>;
 
 export const Empty: Story = {};
 
-export const WithChildren: Story = {
-  args: {
-    children: (
-      <div
-        style={{
-          position: 'absolute',
-          top: 40,
-          left: 40,
-          padding: '8px 12px',
-          background: 'rgba(255,255,255,0.15)',
-          borderRadius: 8,
-          color: '#fff',
-          fontSize: 13,
-        }}
-      >
-        Desktop icon placeholder
-      </div>
-    ),
+export const WithChildren: StoryObj<{ appId: string }> = {
+  argTypes: {
+    appId: { control: 'select', options: appIds },
+  },
+  args: { appId: 'notepad' },
+  render: ({ appId }) => {
+    const app = APPS.find(a => a.id === appId)!;
+    return (
+      <DesktopArea>
+        <DesktopIcon
+          icon={{ id: '1', name: app.name, icon: app.icon, x: 20, y: 20, appId }}
+          onDoubleClick={() => {}}
+          onContextMenu={() => {}}
+        />
+      </DesktopArea>
+    );
   },
 };

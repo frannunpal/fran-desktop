@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TaskbarContextMenu from './TaskbarContextMenu';
+import { useDesktopStore } from '@/Presentation/Store/desktopStore';
+import { WindowButtonRegistryProvider } from '@/Presentation/Hooks/useWindowButtonRegistry';
+import { useFcIconElement } from '@/Presentation/Hooks/useFcIcon';
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 
 const meta: Meta<typeof TaskbarContextMenu> = {
   title: 'Common components/TaskbarContextMenu',
@@ -13,6 +17,15 @@ const meta: Meta<typeof TaskbarContextMenu> = {
     onWindowMenuClose: () => {},
     onPanelMenuClose: () => {},
   },
+  decorators: [
+    Story => (
+      <WindowButtonRegistryProvider>
+        <div style={{ height: '100vh' }}>
+          <Story />
+        </div>
+      </WindowButtonRegistryProvider>
+    ),
+  ],
 };
 
 export default meta;
@@ -39,16 +52,85 @@ export const BothClosed: Story = {
   },
 };
 
+const STORY_WINDOWS = [
+  {
+    title: 'Notepad',
+    content: 'notepad',
+    icon: '📝',
+    fcIcon: 'FcEditImage',
+    x: 0,
+    y: 0,
+    width: 600,
+    height: 400,
+    minWidth: 200,
+    minHeight: 150,
+  },
+  {
+    title: 'Terminal',
+    content: 'terminal',
+    icon: '💻',
+    fcIcon: 'FcCommandLine',
+    x: 0,
+    y: 0,
+    width: 600,
+    height: 400,
+    minWidth: 200,
+    minHeight: 150,
+  },
+] as const;
+
+const TaskbarButton = ({
+  window,
+  onContextMenu,
+}: {
+  window: WindowEntity;
+  onContextMenu: (e: React.MouseEvent) => void;
+}) => {
+  const icon = useFcIconElement(window.fcIcon ?? '', { size: 16 });
+  return (
+    <button
+      key={window.id}
+      style={{
+        height: 36,
+        padding: '0 12px',
+        background: 'var(--mantine-color-default)',
+        border: '1px solid var(--mantine-color-default-border)',
+        borderRadius: 6,
+        color: 'var(--mantine-color-text)',
+        cursor: 'pointer',
+        fontSize: 13,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+      }}
+      onContextMenu={onContextMenu}
+    >
+      {icon}
+      {window.title}
+    </button>
+  );
+};
+
 const InteractiveRender = () => {
   const [windowMenuOpened, setWindowMenuOpened] = useState(false);
   const [panelMenuOpened, setPanelMenuOpened] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [targetWindowId, setTargetWindowId] = useState('');
+  const windows = useDesktopStore(state => state.windows);
+  const openWindow = useDesktopStore(state => state.openWindow);
+  const taskbarBg = useDesktopStore(state => state.theme.taskbar);
 
-  const openMenu = (e: React.MouseEvent, isWindow: boolean) => {
+  useEffect(() => {
+    useDesktopStore.setState({ windows: [] });
+    STORY_WINDOWS.forEach(w => openWindow(w));
+  }, [openWindow]);
+
+  const openMenu = (e: React.MouseEvent, windowId?: string) => {
     e.preventDefault();
-    if (isWindow) e.stopPropagation();
+    e.stopPropagation();
     setMenuPosition({ x: e.clientX, y: e.clientY - 8 });
-    if (isWindow) {
+    if (windowId) {
+      setTargetWindowId(windowId);
       setWindowMenuOpened(true);
     } else {
       setPanelMenuOpened(true);
@@ -57,44 +139,35 @@ const InteractiveRender = () => {
 
   return (
     <div
-      style={{ height: '100vh', background: '#1a1b1e', display: 'flex', alignItems: 'flex-end' }}
+      style={{
+        height: '100vh',
+        background: 'var(--mantine-color-body)',
+        display: 'flex',
+        alignItems: 'flex-end',
+      }}
     >
       <div
         style={{
           width: '100%',
           height: 48,
-          background: 'rgba(0,0,0,0.5)',
+          background: taskbarBg,
+          borderTop: '1px solid var(--mantine-color-default-border)',
           display: 'flex',
           alignItems: 'center',
           padding: '0 8px',
           gap: 4,
         }}
-        onContextMenu={e => openMenu(e, false)}
+        onContextMenu={e => openMenu(e)}
       >
-        {['Notepad', 'Terminal'].map(name => (
-          <button
-            key={name}
-            style={{
-              height: 36,
-              padding: '0 12px',
-              background: 'rgba(255,255,255,0.12)',
-              border: 'none',
-              borderRadius: 6,
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 13,
-            }}
-            onContextMenu={e => openMenu(e, true)}
-          >
-            {name}
-          </button>
+        {windows.map(w => (
+          <TaskbarButton key={w.id} window={w} onContextMenu={e => openMenu(e, w.id)} />
         ))}
       </div>
       <TaskbarContextMenu
         windowMenuOpened={windowMenuOpened}
         panelMenuOpened={panelMenuOpened}
         menuPosition={menuPosition}
-        targetWindowId="win-1"
+        targetWindowId={targetWindowId}
         onCloseWindow={() => {}}
         onWindowMenuClose={() => setWindowMenuOpened(false)}
         onPanelMenuClose={() => setPanelMenuOpened(false)}

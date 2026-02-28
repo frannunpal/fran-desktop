@@ -156,7 +156,9 @@ export const useDesktopStore = create<DesktopState>()(
             const app = APPS.find(a => a.id === appId);
             if (!app) return;
             if (!get().icons.some(ic => ic.appId === appId)) {
-              set({ icons: appendDesktopIcon(get().icons, { name: app.name, icon: app.icon, appId }) });
+              set({
+                icons: appendDesktopIcon(get().icons, { name: app.name, icon: app.icon, appId }),
+              });
             }
           });
 

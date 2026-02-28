@@ -139,4 +139,52 @@ describe('CreateItemApp', () => {
 
     expect(screen.getByRole('button', { name: /ok/i })).toBeDisabled();
   });
+
+  it('should open icon picker on mount when iconPickerOpen is true', () => {
+    render(
+      <CreateItemApp
+        mode="folder"
+        parentId="folder-desktop"
+        currentPath="/home/Desktop"
+        iconPickerOpen
+      />,
+      { wrapper },
+    );
+
+    expect(screen.getByRole('button', { name: /choose custom icon/i })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
+
+  it('should sync icon picker state when iconPickerOpen prop changes', () => {
+    const { rerender } = render(
+      <CreateItemApp
+        mode="folder"
+        parentId="folder-desktop"
+        currentPath="/home/Desktop"
+        iconPickerOpen={false}
+      />,
+      { wrapper },
+    );
+
+    expect(screen.getByRole('button', { name: /choose custom icon/i })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+
+    rerender(
+      <CreateItemApp
+        mode="folder"
+        parentId="folder-desktop"
+        currentPath="/home/Desktop"
+        iconPickerOpen={true}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: /choose custom icon/i })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
 });

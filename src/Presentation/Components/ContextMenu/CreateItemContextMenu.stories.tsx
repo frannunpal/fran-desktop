@@ -54,7 +54,15 @@ const meta: Meta<typeof CreateItemContextMenu> = {
   decorators: [
     Story => (
       <MantineProvider>
-        <div style={{ width: 400, height: 300, background: '#f5f5f5', borderRadius: 8, position: 'relative' }}>
+        <div
+          style={{
+            width: 400,
+            height: 300,
+            background: '#f5f5f5',
+            borderRadius: 8,
+            position: 'relative',
+          }}
+        >
           <Story />
         </div>
       </MantineProvider>
@@ -89,7 +97,18 @@ export const CreateModeWithPaste: Story = {
 export const TargetFile: Story = {
   render: () => (
     <>
+      <StoreSetup contextMenu={{ targetNodeId: mockFile.id }} fsNodes={[mockFile]} />
+      <CreateItemContextMenu owner="desktop" parentId={PARENT_ID} currentPath="/home/Desktop" />
+    </>
+  ),
+};
+
+// Right-click on a file: shows file name + Cut / Copy / Delete
+export const TargetFileWithPaste: Story = {
+  render: () => (
+    <>
       <StoreSetup
+        clipboard={{ content: [mockFile], action: 'copy' }}
         contextMenu={{ targetNodeId: mockFile.id }}
         fsNodes={[mockFile]}
       />
@@ -102,10 +121,7 @@ export const TargetFile: Story = {
 export const TargetFolder: Story = {
   render: () => (
     <>
-      <StoreSetup
-        contextMenu={{ targetNodeId: mockFolder.id }}
-        fsNodes={[mockFolder]}
-      />
+      <StoreSetup contextMenu={{ targetNodeId: mockFolder.id }} fsNodes={[mockFolder]} />
       <CreateItemContextMenu owner="desktop" parentId={PARENT_ID} currentPath="/home/Desktop" />
     </>
   ),
