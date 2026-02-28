@@ -20,9 +20,10 @@ import {
   maximizeTransition,
   EASE_IN,
 } from '@shared/Constants/Animations';
+import AppMenuBar from '@presentation/Components/AppMenuBar/AppMenuBar';
 import classes from './Window.module.css';
 
-const Window: FC<WindowProps> = ({ window: win, children }) => {
+const Window: FC<WindowProps> = ({ window: win, menuBar, children }) => {
   const {
     focusWindow,
     closeWindow,
@@ -174,6 +175,7 @@ const Window: FC<WindowProps> = ({ window: win, children }) => {
             </ActionIcon>
           </Group>
         </div>
+        {menuBar && menuBar.length > 0 && <AppMenuBar elements={menuBar} />}
         <div className={classes.content}>
           {!isFocused && (
             <div

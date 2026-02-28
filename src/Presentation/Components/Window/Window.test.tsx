@@ -13,6 +13,9 @@ vi.mock('framer-motion', () => import('@/Shared/Testing/__mocks__/framer-motion.
 vi.mock('@presentation/Hooks/useWindowButtonRegistry', () => ({
   useWindowButtonRegistry: () => ({ getRect: () => undefined }),
 }));
+vi.mock('@presentation/Hooks/useFcIcon', () => ({
+  useFcIconElement: (name: string) => (name ? <svg data-testid="fc-icon" /> : null),
+}));
 
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
@@ -267,5 +270,31 @@ describe('Window component', () => {
 
     // Assert — normal window is focused within its group → no overlay
     expect(screen.queryByTestId('focus-overlay')).not.toBeInTheDocument();
+  });
+
+  it('should not render menu bar when menuBar prop is absent', () => {
+    // Act
+    render(<Window window={makeWindow()} />, { wrapper });
+
+    // Assert
+    expect(screen.queryByRole('menubar')).not.toBeInTheDocument();
+  });
+
+  it('should render menu bar when menuBar prop contains elements', () => {
+    // Arrange
+    const menuBar = [
+      {
+        type: 'menu' as const,
+        label: 'File',
+        items: [{ type: 'item' as const, label: 'New', onClick: vi.fn() }],
+      },
+    ];
+
+    // Act
+    render(<Window window={makeWindow()} menuBar={menuBar} />, { wrapper });
+
+    // Assert
+    expect(screen.getByRole('menubar')).toBeInTheDocument();
+    expect(screen.getByText('File')).toBeInTheDocument();
   });
 });

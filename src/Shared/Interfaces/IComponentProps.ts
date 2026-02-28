@@ -2,9 +2,11 @@ import type { ReactNode, MouseEvent } from 'react';
 import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 import type { DesktopIconEntity } from '@/Shared/Interfaces/IDesktopIcon';
 import type { MenuPosition } from '@/Shared/Interfaces/IMenuPosition';
+import type { AppMenuElement } from '@/Shared/Interfaces/IAppMenuElement';
 
 export interface WindowProps {
   window: WindowEntity;
+  menuBar?: AppMenuElement[];
   children?: ReactNode;
 }
 

@@ -1,0 +1,57 @@
+.root {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  height: 28px;
+  flex-shrink: 0;
+  background: var(--color-surface-subtle);
+  border-bottom: 1px solid var(--color-surface-border);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.root::-webkit-scrollbar {
+  display: none;
+}
+
+.menuTrigger {
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--mantine-font-size-xs);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.menuTrigger:hover {
+  background: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
+}
+
+.element {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.sliderLabel {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dimmed);
+  white-space: nowrap;
+}
+
+.select,
+.textInput {
+  min-width: 100px;
+  max-width: 200px;
+}
+
+.slider {
+  width: 100px;
+}

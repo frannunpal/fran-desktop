@@ -213,6 +213,57 @@ export const Unfocused: Story = {
   },
 };
 
+export const WithMenuBar: Story = {
+  args: {
+    window: makeWindow({ title: 'App with Menu', fcIcon: 'FcEditImage' }),
+    menuBar: [
+      {
+        type: 'menu',
+        label: 'File',
+        icon: 'FcFile',
+        items: [
+          { type: 'item', label: 'New', icon: 'FcPlus', onClick: () => {} },
+          { type: 'item', label: 'Open', onClick: () => {} },
+          { type: 'divider' },
+          { type: 'item', label: 'Save', onClick: () => {} },
+        ],
+      },
+      {
+        type: 'menu',
+        label: 'Edit',
+        items: [
+          { type: 'item', label: 'Undo', onClick: () => {}, disabled: true },
+          { type: 'item', label: 'Redo', onClick: () => {} },
+        ],
+      },
+      { type: 'switch', label: 'Word wrap', checked: false, onChange: () => {} },
+    ],
+  },
+};
+
+export const WithMenuBarAllTypes: Story = {
+  args: {
+    window: makeWindow({ title: 'All menu types', fcIcon: 'FcSettings', width: 800 }),
+    menuBar: [
+      {
+        type: 'menu',
+        label: 'File',
+        items: [{ type: 'item', label: 'Close', onClick: () => {} }],
+      },
+      {
+        type: 'combobox',
+        label: 'View',
+        options: ['List', 'Grid', 'Details'],
+        value: 'List',
+        onChange: () => {},
+      },
+      { type: 'switch', label: 'Show hidden', checked: false, onChange: () => {} },
+      { type: 'slider', label: 'Zoom', min: 50, max: 200, value: 100, onChange: () => {} },
+      { type: 'text-input', placeholder: 'Search...', value: '', onChange: () => {} },
+    ],
+  },
+};
+
 export const CalendarWindow: Story = {
   args: {
     window: makeWindow({

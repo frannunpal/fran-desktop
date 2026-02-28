@@ -127,6 +127,102 @@ openApp('my-app', {
 - **Show notifications**: `useNotifications()`
 - **Use icons**: `useFcIcon('FcHome')`
 
+## How to Add an AppMenuBar
+
+Windows can have a menu bar at the top with dropdown menus, switches, sliders, comboboxes, and text inputs. This is powered by the `AppMenuBar` component.
+
+### Step 1: Define the Menu Elements
+
+Create an array of `AppMenuElement` objects. There are 5 types available:
+
+```tsx
+import type { AppMenuElement, MenuItem } from '@/Shared/Interfaces/IAppMenuElement';
+
+const menuBar: AppMenuElement[] = [
+  // Dropdown menu
+  {
+    type: 'menu',
+    label: 'File',
+    icon: 'FcFile', // Optional icon
+    items: [
+      { type: 'item', label: 'New', icon: 'FcPlus', onClick: () => {} },
+      { type: 'item', label: 'Open', onClick: () => {} },
+      { type: 'divider' },
+      { type: 'item', label: 'Save', onClick: () => {}, disabled: true },
+    ],
+  },
+  // Combobox (dropdown select)
+  {
+    type: 'combobox',
+    label: 'View',
+    options: ['List', 'Grid', 'Details'],
+    value: currentView,
+    onChange: value => setCurrentView(value),
+  },
+  // Switch (toggle)
+  {
+    type: 'switch',
+    label: 'Word wrap',
+    checked: wordWrapEnabled,
+    onChange: checked => setWordWrap(checked),
+  },
+  // Slider
+  {
+    type: 'slider',
+    label: 'Zoom',
+    min: 50,
+    max: 200,
+    value: zoomLevel,
+    onChange: value => setZoom(value),
+  },
+  // Text input
+  {
+    type: 'text-input',
+    placeholder: 'Search...',
+    value: searchText,
+    onChange: value => setSearchText(value),
+  },
+];
+```
+
+### Step 2: Pass menuBar to the Window
+
+When you open the app, pass the `menuBar` array in the second argument:
+
+```tsx
+openApp('my-app', {
+  contentData: { initialValue: 'hello' },
+  menuBar: menuBar, // This adds the menu bar to the window
+});
+```
+
+The Window component will automatically render the `AppMenuBar` at the top when `menuBar` is provided and has elements.
+
+### Menu Item Types
+
+| Type                                                 | Description          |
+| ---------------------------------------------------- | -------------------- |
+| `{ type: 'item', label, icon?, onClick, disabled? }` | Clickable menu item  |
+| `{ type: 'divider' }`                                | Horizontal separator |
+
+### Element Types Summary
+
+| Type         | Props                                       |
+| ------------ | ------------------------------------------- |
+| `menu`       | `label`, `icon?`, `items[]`                 |
+| `combobox`   | `label?`, `options[]`, `value`, `onChange`  |
+| `switch`     | `label`, `checked`, `onChange`              |
+| `slider`     | `label?`, `min`, `max`, `value`, `onChange` |
+| `text-input` | `placeholder?`, `value`, `onChange`         |
+
+### Icons
+
+Use `react-icons/fc` icon names (e.g., `'FcFile'`, `'FcPlus'`, `'FcSearch'`). Find more at [react-icons](https://react-icons.github.io/react-icons/icons/fc/).
+
+### Real Example
+
+Check `src/Presentation/Components/Window/Window.stories.tsx` for complete examples with all element types (`WithMenuBar` and `WithMenuBarAllTypes` stories).
+
 ## Next Step
 
 Got your app created? Then learn [testing.md](./testing.md) to know how to test all this properly.
