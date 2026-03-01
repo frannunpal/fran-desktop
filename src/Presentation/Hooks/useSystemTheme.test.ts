@@ -21,7 +21,7 @@ describe('useSystemTheme', () => {
   beforeEach(() => {
     localStorageMock.clear();
     vi.clearAllMocks();
-    useSettingsStore.getState().setThemeMode('light');
+    useSettingsStore.getState().applySystemTheme('light');
     useSettingsStore.setState({ themeSetManually: false });
   });
 
@@ -90,5 +90,21 @@ describe('useSystemTheme', () => {
 
     // Assert
     expect(useSettingsStore.getState().theme.mode).toBe('dark');
+  });
+
+  it('should not set themeSetManually when applying system theme automatically', () => {
+    // Arrange
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => makeMatchMedia(true)),
+    );
+    useSettingsStore.setState({ themeSetManually: false });
+
+    // Act
+    renderHook(() => useSystemTheme());
+
+    // Assert — theme applied but themeSetManually stays false
+    expect(useSettingsStore.getState().theme.mode).toBe('dark');
+    expect(useSettingsStore.getState().themeSetManually).toBe(false);
   });
 });

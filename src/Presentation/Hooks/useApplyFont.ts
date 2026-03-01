@@ -19,6 +19,7 @@ export const useApplyFont = (): void => {
   useEffect(() => {
     const stack = FONT_STACKS[font] ?? FONT_STACKS['system-ui'];
     document.documentElement.style.setProperty('font-family', stack);
+    document.documentElement.style.setProperty('--mantine-font-family', stack);
   }, [font]);
 };
 

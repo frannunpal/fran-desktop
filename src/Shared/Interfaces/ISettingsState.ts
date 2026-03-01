@@ -17,4 +17,5 @@ export interface ISettingsState {
   setThemeMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
   setThemeAutomatic: () => void;
+  applySystemTheme: (mode: ThemeMode) => void;
 }

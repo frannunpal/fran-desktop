@@ -1,10 +1,10 @@
 import type { FC } from 'react';
 import { createElement } from 'react';
-import { ColorInput, SimpleGrid, Tooltip, UnstyledButton } from '@mantine/core';
+import { SimpleGrid, Tooltip, UnstyledButton } from '@mantine/core';
 import * as VscIcons from 'react-icons/vsc';
 import classes from './IconColorPicker.module.css';
 import { PRESET_ICONS } from '@/Shared/Constants/Icons';
-import { PRESET_COLORS } from '@/Shared/Constants/Colors';
+import ColorPicker from '@presentation/Components/Shared/ColorPicker/ColorPicker';
 
 export interface IconColorPickerProps {
   selectedIcon: string;
@@ -44,29 +44,7 @@ const IconColorPicker: FC<IconColorPickerProps> = ({
         })}
       </SimpleGrid>
 
-      <div className={classes.colorRow}>
-        {PRESET_COLORS.map(color => (
-          <UnstyledButton
-            key={color}
-            className={classes.colorSwatch}
-            data-selected={selectedColor === color || undefined}
-            style={{ background: color }}
-            onClick={() => onColorChange(color)}
-            aria-label={`Color ${color}`}
-            aria-pressed={selectedColor === color}
-          />
-        ))}
-      </div>
-
-      <ColorInput
-        value={selectedColor}
-        onChange={onColorChange}
-        placeholder="Custom color"
-        size="xs"
-        className={classes.colorInput}
-        aria-label="Custom color picker"
-        error={colorError}
-      />
+      <ColorPicker value={selectedColor} onChange={onColorChange} error={colorError} />
     </div>
   );
 };

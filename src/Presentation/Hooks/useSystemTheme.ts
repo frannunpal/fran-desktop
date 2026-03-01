@@ -8,24 +8,24 @@ const getSystemMode = (): ThemeMode =>
     : 'light';
 
 export const useSystemTheme = (): void => {
-  const setThemeMode = useSettingsStore(state => state.setThemeMode);
+  const applySystemTheme = useSettingsStore(state => state.applySystemTheme);
   const themeSetManually = useSettingsStore(state => state.themeSetManually);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     if (!themeSetManually) {
-      setThemeMode(getSystemMode());
+      applySystemTheme(getSystemMode());
     }
 
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = (e: MediaQueryListEvent) => {
       if (!useSettingsStore.getState().themeSetManually) {
-        setThemeMode(e.matches ? 'dark' : 'light');
+        applySystemTheme(e.matches ? 'dark' : 'light');
       }
     };
 
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, [setThemeMode, themeSetManually]);
+  }, [applySystemTheme, themeSetManually]);
 };

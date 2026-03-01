@@ -43,6 +43,10 @@ export const useSettingsStore = create<ISettingsState>()(
         set({ theme: themeProvider.getTheme(), themeSetManually: true });
       },
       setThemeAutomatic: () => set({ themeSetManually: false }),
+      applySystemTheme: mode => {
+        themeProvider.setMode(mode);
+        set({ theme: themeProvider.getTheme() });
+      },
     }),
     {
       name: 'fran-desktop:settings',

@@ -16,6 +16,7 @@ describe('useApplyFont', () => {
     vi.clearAllMocks();
     useSettingsStore.setState({ font: 'system-ui', downloadedFonts: [] });
     document.documentElement.style.removeProperty('font-family');
+    document.documentElement.style.removeProperty('--mantine-font-family');
     document.head.querySelectorAll('link[data-font]').forEach(el => el.remove());
   });
 
@@ -28,6 +29,9 @@ describe('useApplyFont', () => {
 
     // Assert
     expect(document.documentElement.style.getPropertyValue('font-family')).toContain('system-ui');
+    expect(document.documentElement.style.getPropertyValue('--mantine-font-family')).toContain(
+      'system-ui',
+    );
   });
 
   it('should fall back to system-ui stack for unknown font value', () => {
