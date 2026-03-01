@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useEffect, useState } from 'react';
 import TaskbarContextMenu from './TaskbarContextMenu';
 import { useDesktopStore } from '@/Presentation/Store/desktopStore';
+import { useSettingsStore } from '@/Presentation/Store/settingsStore';
 import { WindowButtonRegistryProvider } from '@/Presentation/Hooks/useWindowButtonRegistry';
 import { useFcIconElement } from '@/Presentation/Hooks/useFcIcon';
 import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
@@ -146,7 +147,7 @@ const InteractiveRender = () => {
   const maximizeWindow = useDesktopStore(state => state.maximizeWindow);
   const restoreWindow = useDesktopStore(state => state.restoreWindow);
   const closeWindow = useDesktopStore(state => state.closeWindow);
-  const taskbarBg = useDesktopStore(state => state.theme.taskbar);
+  const taskbarBg = useSettingsStore(state => state.theme.taskbar);
 
   const targetWindowState = targetWindowId
     ? (windows.find(w => w.id === targetWindowId)?.state ?? null)

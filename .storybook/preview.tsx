@@ -3,7 +3,7 @@ import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import { useEffect } from 'react';
-import { useDesktopStore } from '../src/Presentation/Store/desktopStore';
+import { useSettingsStore } from '../src/Presentation/Store/settingsStore';
 
 const preview: Preview = {
   globalTypes: {
@@ -28,7 +28,7 @@ const preview: Preview = {
       const colorScheme = (context.globals.colorScheme ?? 'dark') as 'light' | 'dark';
 
       useEffect(() => {
-        useDesktopStore.getState().setThemeMode(colorScheme);
+        useSettingsStore.getState().setThemeMode(colorScheme);
       }, [colorScheme]);
 
       return (
