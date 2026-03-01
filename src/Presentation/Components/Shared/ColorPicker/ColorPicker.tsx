@@ -7,9 +7,10 @@ export interface ColorPickerProps {
   value: string;
   onChange: (color: string) => void;
   error?: string;
+  disabled?: boolean;
 }
 
-const ColorPicker: FC<ColorPickerProps> = ({ value, onChange, error }) => {
+const ColorPicker: FC<ColorPickerProps> = ({ value, onChange, error, disabled = false }) => {
   return (
     <div className={classes.root}>
       <div className={classes.colorRow}>
@@ -18,10 +19,12 @@ const ColorPicker: FC<ColorPickerProps> = ({ value, onChange, error }) => {
             key={color}
             className={classes.colorSwatch}
             data-selected={value === color || undefined}
+            data-disabled={disabled || undefined}
             style={{ background: color }}
-            onClick={() => onChange(color)}
+            onClick={() => !disabled && onChange(color)}
             aria-label={`Color ${color}`}
             aria-pressed={value === color}
+            disabled={disabled}
           />
         ))}
       </div>
@@ -33,6 +36,7 @@ const ColorPicker: FC<ColorPickerProps> = ({ value, onChange, error }) => {
         className={classes.colorInput}
         aria-label="Custom color picker"
         error={error}
+        disabled={disabled}
       />
     </div>
   );

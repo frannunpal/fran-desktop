@@ -8,6 +8,7 @@ export interface WindowProps {
   window: WindowEntity;
   menuBar?: AppMenuElement[];
   children?: ReactNode;
+  closeInterceptor?: () => boolean;
 }
 
 export interface DesktopIconProps {

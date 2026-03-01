@@ -16,16 +16,23 @@
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: transform 0.1s, border-color 0.1s;
+  transition:
+    transform 0.1s,
+    border-color 0.1s;
 }
 
-.colorSwatch:hover {
+.colorSwatch:hover:not([data-disabled]) {
   transform: scale(1.15);
 }
 
 .colorSwatch[data-selected] {
   border-color: var(--mantine-color-text);
   transform: scale(1.15);
+}
+
+.colorSwatch[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .colorInput {

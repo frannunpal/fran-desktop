@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { DefaultThemeProvider } from '@infrastructure/Adapters/DefaultThemeProvider';
-import type { ISettingsState } from '@/Shared/Interfaces/ISettingsState';
+import type { ISettingsState, CustomThemeColors } from '@/Shared/Interfaces/ISettingsState';
 import type { ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 
 const persistedMode = (() => {
@@ -24,6 +24,7 @@ export const useSettingsStore = create<ISettingsState>()(
       downloadedFonts: [] as string[],
       theme: themeProvider.getTheme(),
       themeSetManually: persistedMode !== null,
+      customThemeColors: null as CustomThemeColors | null,
 
       setWallpaper: url => set({ wallpaper: url }),
       setLauncherIcon: icon => set({ launcherIcon: icon }),
@@ -46,6 +47,18 @@ export const useSettingsStore = create<ISettingsState>()(
       applySystemTheme: mode => {
         themeProvider.setMode(mode);
         set({ theme: themeProvider.getTheme() });
+      },
+      setCustomThemeColors: colors => {
+        if (colors === null) {
+          themeProvider.clearCustomColors();
+        } else {
+          themeProvider.setCustomColors({
+            taskbar: colors.taskbar,
+            window: colors.window,
+            accent: colors.accent,
+          });
+        }
+        set({ customThemeColors: colors, theme: themeProvider.getTheme() });
       },
     }),
     {

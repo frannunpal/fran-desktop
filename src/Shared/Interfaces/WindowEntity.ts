@@ -18,4 +18,5 @@ export interface WindowEntity {
   canMaximize?: boolean;
   alwaysOnTop?: boolean;
   contentData?: Record<string, unknown>;
+  closeInterceptor?: () => boolean;
 }

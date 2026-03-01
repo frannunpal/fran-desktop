@@ -1,7 +1,7 @@
 import { createElement, type FC, useEffect, useMemo, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { motion, useAnimationControls } from 'framer-motion';
-import { ActionIcon, Group, Text } from '@mantine/core';
+import { ActionIcon, Group, Modal, Text, Button } from '@mantine/core';
 import {
   VscChromeMinimize,
   VscChromeMaximize,
@@ -10,6 +10,7 @@ import {
 } from 'react-icons/vsc';
 import { useShallow } from 'zustand/react/shallow';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
+import { useCloseModalStore } from '@presentation/Store/closeModalStore';
 import { useSettingsStore } from '@presentation/Store/settingsStore';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
 import type { WindowProps } from '@/Shared/Interfaces/IComponentProps';
@@ -27,6 +28,7 @@ import classes from './Window.module.css';
 import { getAppComponent, getMenuBarBuilder } from './AppRegistry';
 import { AppReadyProvider } from './AppReadyContext';
 import { useAppReady } from './useAppReady';
+import { getCloseInterceptor } from '@presentation/Hooks/useCloseInterceptor';
 
 // ── Inner component (rendered inside AppReadyProvider) ────────────────────────
 // Reads notifyReady and getContentData from the AppReadyContext, so the app
@@ -96,6 +98,12 @@ const Window: FC<WindowProps> = ({ window: winProp }) => {
   );
 
   const windowColor = useSettingsStore(state => state.theme.window);
+  const isOpen = useCloseModalStore(state => state.isOpen);
+  const modalWindowId = useCloseModalStore(state => state.windowId);
+  const onSave = useCloseModalStore(state => state.onSave);
+  const onDiscard = useCloseModalStore(state => state.onDiscard);
+  const closeModal = useCloseModalStore(state => state.closeModal);
+
   // A window is focused when it has the highest zIndex within its own group
   // (normal windows vs alwaysOnTop windows), ignoring minimized windows.
   // Read this window's zIndex from the store (not the prop) to avoid stale comparisons
@@ -143,6 +151,7 @@ const Window: FC<WindowProps> = ({ window: winProp }) => {
   const isMinimized = win.state === 'minimized';
   const isMaximized = win.state === 'maximized';
   const canMaximize = win.canMaximize !== false;
+  const isModalOpenForThisWindow = isOpen && modalWindowId === win.id;
 
   const handleMinimize = async () => {
     const rect = getRect(win.id);
@@ -159,78 +168,117 @@ const Window: FC<WindowProps> = ({ window: winProp }) => {
   };
 
   const handleClose = async () => {
+    const closeInterceptor = getCloseInterceptor(win.id);
+    if (closeInterceptor && !closeInterceptor()) {
+      return;
+    }
     await controls.start({ ...windowVariants.exit, transition: EASE_IN });
     closeWindow(win.id);
   };
 
+  const handleModalSave = () => {
+    onSave?.();
+    closeModal();
+  };
+
+  const handleModalDiscard = () => {
+    onDiscard?.();
+    closeModal();
+  };
+
+  const handleModalCancel = () => {
+    closeModal();
+  };
+
   return (
-    <Rnd
-      position={isMaximized ? { x: 0, y: 0 } : { x: win.x, y: win.y }}
-      size={
-        isMaximized ? { width: '100vw', height: '100vh' } : { width: win.width, height: win.height }
-      }
-      minWidth={win.minWidth}
-      minHeight={win.minHeight}
-      style={{
-        zIndex: win.zIndex,
-        visibility: isMinimized ? 'hidden' : 'visible',
-        pointerEvents: isMinimized ? 'none' : 'auto',
-      }}
-      dragHandleClassName={classes.titleBar}
-      disableDragging={isMaximized || isMinimized}
-      enableResizing={!isMaximized && !isMinimized}
-      onMouseDown={() => focusWindow(win.id)}
-      onDragStop={(_e, data) => moveWindow(win.id, data.x, data.y)}
-      onResizeStop={(_e, _dir, _ref, _delta, position) => {
-        resizeWindow(win.id, _ref.offsetWidth, _ref.offsetHeight);
-        moveWindow(win.id, position.x, position.y);
-      }}
-    >
-      <motion.div
-        className={classes.root}
-        style={{ background: windowColor }}
-        variants={windowVariants}
-        initial="hidden"
-        animate={controls}
-        exit="exit"
-        layout
-        transition={maximizeTransition}
+    <>
+      <Rnd
+        position={isMaximized ? { x: 0, y: 0 } : { x: win.x, y: win.y }}
+        size={
+          isMaximized
+            ? { width: '100vw', height: '100vh' }
+            : { width: win.width, height: win.height }
+        }
+        minWidth={win.minWidth}
+        minHeight={win.minHeight}
+        style={{
+          zIndex: win.zIndex,
+          visibility: isMinimized ? 'hidden' : 'visible',
+          pointerEvents: isMinimized ? 'none' : 'auto',
+        }}
+        dragHandleClassName={classes.titleBar}
+        disableDragging={isMaximized || isMinimized}
+        enableResizing={!isMaximized && !isMinimized}
+        onMouseDown={() => focusWindow(win.id)}
+        onDragStop={(_e, data) => moveWindow(win.id, data.x, data.y)}
+        onResizeStop={(_e, _dir, _ref, _delta, position) => {
+          resizeWindow(win.id, _ref.offsetWidth, _ref.offsetHeight);
+          moveWindow(win.id, position.x, position.y);
+        }}
       >
-        <div className={classes.titleBar}>
-          <AppIcon fcIcon={win.fcIcon} fallback={win.icon} size={14} />
-          <Text size="sm" fw={500} truncate className={classes.title}>
-            {win.title}
-          </Text>
-          <Group gap={4} wrap="nowrap">
-            <ActionIcon size="xs" variant="subtle" aria-label="Minimize" onClick={handleMinimize}>
-              <VscChromeMinimize />
-            </ActionIcon>
-            {canMaximize && (
+        <motion.div
+          className={classes.root}
+          style={{ background: windowColor }}
+          variants={windowVariants}
+          initial="hidden"
+          animate={controls}
+          exit="exit"
+          layout
+          transition={maximizeTransition}
+        >
+          <div className={classes.titleBar}>
+            <AppIcon fcIcon={win.fcIcon} fallback={win.icon} size={14} />
+            <Text size="sm" fw={500} truncate className={classes.title}>
+              {win.title}
+            </Text>
+            <Group gap={4} wrap="nowrap">
+              <ActionIcon size="xs" variant="subtle" aria-label="Minimize" onClick={handleMinimize}>
+                <VscChromeMinimize />
+              </ActionIcon>
+              {canMaximize && (
+                <ActionIcon
+                  size="xs"
+                  variant="subtle"
+                  aria-label={isMaximized ? 'Restore' : 'Maximize'}
+                  onClick={() => (isMaximized ? restoreWindow(win.id) : maximizeWindow(win.id))}
+                >
+                  {isMaximized ? <VscChromeRestore /> : <VscChromeMaximize />}
+                </ActionIcon>
+              )}
               <ActionIcon
                 size="xs"
                 variant="subtle"
-                aria-label={isMaximized ? 'Restore' : 'Maximize'}
-                onClick={() => (isMaximized ? restoreWindow(win.id) : maximizeWindow(win.id))}
+                color="red"
+                aria-label="Close"
+                onClick={handleClose}
               >
-                {isMaximized ? <VscChromeRestore /> : <VscChromeMaximize />}
+                <VscChromeClose />
               </ActionIcon>
-            )}
-            <ActionIcon
-              size="xs"
-              variant="subtle"
-              color="red"
-              aria-label="Close"
-              onClick={handleClose}
-            >
-              <VscChromeClose />
-            </ActionIcon>
-          </Group>
-        </div>
-        <AppReadyProvider>
-          <WindowContentArea win={win} isFocused={isFocused} focusWindow={focusWindow} />
-        </AppReadyProvider>
-      </motion.div>
-    </Rnd>
+            </Group>
+          </div>
+          <AppReadyProvider>
+            <WindowContentArea win={win} isFocused={isFocused} focusWindow={focusWindow} />
+          </AppReadyProvider>
+        </motion.div>
+      </Rnd>
+      <Modal
+        opened={isModalOpenForThisWindow}
+        onClose={handleModalCancel}
+        title="Unsaved Changes"
+        centered
+        withinPortal
+      >
+        <Text size="sm" mb="lg">
+          You have unsaved changes. What would you like to do?
+        </Text>
+        <Button variant="default" onClick={handleModalDiscard}>
+          Don&apos;t Save
+        </Button>
+        <Button onClick={handleModalSave} ml="sm">
+          Save
+        </Button>
+      </Modal>
+    </>
   );
 };
 

@@ -19,13 +19,18 @@ const THEMES: Record<ThemeMode, Theme> = {
 
 export class DefaultThemeProvider implements IThemeProvider {
   private mode: ThemeMode;
+  private customColors: Partial<Theme> = {};
 
   constructor(initialMode: ThemeMode = 'light') {
     this.mode = initialMode;
   }
 
   getTheme(): Theme {
-    return THEMES[this.mode];
+    const baseTheme = THEMES[this.mode];
+    return {
+      ...baseTheme,
+      ...this.customColors,
+    };
   }
 
   setMode(mode: ThemeMode): void {
@@ -34,5 +39,13 @@ export class DefaultThemeProvider implements IThemeProvider {
 
   toggle(): void {
     this.mode = this.mode === 'light' ? 'dark' : 'light';
+  }
+
+  setCustomColors(colors: Partial<Theme>): void {
+    this.customColors = { ...this.customColors, ...colors };
+  }
+
+  clearCustomColors(): void {
+    this.customColors = {};
   }
 }

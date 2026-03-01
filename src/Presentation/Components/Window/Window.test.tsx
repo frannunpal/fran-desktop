@@ -22,10 +22,18 @@ vi.stubGlobal('localStorage', localStorageMock);
 
 const { useDesktopStore, resetWindowManager } = await import('@presentation/Store/desktopStore');
 const { default: Window } = await import('./Window');
+const { useCloseModalStore } = await import('@presentation/Store/closeModalStore');
 
 describe('Window component', () => {
   beforeEach(() => {
     resetDesktopStore(useDesktopStore, localStorageMock, resetWindowManager);
+    useCloseModalStore.getState().closeModal();
+    useCloseModalStore.setState({
+      isOpen: false,
+      windowId: null,
+      onSave: null,
+      onDiscard: null,
+    });
   });
 
   it('should render the window title', () => {
@@ -282,5 +290,60 @@ describe('Window component', () => {
     // Assert — NotesApp menu bar includes a 'File' menu
     expect(screen.getByRole('menubar')).toBeInTheDocument();
     expect(screen.getByText('File')).toBeInTheDocument();
+  });
+});
+
+it('should show modal when closeInterceptor returns false and modal matches current window', async () => {
+  // Arrange
+  useDesktopStore.getState().openWindow(makeWindowInput());
+  const win = useDesktopStore.getState().windows[0];
+  render(<Window window={win} />, { wrapper });
+
+  // Register a close interceptor that returns false (isDirty) and opens modal
+  const isDirty = true;
+  const openModal = useCloseModalStore.getState().openModal;
+  const interceptor = () => {
+    if (isDirty) {
+      openModal(
+        win.id,
+        () => {},
+        () => {},
+      );
+      return false;
+    }
+    return true;
+  };
+  const { registerCloseInterceptor } = await import('@presentation/Hooks/useCloseInterceptor');
+  registerCloseInterceptor(win.id, interceptor);
+
+  // Act - try to close the window
+  fireEvent.click(screen.getByLabelText('Close'));
+
+  // Wait for modal to appear
+  await screen.findByText('Unsaved Changes');
+
+  // Assert - modal should be visible (interceptor prevented close)
+  expect(screen.getByText('Unsaved Changes')).toBeInTheDocument();
+});
+
+it('should not show modal when closeInterceptor returns true (not dirty)', async () => {
+  // Arrange
+  useCloseModalStore.getState().closeModal();
+  useDesktopStore.getState().openWindow(makeWindowInput());
+  const win = useDesktopStore.getState().windows[0];
+  render(<Window window={win} />, { wrapper });
+
+  // Register a close interceptor that returns true (not dirty)
+  const interceptor = () => true;
+  const { registerCloseInterceptor } = await import('@presentation/Hooks/useCloseInterceptor');
+  registerCloseInterceptor(win.id, interceptor);
+
+  // Act - try to close the window
+  fireEvent.click(screen.getByLabelText('Close'));
+
+  // Assert - window should be closed, no modal visible
+  await vi.waitFor(() => {
+    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    expect(useCloseModalStore.getState().isOpen).toBe(false);
   });
 });
