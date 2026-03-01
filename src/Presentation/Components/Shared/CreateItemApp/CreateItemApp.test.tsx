@@ -4,6 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
 import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
+import { createMockWindowEntity } from '@/Shared/Testing/Utils/makeWindowEntity';
 
 vi.mock('../IconColorPicker/IconColorPicker', () => ({
   default: ({ colorError }: { colorError?: string }) => (
@@ -51,61 +52,75 @@ vi.mock('@presentation/Store/desktopStore', () => ({
 
 const { default: CreateItemApp } = await import('./CreateItemApp');
 
+// Helper: render CreateItemApp with a mock WindowEntity
+const renderCreateItemApp = (contentData: Record<string, unknown>) => {
+  const win = createMockWindowEntity({ contentData });
+  render(<CreateItemApp window={win} />, { wrapper });
+  return { win };
+};
+
 describe('CreateItemApp', () => {
   it('should Render the app with folder title', () => {
-    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
-      wrapper,
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Desktop',
     });
     expect(screen.getByText(/Create new folder/)).toBeInTheDocument();
   });
 
   it('should Render the app with file title', () => {
-    render(<CreateItemApp mode="file" parentId="folder-desktop" currentPath="/home/Desktop" />, {
-      wrapper,
-    });
+    renderCreateItemApp({ mode: 'file', parentId: 'folder-desktop', currentPath: '/home/Desktop' });
     expect(screen.getByText(/Create new file/)).toBeInTheDocument();
   });
 
   it('should Have an input for name', () => {
-    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
-      wrapper,
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Desktop',
     });
     expect(screen.getByLabelText('Item name')).toBeInTheDocument();
   });
 
   it('should Have Cancel and OK buttons', () => {
-    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
-      wrapper,
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Desktop',
     });
     expect(screen.getByText('Cancel')).toBeInTheDocument();
     expect(screen.getByText('OK')).toBeInTheDocument();
   });
 
   it('should Show icon picker for folders', () => {
-    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
-      wrapper,
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Desktop',
     });
     expect(screen.getByText('Choose custom icon or color')).toBeInTheDocument();
   });
 
   it('should Not show icon picker for files', () => {
-    render(<CreateItemApp mode="file" parentId="folder-desktop" currentPath="/home/Desktop" />, {
-      wrapper,
-    });
+    renderCreateItemApp({ mode: 'file', parentId: 'folder-desktop', currentPath: '/home/Desktop' });
     expect(screen.queryByText('Choose custom icon or color')).not.toBeInTheDocument();
   });
 
   it('should Show current path in header', () => {
-    render(
-      <CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Documents/Work" />,
-      { wrapper },
-    );
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Documents/Work',
+    });
     expect(screen.getByText(/\/home\/Documents\/Work/)).toBeInTheDocument();
   });
 
   it('should show duplicate name error and disable OK when folder name already exists', () => {
-    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
-      wrapper,
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Desktop',
     });
 
     // Arrange: type the name of the existing folder
@@ -118,8 +133,10 @@ describe('CreateItemApp', () => {
   });
 
   it('should not show duplicate error when name is unique', () => {
-    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
-      wrapper,
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Desktop',
     });
 
     const input = screen.getByLabelText('Item name');
@@ -130,8 +147,10 @@ describe('CreateItemApp', () => {
   });
 
   it('should disable OK when name is empty', () => {
-    render(<CreateItemApp mode="folder" parentId="folder-desktop" currentPath="/home/Desktop" />, {
-      wrapper,
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Desktop',
     });
 
     const input = screen.getByLabelText('Item name');
@@ -140,16 +159,13 @@ describe('CreateItemApp', () => {
     expect(screen.getByRole('button', { name: /ok/i })).toBeDisabled();
   });
 
-  it('should open icon picker on mount when iconPickerOpen is true', () => {
-    render(
-      <CreateItemApp
-        mode="folder"
-        parentId="folder-desktop"
-        currentPath="/home/Desktop"
-        iconPickerOpen
-      />,
-      { wrapper },
-    );
+  it('should open icon picker on mount when iconPickerOpen is true in contentData', () => {
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Desktop',
+      iconPickerOpen: true,
+    });
 
     expect(screen.getByRole('button', { name: /choose custom icon/i })).toHaveAttribute(
       'aria-expanded',
@@ -157,34 +173,17 @@ describe('CreateItemApp', () => {
     );
   });
 
-  it('should sync icon picker state when iconPickerOpen prop changes', () => {
-    const { rerender } = render(
-      <CreateItemApp
-        mode="folder"
-        parentId="folder-desktop"
-        currentPath="/home/Desktop"
-        iconPickerOpen={false}
-      />,
-      { wrapper },
-    );
+  it('should keep icon picker closed when iconPickerOpen is false in contentData', () => {
+    renderCreateItemApp({
+      mode: 'folder',
+      parentId: 'folder-desktop',
+      currentPath: '/home/Desktop',
+      iconPickerOpen: false,
+    });
 
     expect(screen.getByRole('button', { name: /choose custom icon/i })).toHaveAttribute(
       'aria-expanded',
       'false',
-    );
-
-    rerender(
-      <CreateItemApp
-        mode="folder"
-        parentId="folder-desktop"
-        currentPath="/home/Desktop"
-        iconPickerOpen={true}
-      />,
-    );
-
-    expect(screen.getByRole('button', { name: /choose custom icon/i })).toHaveAttribute(
-      'aria-expanded',
-      'true',
     );
   });
 });

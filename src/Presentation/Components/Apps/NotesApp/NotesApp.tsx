@@ -24,13 +24,12 @@ import {
 } from '@presentation/Components/Shared/FilePickerApp/FilePickerApp';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { TEXT_MIME_TYPES } from '@/Shared/Utils/getAppIdForMime';
+import type { WindowContentProps } from '@/Shared/Interfaces/IWindowContentProps';
 import classes from './NotesApp.module.css';
 import { LuHeading1, LuHeading2 } from 'react-icons/lu';
 
 const ACCEPTED_MD_TYPES = [...TEXT_MIME_TYPES];
 
-// On Enter: create a new paragraph with all marks removed so formatting
-// doesn't bleed from the previous line into the new one.
 const ClearMarksOnEnter = Extension.create({
   name: 'clearMarksOnEnter',
   addKeyboardShortcuts() {
@@ -39,7 +38,6 @@ const ClearMarksOnEnter = Extension.create({
         const { state, dispatch } = editor.view;
         const { selection, schema } = state;
         const { $from, empty } = selection;
-        // Only act at the end of a paragraph (not inside code blocks etc.)
         if (!empty || $from.parent.type !== schema.nodes.paragraph) return false;
         const tr = state.tr.split($from.pos).setStoredMarks([]);
         dispatch(tr);
@@ -55,62 +53,37 @@ export interface NotesAppActions {
   saveAs: () => void;
 }
 
-export interface NotesAppProps {
-  contentData?: { fileId?: string; initialContent?: string; initialName?: string; url?: string };
-  windowId?: string;
-  pickerOpen?: boolean;
-  onPickerClose?: () => void;
-  onRegisterActions?: (actions: NotesAppActions) => void;
-  onDirtyChange?: (isDirty: boolean) => void;
-}
+const WELCOME_URL = 'Desktop/NotesAppWelcome.md';
 
-const WELCOME_URL = `${import.meta.env.BASE_URL}Desktop/NotesAppWelcome.md`;
-
-/**
- * Returns the markdown content for a node.
- * If content is empty but a url is present, fetches the file from the url.
- */
 async function resolveContent(content: string, url?: string): Promise<string> {
   if (content) return content;
   if (!url) return '';
   const base = import.meta.env.BASE_URL as string;
-  const fullUrl = url.startsWith('http') ? url : `${base}${url}`;
-  const res = await fetch(fullUrl);
+  const src = url.startsWith('http') ? url : `${base}${url}`;
+  const res = await fetch(src);
   if (!res.ok) return '';
   return res.text();
 }
 
-const NotesApp: FC<NotesAppProps> = ({
-  contentData,
-  windowId,
-  pickerOpen = false,
-  onPickerClose,
-  onRegisterActions,
-  onDirtyChange,
-}) => {
+const NotesApp: FC<WindowContentProps> = ({ window, notifyReady }) => {
+  const win = window;
+  const contentData = win?.contentData as
+    | { fileId?: string; initialContent?: string; initialName?: string; url?: string }
+    | undefined;
   const [fileName, setFileName] = useState<string>(contentData?.initialName ?? 'untitled.md');
   const [isDirty, setIsDirty] = useState(false);
-  // True while we haven't yet loaded the welcome file (or user pressed New)
   const welcomeLoadedRef = useRef(false);
   const [saveModalOpen, setSaveModalOpen] = useState(false);
-  // 'save' triggers save-in-place if fileId exists, else opens modal
-  // 'saveAs' always opens modal
   const pendingSaveMode = useRef<'save' | 'saveAs'>('save');
   const fileIdRef = useRef<string | null>(contentData?.fileId ?? null);
 
   const createFile = useDesktopStore(state => state.createFile);
   const updateFile = useDesktopStore(state => state.updateFile);
 
-  const setDirty = useCallback(
-    (value: boolean) => {
-      setIsDirty(value);
-      onDirtyChange?.(value);
-    },
-    [onDirtyChange],
-  );
+  const setDirty = useCallback((value: boolean) => {
+    setIsDirty(value);
+  }, []);
 
-  // Stable ref so TipTap's onUpdate (set once at creation) always calls the
-  // latest setDirty without going stale when onDirtyChange changes.
   const setDirtyRef = useRef(setDirty);
   useEffect(() => {
     setDirtyRef.current = setDirty;
@@ -126,14 +99,9 @@ const NotesApp: FC<NotesAppProps> = ({
     },
   });
 
-  // On mount: if opened with a url-backed file (content empty, url present) fetch it;
-  // otherwise if opened with no contentData at all, load the welcome document.
   useEffect(() => {
     if (welcomeLoadedRef.current || !editor) return;
     welcomeLoadedRef.current = true;
-    // Fetch only when content is missing (url-backed file with empty initialContent).
-    // If initialContent was already provided the editor has it — skip fetch.
-    // If there is no contentData at all, load the welcome document.
     let src: string | null = null;
     if (!contentData) src = WELCOME_URL;
     else if (contentData.url && !contentData.initialContent) src = contentData.url;
@@ -146,8 +114,7 @@ const NotesApp: FC<NotesAppProps> = ({
         if (md) editor.commands.setContent(md, { emitUpdate: false, contentType: 'markdown' });
       })
       .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor]);
+  }, [editor, contentData]);
 
   const getMarkdown = useCallback((): string => {
     if (!editor) return '';
@@ -155,7 +122,7 @@ const NotesApp: FC<NotesAppProps> = ({
   }, [editor]);
 
   const handleNew = useCallback(() => {
-    welcomeLoadedRef.current = true; // prevent welcome from reloading
+    welcomeLoadedRef.current = true;
     editor?.commands.setContent('', { emitUpdate: false, contentType: 'markdown' });
     fileIdRef.current = null;
     setFileName('untitled.md');
@@ -166,11 +133,9 @@ const NotesApp: FC<NotesAppProps> = ({
     if (!editor) return;
     const currentFileId = fileIdRef.current;
     if (currentFileId) {
-      // Already saved before — update in place, no modal needed
       updateFile(currentFileId, getMarkdown());
       setDirty(false);
     } else {
-      // First save — show modal so user picks location and name
       pendingSaveMode.current = 'save';
       setSaveModalOpen(true);
     }
@@ -187,13 +152,10 @@ const NotesApp: FC<NotesAppProps> = ({
       if (!editor) return;
       const content = getMarkdown();
       if (pendingSaveMode.current === 'saveAs' || !fileIdRef.current) {
-        // Always create a new file for Save As
         const file = createFile(name, content, parentId);
         fileIdRef.current = file.id;
         setFileName(file.name);
       } else {
-        // Shouldn't reach here for 'save' with existing fileId (handled above),
-        // but guard just in case
         updateFile(fileIdRef.current, content);
       }
       setDirty(false);
@@ -202,22 +164,30 @@ const NotesApp: FC<NotesAppProps> = ({
     [editor, getMarkdown, createFile, updateFile, setDirty],
   );
 
+  const [pickerOpen, setPickerOpen] = useState(false);
+
   const handleFileSelected = useCallback(
     (node: FileNode) => {
       fileIdRef.current = node.id;
       setFileName(node.name);
       setDirty(false);
-      onPickerClose?.();
+      setPickerOpen(false);
       resolveContent(node.content, node.url).then(md => {
         editor?.commands.setContent(md, { emitUpdate: false, contentType: 'markdown' });
       });
     },
-    [editor, onPickerClose, setDirty],
+    [editor, setDirty],
   );
 
   useEffect(() => {
-    onRegisterActions?.({ new: handleNew, save: handleSave, saveAs: handleSaveAs });
-  }, [onRegisterActions, handleNew, handleSave, handleSaveAs]);
+    const actions: NotesAppActions = { new: handleNew, save: handleSave, saveAs: handleSaveAs };
+    notifyReady?.({
+      ...(win?.contentData ?? {}),
+      actions,
+      isDirty,
+      setPickerOpen: () => setPickerOpen(true),
+    });
+  }, [handleNew, handleSave, handleSaveAs, isDirty, win, notifyReady]);
 
   const editorState = useEditorState({
     editor,
@@ -238,7 +208,7 @@ const NotesApp: FC<NotesAppProps> = ({
   });
 
   return (
-    <div className={classes.container} data-windowid={windowId}>
+    <div className={classes.container} data-windowid={win?.id}>
       <div className={classes.toolbar} role="toolbar" aria-label="Text formatting">
         <button
           className={`${classes.toolbarBtn} ${editorState?.isBold ? classes.active : ''}`}
@@ -376,7 +346,7 @@ const NotesApp: FC<NotesAppProps> = ({
         opened={pickerOpen}
         acceptedMimeTypes={ACCEPTED_MD_TYPES}
         onConfirm={handleFileSelected}
-        onCancel={() => onPickerClose?.()}
+        onCancel={() => setPickerOpen(false)}
       />
 
       <FileSaveModal

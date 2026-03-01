@@ -1,4 +1,4 @@
-import { type FC, useEffect, useRef } from 'react';
+import { createElement, type FC, useEffect, useMemo, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { motion, useAnimationControls } from 'framer-motion';
 import { ActionIcon, Group, Text } from '@mantine/core';
@@ -12,6 +12,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
 import type { WindowProps } from '@/Shared/Interfaces/IComponentProps';
+import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 import AppIcon from '@presentation/Components/Shared/AppIcon/AppIcon';
 import {
   windowVariants,
@@ -22,9 +23,57 @@ import {
 } from '@shared/Constants/Animations';
 import AppMenuBar from '@presentation/Components/AppMenuBar/AppMenuBar';
 import classes from './Window.module.css';
-import AppEmptyState from '../Shared/AppEmptyState/AppEmptyState';
+import { getAppComponent, getMenuBarBuilder } from './AppRegistry';
+import { AppReadyProvider } from './AppReadyContext';
+import { useAppReady } from './useAppReady';
 
-const Window: FC<WindowProps> = ({ window: win, menuBar, children }) => {
+// ── Inner component (rendered inside AppReadyProvider) ────────────────────────
+// Reads notifyReady and getContentData from the AppReadyContext, so the app
+// component can push contentData updates without mutating its props.
+
+interface WindowContentAreaProps {
+  win: WindowEntity;
+  isFocused: boolean;
+  focusWindow: (id: string) => void;
+}
+
+const WindowContentArea: FC<WindowContentAreaProps> = ({ win, isFocused, focusWindow }) => {
+  const { notifyReady, getContentData } = useAppReady();
+
+  const appComponent = useMemo(() => getAppComponent(win.content), [win.content]);
+  const buildMenuBar = useMemo(() => getMenuBarBuilder(win.content), [win.content]);
+
+  // Recompute the menu bar every render so it reflects the latest contentData
+  // that the app pushed via notifyReady(contentData).
+  const appContentData = getContentData() ?? win.contentData;
+  const winWithContentData = { ...win, contentData: appContentData };
+  const computedMenuBar = buildMenuBar ? buildMenuBar(winWithContentData) : undefined;
+
+  return (
+    <>
+      {computedMenuBar && computedMenuBar.length > 0 && <AppMenuBar elements={computedMenuBar} />}
+      <div className={classes.content}>
+        {!isFocused && (
+          <div
+            data-testid="focus-overlay"
+            className={classes.focusOverlay}
+            onMouseDown={e => {
+              e.stopPropagation();
+              focusWindow(win.id);
+            }}
+          />
+        )}
+        {createElement(appComponent, { window: win, notifyReady })}
+      </div>
+    </>
+  );
+};
+
+// ── Outer Window component ────────────────────────────────────────────────────
+
+const Window: FC<WindowProps> = ({ window: winProp }) => {
+  const winFromStore = useDesktopStore(state => state.windows.find(w => w.id === winProp.id));
+  const win = winFromStore ?? winProp;
   const {
     focusWindow,
     closeWindow,
@@ -176,20 +225,9 @@ const Window: FC<WindowProps> = ({ window: win, menuBar, children }) => {
             </ActionIcon>
           </Group>
         </div>
-        {menuBar && menuBar.length > 0 && <AppMenuBar elements={menuBar} />}
-        <div className={classes.content}>
-          {!isFocused && (
-            <div
-              data-testid="focus-overlay"
-              className={classes.focusOverlay}
-              onMouseDown={e => {
-                e.stopPropagation();
-                focusWindow(win.id);
-              }}
-            />
-          )}
-          {children || <AppEmptyState />}
-        </div>
+        <AppReadyProvider>
+          <WindowContentArea win={win} isFocused={isFocused} focusWindow={focusWindow} />
+        </AppReadyProvider>
       </motion.div>
     </Rnd>
   );

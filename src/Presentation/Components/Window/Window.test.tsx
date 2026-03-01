@@ -54,17 +54,12 @@ describe('Window component', () => {
     expect(screen.getByLabelText('Close')).toBeInTheDocument();
   });
 
-  it('should render children inside the window', () => {
-    // Act
-    render(
-      <Window window={makeWindow()}>
-        <span>app content</span>
-      </Window>,
-      { wrapper },
-    );
+  it('should render the window title bar for any content type', () => {
+    // Act — window with content type that has no complex dependencies
+    render(<Window window={makeWindow({ content: 'calendar' })} />, { wrapper });
 
-    // Assert
-    expect(screen.getByText('app content')).toBeInTheDocument();
+    // Assert — title bar is present
+    expect(screen.getByText('Test Window')).toBeInTheDocument();
   });
 
   it('should not render when isOpen is false', () => {
@@ -272,28 +267,19 @@ describe('Window component', () => {
     expect(screen.queryByTestId('focus-overlay')).not.toBeInTheDocument();
   });
 
-  it('should not render menu bar when menuBar prop is absent', () => {
-    // Act
-    render(<Window window={makeWindow()} />, { wrapper });
+  it('should not render menu bar for apps without a registered menu builder', () => {
+    // Act — calendar has no buildMenuBar in AppRegistry
+    render(<Window window={makeWindow({ content: 'calendar' })} />, { wrapper });
 
     // Assert
     expect(screen.queryByRole('menubar')).not.toBeInTheDocument();
   });
 
-  it('should render menu bar when menuBar prop contains elements', () => {
-    // Arrange
-    const menuBar = [
-      {
-        type: 'menu' as const,
-        label: 'File',
-        items: [{ type: 'item' as const, label: 'New', onClick: vi.fn() }],
-      },
-    ];
+  it('should render menu bar for apps with a registered menu builder', () => {
+    // Act — notepad has buildNotesMenuBarFn registered in AppRegistry
+    render(<Window window={makeWindow({ content: 'notepad' })} />, { wrapper });
 
-    // Act
-    render(<Window window={makeWindow()} menuBar={menuBar} />, { wrapper });
-
-    // Assert
+    // Assert — NotesApp menu bar includes a 'File' menu
     expect(screen.getByRole('menubar')).toBeInTheDocument();
     expect(screen.getByText('File')).toBeInTheDocument();
   });

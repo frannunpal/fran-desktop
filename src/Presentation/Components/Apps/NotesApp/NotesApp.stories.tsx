@@ -1,8 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useEffect } from 'react';
 import NotesApp from './NotesApp';
-import { buildNotesMenuBar } from './buildNotesMenuBar';
-import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { makeWindow } from '@/Shared/Testing/Utils/makeWindow';
 import AppWithPickerOpen from '@/Shared/Testing/Utils/AppWithPickerOpen';
 import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
@@ -53,83 +50,62 @@ const fileTodo: FileNode = {
   updatedAt: new Date(),
 };
 
-/* ── Window definitions ───────────────────────────────────────────────── */
-
-const win = makeWindow({
-  id: 'win-notes',
-  title: 'Notepad',
-  fcIcon: 'FcEditImage',
-  width: 700,
-  height: 520,
-  x: 0,
-  y: 0,
-});
-
-const smallWin = makeWindow({
-  id: 'win-notes-small',
-  title: 'Notepad',
-  fcIcon: 'FcEditImage',
-  width: 360,
-  height: 280,
-  x: 0,
-  y: 0,
-});
-
-/* ── Wrapper component ────────────────────────────────────────────────── */
-
-const NotesInWindow = ({
-  initialContent,
-  pickerOpen = false,
-  windowDef = win,
-}: {
-  initialContent?: string;
-  pickerOpen?: boolean;
-  windowDef?: typeof win;
-}) => {
-  useEffect(() => {
-    useDesktopStore.setState({
-      fsNodes: [notesFolder, fileWelcome, fileTodo],
-      windows: [windowDef],
-    });
-  }, [windowDef]);
-
-  return (
-    <AppWithPickerOpen
-      win={windowDef}
-      menuBar={buildNotesMenuBar(
-        () => {},
-        () => {},
-        () => {},
-        () => {},
-        () => {},
-        false,
-      )}
-    >
-      <NotesApp
-        contentData={initialContent ? { initialContent } : undefined}
-        windowId={windowDef.id}
-        pickerOpen={pickerOpen}
-        onPickerClose={() => {}}
-        onRegisterActions={() => {}}
-      />
-    </AppWithPickerOpen>
-  );
-};
+const fsNodes = [notesFolder, fileWelcome, fileTodo];
 
 /* ── Stories ──────────────────────────────────────────────────────────── */
 
 export const EmptyEditor: Story = {
-  render: () => <NotesInWindow />,
+  render: () => (
+    <AppWithPickerOpen
+      win={makeWindow({
+        id: 'win-notes',
+        title: 'Notepad',
+        content: 'notepad',
+        fcIcon: 'FcEditImage',
+        width: 700,
+        height: 520,
+        x: 0,
+        y: 0,
+      })}
+      fsNodes={fsNodes}
+    />
+  ),
 };
 
 export const WithContent: Story = {
-  render: () => <NotesInWindow initialContent={fileWelcome.content ?? ''} />,
-};
-
-export const WithPickerOpen: Story = {
-  render: () => <NotesInWindow initialContent={fileWelcome.content ?? ''} pickerOpen={true} />,
+  render: () => (
+    <AppWithPickerOpen
+      win={makeWindow({
+        id: 'win-notes-content',
+        title: 'Notepad',
+        content: 'notepad',
+        fcIcon: 'FcEditImage',
+        width: 700,
+        height: 520,
+        x: 0,
+        y: 0,
+        contentData: { initialContent: fileWelcome.content ?? '' },
+      })}
+      fsNodes={fsNodes}
+    />
+  ),
 };
 
 export const SmallWindow: Story = {
-  render: () => <NotesInWindow initialContent={fileTodo.content ?? ''} windowDef={smallWin} />,
+  render: () => (
+    <AppWithPickerOpen
+      win={makeWindow({
+        id: 'win-notes-small',
+        title: 'Notepad',
+        content: 'notepad',
+        fcIcon: 'FcEditImage',
+        width: 360,
+        height: 280,
+        x: 0,
+        y: 0,
+        contentData: { initialContent: fileTodo.content ?? '' },
+      })}
+      fsNodes={fsNodes}
+    />
+  ),
 };

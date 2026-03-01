@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import CreateItemApp from './CreateItemApp';
+import { createMockWindowEntity } from '@/Shared/Testing/Utils/makeWindowEntity';
 
 const meta: Meta<typeof CreateItemApp> = {
   title: 'Shared/CreateItemApp',
@@ -11,21 +12,23 @@ export default meta;
 type Story = StoryObj<typeof CreateItemApp>;
 
 export const NewFolder: Story = {
-  argTypes: {
-    iconPickerOpen: { control: 'boolean', name: 'Icon picker open' },
-  },
-  args: {
-    mode: 'folder',
-    parentId: 'folder-desktop',
-    currentPath: '/home/Desktop',
-    iconPickerOpen: false,
-  },
+  render: () => (
+    <CreateItemApp
+      window={createMockWindowEntity({
+        content: 'createItem',
+        contentData: { mode: 'folder', parentId: 'folder-desktop', currentPath: '/home/Desktop' },
+      })}
+    />
+  ),
 };
 
 export const NewFile: Story = {
-  args: {
-    mode: 'file',
-    parentId: 'folder-desktop',
-    currentPath: '/home/Desktop',
-  },
+  render: () => (
+    <CreateItemApp
+      window={createMockWindowEntity({
+        content: 'createItem',
+        contentData: { mode: 'file', parentId: 'folder-desktop', currentPath: '/home/Desktop' },
+      })}
+    />
+  ),
 };
