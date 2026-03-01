@@ -86,7 +86,84 @@ describe('CalendarApp', () => {
 });
 ```
 
-### 3. Store Tests
+### 3. App Component Tests (with WindowContentProps)
+
+Since apps receive `WindowContentProps`, you need to mock the `window` entity and `notifyReady` callback:
+
+```tsx
+// src/Presentation/Components/Apps/MyApp/MyApp.test.tsx
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { act } from '@testing-library/react';
+import { renderWithMantine } from '@/Shared/Testing/Utils/renderWithMantine';
+import { createMockWindowEntity } from '@/Shared/Testing/Utils/makeWindowEntity';
+import MyApp from './MyApp';
+
+const wrapper = renderWithMantine();
+
+describe('MyApp', () => {
+  const mockNotifyReady = vi.fn((payload?: Record<string, unknown>) => {
+    // Simulate how notifyReady merges data back into contentData
+    if (payload && win.contentData) {
+      win.contentData = { ...win.contentData, ...payload };
+    }
+  });
+
+  let win: ReturnType<typeof createMockWindowEntity>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    win = createMockWindowEntity({ contentData: { initialValue: 'test' } });
+  });
+
+  it('renders with initial contentData', () => {
+    render(<MyApp window={win} notifyReady={mockNotifyReady} />, { wrapper });
+    expect(screen.getByText(/test/i)).toBeInTheDocument();
+  });
+
+  it('calls notifyReady on mount', () => {
+    render(<MyApp window={win} notifyReady={mockNotifyReady} />, { wrapper });
+    expect(mockNotifyReady).toHaveBeenCalled();
+  });
+
+  it('opens picker via contentData callback', () => {
+    render(<MyApp window={win} notifyReady={mockNotifyReady} />, { wrapper });
+
+    // Simulate menu bar calling setPickerOpen from contentData
+    act(() => {
+      (win.contentData?.setPickerOpen as (() => void) | undefined)?.();
+    });
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+});
+```
+
+#### Testing Menu Bar Builders
+
+Menu bar builders are pure functions — test them directly without React:
+
+```tsx
+import { describe, it, expect, vi } from 'vitest';
+import { buildMyAppMenuBar } from './buildMyAppMenuBar';
+
+describe('buildMyAppMenuBar', () => {
+  it('exports a File menu', () => {
+    const menuBar = buildMyAppMenuBar(vi.fn(), vi.fn(), vi.fn());
+    expect(menuBar[0]).toMatchObject({ type: 'menu', label: 'File' });
+  });
+
+  it('calls onOpen when Open is clicked', () => {
+    const onOpen = vi.fn();
+    const menuBar = buildMyAppMenuBar(onOpen, vi.fn(), vi.fn());
+    const items = menuBar[0].items;
+    items.find(i => i.label === 'Open')?.onClick?.();
+    expect(onOpen).toHaveBeenCalledOnce();
+  });
+});
+```
+
+### 4. Store Tests
 
 The Zustand store is tested directly.
 
@@ -143,7 +220,7 @@ import { renderWithMantine } from '../../Shared/Testing/Utils/renderWithMantine'
 renderWithMantine(<MyComponent />);
 ```
 
-### makeWindow.ts / makeWindowInput.ts
+### makeWindow.ts / makeWindowEntity.ts
 
 Helpers for creating windows in tests.
 
@@ -154,6 +231,11 @@ const windowInput = makeWindowInput({
   title: 'Test',
   content: 'test',
 });
+
+// Or with full entity:
+import { createMockWindowEntity } from '@/Shared/Testing/Utils/makeWindowEntity';
+
+const win = createMockWindowEntity({ contentData: { src: 'test.jpg' } });
 ```
 
 ### Mocks
@@ -163,6 +245,7 @@ In `src/Shared/Testing/__mocks__/` there are mocks for:
 - **localStorage.mock.ts**: localStorage mock
 - **react-rnd.mock.tsx**: react-rnd mock
 - **framer-motion.mock.tsx**: framer-motion mock
+- **jsdom-setup.ts**: jsdom setup
 
 ## AAA Pattern
 

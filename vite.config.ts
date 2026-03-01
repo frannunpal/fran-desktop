@@ -10,9 +10,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          mantine: ['@mantine/core', '@mantine/hooks'],
+          mantine: ['@mantine/core', '@mantine/hooks', '@mantine/dates'],
           motion: ['framer-motion'],
-          icons: ['react-icons/vsc'],
+          'icons-vsc': ['react-icons/vsc'],
+          'icons-bi': ['react-icons/bi'],
+          'icons-lu': ['react-icons/lu'],
+          tiptap: ['@tiptap/react', '@tiptap/starter-kit', '@tiptap/markdown'],
         },
       },
     },

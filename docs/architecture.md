@@ -66,6 +66,8 @@ This is where all the React stuff lives:
   - **TaskbarContextMenu/**: Right-click menu for taskbar items (window controls, exit)
   - **Launcher/**: Start menu / app launcher
   - **Window/**: Draggable, resizable window component using react-rnd
+    - **AppRegistry.tsx**: Central registry that maps app IDs to components and menu bar builders
+    - **AppReadyContext.tsx**: React context for app-window communication
   - **DesktopIcon/**: Icons on the desktop that open apps
   - **Apps/**: Built-in applications (Files, Terminal, Settings, etc.)
 - **Hooks/**: Custom hooks (useOpenApp, useClock, useSystemTheme...)
@@ -76,11 +78,79 @@ This is where all the React stuff lives:
 Code shared across all layers:
 
 - **Interfaces/**: TypeScript contracts (IWindowManager, IFileSystem, AppEntry, etc.)
-  - **IComponentProps.ts**: Props interfaces for all presentation components (TaskbarProps, TaskbarContextMenuProps, WindowProps, etc.)
+  - **IComponentProps.ts**: Props interfaces for all presentation components
+  - **IWindowContentProps.ts**: Interface for app components (`WindowContentProps`)
+  - **WindowEntity.ts**: Window entity type with contentData
 - **Types/**: Utility types
 - **Constants/**: Global constants (APPS, Colors, Icons, Animations)
 - **Utils/**: Utility functions
 - **Testing/**: Test utilities (mocks, helpers)
+
+## Window Component Architecture
+
+The `Window` component uses a centralized registry pattern to manage apps:
+
+### WindowContentProps
+
+All app components receive `WindowContentProps` instead of individual props:
+
+```tsx
+interface WindowContentProps {
+  window?: WindowEntity; // The window entity with metadata and contentData
+  notifyReady?: (contentData?: Record<string, unknown>) => void; // Callback to push data back
+}
+```
+
+### AppRegistry
+
+All app registration lives in one place (`Window/AppRegistry.tsx`):
+
+```tsx
+const registry: Record<string, AppRegistryEntry> = {
+  'image-viewer': {
+    component: ImageViewerApp,
+    buildMenuBar: buildImageViewerMenuBarFn,
+  },
+  // ...other apps
+};
+```
+
+### notifyReady Pattern
+
+Apps use `notifyReady` to communicate with the window/menu bar:
+
+```tsx
+const ImageViewerApp: FC<WindowContentProps> = ({ window: win, notifyReady }) => {
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  useEffect(() => {
+    notifyReady?.({
+      ...(win?.contentData ?? {}),
+      setPickerOpen: () => setPickerOpen(true),
+    });
+  }, [win, notifyReady]);
+
+  return <div>...</div>;
+};
+```
+
+The menu bar builder reads these values from `window.contentData`:
+
+```tsx
+const buildImageViewerMenuBarFn: MenuBarBuilder = (window: WindowEntity) => {
+  const setPickerOpen = window.contentData?.setPickerOpen as (() => void) | undefined;
+  return buildImageViewerMenuBar(
+    () => setPickerOpen?.(),
+    () => closeWindow(window.id),
+  );
+};
+```
+
+This decoupling means:
+
+- **Components** don't know about windows or menu bars
+- **Menu bars** are recomputed every render with fresh contentData
+- **All registration** is centralized in one file
 
 ## Typical Data Flow
 
@@ -92,7 +162,11 @@ Code shared across all layers:
 6. The store delegates to `WindowManagerAdapter` (in Application layer)
 7. `WindowManagerAdapter` creates the `Window` entity with its unique z-index
 8. Adds it to the windows array in the store
-9. The `Window` component renders with the specific app's content
+9. The `Window` component:
+   - Looks up the app component in `AppRegistry`
+   - Creates `AppReadyProvider` context
+   - Renders the app with `WindowContentProps`
+   - Computes the menu bar from the builder (if present)
 
 ## State Management with Zustand
 
@@ -131,6 +205,49 @@ This guarantees they're always above normal ones, no matter how many normal wind
 Now that you know how the architecture works, check out [folder-structure.md](./folder-structure.md) to see how the code is organized on disk.
 
 ## Recent Changes
+
+### New App Component API (WindowContentProps)
+
+The app component API has been redesigned for better communication between apps and windows:
+
+- **Before**: Apps received individual props like `pickerOpen`, `onPickerClose`, etc.
+- **After**: Apps receive `WindowContentProps` with `window` entity and `notifyReady` callback
+
+```tsx
+// Before
+const ImageViewerApp: FC<ImageViewerAppProps> = ({ src, pickerOpen, onPickerClose }) => { ... }
+
+// After
+const ImageViewerApp: FC<WindowContentProps> = ({ window, notifyReady }) => { ... }
+```
+
+Benefits:
+
+- Apps can read initial data from `window.contentData`
+- Apps can push data back via `notifyReady` (actions, state, callbacks)
+- Menu bars are automatically updated when apps push new data
+- Centralized registration in `AppRegistry.tsx`
+
+### AppRegistry Centralization
+
+All apps are now registered in `Window/AppRegistry.tsx`:
+
+- Maps app ID to component
+- Optional `buildMenuBar` function for apps with menus
+- Menu bar builders receive the full `WindowEntity` with updated `contentData`
+
+### FileSaveModal Added
+
+Added `FileSaveModal` component for apps that need to save files (like NotesApp):
+
+```tsx
+<FileSaveModal
+  opened={saveModalOpen}
+  initialName="untitled.md"
+  onConfirm={({ parentId, name }) => { ... }}
+  onCancel={() => setSaveModalOpen(false)}
+/>
+```
 
 ### Commit "TLC for taskbar part 1" (b84c2df)
 

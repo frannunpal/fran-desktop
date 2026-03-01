@@ -1,9 +1,10 @@
 import type { FC } from 'react';
+import type { WindowContentProps } from '@/Shared/Interfaces/IWindowContentProps';
 import classes from './StorybookApp.module.css';
 
 const STORYBOOK_URL = 'https://frannunpal.github.io/fran-desktop/storybook/';
 
-const StorybookApp: FC = () => (
+const StorybookApp: FC<WindowContentProps> = () => (
   <iframe
     src={STORYBOOK_URL}
     className={classes.frame}

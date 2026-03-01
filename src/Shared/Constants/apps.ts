@@ -52,10 +52,6 @@ export const APPS: AppEntry[] = [
     name: 'Calendar',
     icon: '📅',
     fcIcon: 'FcCalendar',
-    defaultWidth: 640,
-    defaultHeight: 480,
-    minWidth: 640,
-    minHeight: 480,
     canMaximize: false,
   },
   {

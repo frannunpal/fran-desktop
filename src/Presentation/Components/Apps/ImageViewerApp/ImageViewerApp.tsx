@@ -1,31 +1,27 @@
-import { type FC, useState } from 'react';
+import { type FC, useState, useCallback, useEffect } from 'react';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import { FilePickerModal } from '@presentation/Components/Shared/FilePickerApp/FilePickerApp';
 import AppEmptyState from '@presentation/Components/Shared/AppEmptyState/AppEmptyState';
+import type { WindowContentProps } from '@/Shared/Interfaces/IWindowContentProps';
 import classes from './ImageViewerApp.module.css';
 import { IMAGE_MIME_TYPES } from '@/Shared/Utils/getAppIdForMime';
 
 const ACCEPTED_IMAGE_TYPES = [...IMAGE_MIME_TYPES, 'image/*'];
 
-export interface ImageViewerAppProps {
-  src?: string;
-  windowId?: string;
-  pickerOpen?: boolean;
-  onPickerClose?: () => void;
-}
-
-const ImageViewerApp: FC<ImageViewerAppProps> = ({
-  src: initialSrc,
-  windowId,
-  pickerOpen = false,
-  onPickerClose,
-}) => {
+const ImageViewerApp: FC<WindowContentProps> = ({ window, notifyReady }) => {
+  const win = window;
+  const initialSrc = win?.contentData?.src as string | undefined;
   const [src, setSrc] = useState(initialSrc);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
-  const handleFileSelected = (node: FileNode) => {
+  useEffect(() => {
+    notifyReady?.({ ...(win?.contentData ?? {}), setPickerOpen: () => setPickerOpen(true) });
+  }, [win, notifyReady]);
+
+  const handleFileSelected = useCallback((node: FileNode) => {
     setSrc(node.url ?? node.name);
-    onPickerClose?.();
-  };
+    setPickerOpen(false);
+  }, []);
 
   const content = src ? (
     <img src={src} alt={src.split('/').pop()} className={classes.image} />
@@ -34,13 +30,13 @@ const ImageViewerApp: FC<ImageViewerAppProps> = ({
   );
 
   return (
-    <div className={classes.container} data-windowid={windowId}>
+    <div className={classes.container} data-windowid={win?.id}>
       {content}
       <FilePickerModal
         opened={pickerOpen}
         acceptedMimeTypes={ACCEPTED_IMAGE_TYPES}
         onConfirm={handleFileSelected}
-        onCancel={() => onPickerClose?.()}
+        onCancel={() => setPickerOpen(false)}
       />
     </div>
   );

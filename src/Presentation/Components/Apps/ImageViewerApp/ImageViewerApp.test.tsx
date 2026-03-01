@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
 import { buildImageViewerMenuBar } from './buildImageViewerMenuBar';
+import { createMockWindowEntity } from '@/Shared/Testing/Utils/makeWindowEntity';
 
 vi.mock('framer-motion', async () => await import('@/Shared/Testing/__mocks__/framer-motion.mock'));
 
@@ -52,6 +53,17 @@ vi.mock('@presentation/Store/desktopStore', () => ({
 
 const { default: ImageViewerApp } = await import('./ImageViewerApp');
 
+// Helper: render ImageViewerApp con una ventana mock
+// notifyReady merges the payload back into win.contentData so tests can read it
+const renderImageViewer = (contentData: Record<string, unknown> = {}) => {
+  const win = createMockWindowEntity({ contentData });
+  const notifyReady = vi.fn((payload?: Record<string, unknown>) => {
+    if (payload) win.contentData = { ...(win.contentData ?? {}), ...payload };
+  });
+  render(<ImageViewerApp window={win} notifyReady={notifyReady} />, { wrapper });
+  return { win, notifyReady };
+};
+
 describe('ImageViewerApp', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -60,15 +72,15 @@ describe('ImageViewerApp', () => {
   describe('Display', () => {
     it('should render a placeholder when no src is provided', () => {
       // Act
-      render(<ImageViewerApp />, { wrapper });
+      renderImageViewer();
 
       // Assert
       expect(screen.getByText('No image to display. Please open one.')).toBeInTheDocument();
     });
 
-    it('should render an img element when src is provided', () => {
+    it('should render an img element when src is provided in contentData', () => {
       // Act
-      render(<ImageViewerApp src="Desktop/photo.jpg" />, { wrapper });
+      renderImageViewer({ src: 'Desktop/photo.jpg' });
 
       // Assert
       expect(screen.getByRole('img')).toBeInTheDocument();
@@ -79,7 +91,7 @@ describe('ImageViewerApp', () => {
       const src = 'Desktop/photo.png';
 
       // Act
-      render(<ImageViewerApp src={src} />, { wrapper });
+      renderImageViewer({ src });
 
       // Assert
       expect(screen.getByRole('img')).toHaveAttribute('src', src);
@@ -90,7 +102,7 @@ describe('ImageViewerApp', () => {
       const src = 'Desktop/my-photo.jpg';
 
       // Act
-      render(<ImageViewerApp src={src} />, { wrapper });
+      renderImageViewer({ src });
 
       // Assert
       expect(screen.getByRole('img')).toHaveAttribute('alt', 'my-photo.jpg');
@@ -98,66 +110,63 @@ describe('ImageViewerApp', () => {
   });
 
   describe('File picker modal', () => {
-    it('should not show the picker modal when pickerOpen is false', () => {
+    it('should not show the picker modal on initial render', () => {
       // Act
-      render(<ImageViewerApp src="Desktop/photo.jpg" pickerOpen={false} />, { wrapper });
+      renderImageViewer({ src: 'Desktop/photo.jpg' });
 
       // Assert
       expect(screen.queryByRole('dialog', { name: 'Open file' })).not.toBeInTheDocument();
     });
 
-    it('should show the picker modal when pickerOpen is true', () => {
-      // Act
-      render(<ImageViewerApp src="Desktop/photo.jpg" pickerOpen={true} onPickerClose={vi.fn()} />, {
-        wrapper,
-      });
+    it('should show the picker modal after calling setPickerOpen', () => {
+      // Arrange
+      const { win } = renderImageViewer({ src: 'Desktop/photo.jpg' });
+
+      // Act — open picker via the contentData callback the app registers
+      act(() => (win.contentData?.setPickerOpen as (() => void) | undefined)?.());
 
       // Assert
       expect(screen.getByRole('dialog', { name: 'Open file' })).toBeInTheDocument();
     });
 
     it('should show the FilePicker inside the modal when open', () => {
+      // Arrange
+      const { win } = renderImageViewer();
+
       // Act
-      render(<ImageViewerApp pickerOpen={true} onPickerClose={vi.fn()} />, { wrapper });
+      act(() => (win.contentData?.setPickerOpen as (() => void) | undefined)?.());
 
       // Assert — FilePicker renders its file grid
       expect(screen.getByRole('listbox', { name: 'Files' })).toBeInTheDocument();
     });
 
-    it('should call onPickerClose when Cancel is clicked inside the picker', () => {
+    it('should close the picker when Cancel is clicked', () => {
       // Arrange
-      const onPickerClose = vi.fn();
-      render(<ImageViewerApp pickerOpen={true} onPickerClose={onPickerClose} />, { wrapper });
+      const { win } = renderImageViewer({ src: 'Desktop/photo.jpg' });
+      act(() => (win.contentData?.setPickerOpen as (() => void) | undefined)?.());
+      expect(screen.getByRole('dialog', { name: 'Open file' })).toBeInTheDocument();
 
       // Act
       fireEvent.click(screen.getByLabelText('Cancel'));
 
       // Assert
-      expect(onPickerClose).toHaveBeenCalledOnce();
+      expect(screen.queryByRole('dialog', { name: 'Open file' })).not.toBeInTheDocument();
     });
 
-    it('should update the displayed image and call onPickerClose after a file is selected', () => {
+    it('should update the displayed image and close picker after a file is selected', () => {
       // Arrange
-      const onPickerClose = vi.fn();
-      const { rerender } = render(
-        <ImageViewerApp pickerOpen={true} onPickerClose={onPickerClose} />,
-        { wrapper },
-      );
+      const { win } = renderImageViewer();
+      act(() => (win.contentData?.setPickerOpen as (() => void) | undefined)?.());
 
       // Navigate into Desktop and select photo.jpg
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
-      rerender(<ImageViewerApp pickerOpen={true} onPickerClose={onPickerClose} />);
       fireEvent.click(screen.getByLabelText('Select file photo.jpg'));
 
       // Act
       fireEvent.click(screen.getByLabelText('Open selected file'));
 
       // Assert
-      expect(onPickerClose).toHaveBeenCalledOnce();
-      // After closing the picker the new src should be rendered
-      rerender(
-        <ImageViewerApp src="Desktop/photo.jpg" pickerOpen={false} onPickerClose={onPickerClose} />,
-      );
+      expect(screen.queryByRole('dialog', { name: 'Open file' })).not.toBeInTheDocument();
       expect(screen.getByRole('img')).toHaveAttribute('src', 'Desktop/photo.jpg');
     });
   });

@@ -135,6 +135,28 @@ It's a Context Provider that stores the position of taskbar buttons. This enable
 
 ---
 
+## notifyReady (Not a Hook, But Important)
+
+While not a hook, `notifyReady` is a callback passed to app components via `WindowContentProps`. Use it to communicate from your app to the window/menu bar:
+
+```tsx
+const MyApp: FC<WindowContentProps> = ({ window: win, notifyReady }) => {
+  useEffect(() => {
+    notifyReady?.({
+      actions: { save: handleSave, open: handleOpen },
+      isDirty,
+      setPickerOpen: () => setPickerOpen(true),
+    });
+  }, [win, notifyReady, isDirty]);
+
+  return <div>...</div>;
+};
+```
+
+The menu bar builder reads these values from `window.contentData` to enable/disable items, call actions, etc.
+
+---
+
 ## Example: How to Use a Hook
 
 ```tsx

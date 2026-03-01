@@ -12,6 +12,7 @@ import * as VscIcons from 'react-icons/vsc';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useFcIconElement } from '@presentation/Hooks/useFcIcon';
 import IconColorPicker from '../IconColorPicker/IconColorPicker';
+import type { WindowContentProps } from '@/Shared/Interfaces/IWindowContentProps';
 import classes from './CreateItemApp.module.css';
 
 const CSS_COLOR_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -26,35 +27,24 @@ const CancelIcon: FC = () => useFcIconElement('FcCancel', ICON_PROPS);
 
 const CheckIcon: FC = () => useFcIconElement('FcCheckmark', ICON_PROPS);
 
-export interface CreateItemAppProps {
-  windowId?: string;
-  mode?: 'file' | 'folder';
-  parentId?: string | null;
-  currentPath?: string;
-  iconPickerOpen?: boolean;
-}
-
 const DEFAULT_ICON = 'VscFolder';
 const DEFAULT_COLOR = '#228be6';
 const DEFAULT_FILE_NAME = 'New File';
 const DEFAULT_FOLDER_NAME = 'New Folder';
 const TITLE_BAR_HEIGHT = 36;
 
-const CreateItemApp: FC<CreateItemAppProps> = ({
-  windowId,
-  mode = 'folder',
-  parentId = null,
-  currentPath = '/home',
-  iconPickerOpen: initialIconPickerOpen = false,
-}) => {
+const CreateItemApp: FC<WindowContentProps> = ({ window }) => {
+  const win = window;
+  const mode = (win?.contentData?.mode as 'file' | 'folder') ?? 'folder';
+  const parentId = (win?.contentData?.parentId as string | null) ?? null;
+  const currentPath = (win?.contentData?.currentPath as string) ?? '/home';
+
   const [name, setName] = useState(mode === 'folder' ? DEFAULT_FOLDER_NAME : DEFAULT_FILE_NAME);
   const [iconName, setIconName] = useState(DEFAULT_ICON);
   const [iconColor, setIconColor] = useState(DEFAULT_COLOR);
-  const [iconPickerOpen, setIconPickerOpen] = useState(initialIconPickerOpen);
-
-  useEffect(() => {
-    setIconPickerOpen(initialIconPickerOpen);
-  }, [initialIconPickerOpen]);
+  const [iconPickerOpen, setIconPickerOpen] = useState(
+    (win?.contentData?.iconPickerOpen as boolean | undefined) ?? false,
+  );
 
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -64,7 +54,7 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
   const createFolder = useDesktopStore(state => state.createFolder);
   const fsNodes = useDesktopStore(state => state.fsNodes);
   const windowWidth = useDesktopStore(
-    state => state.windows.find(w => w.id === windowId)?.width ?? 400,
+    state => state.windows.find(w => w.id === win?.id)?.width ?? 400,
   );
 
   const duplicateName = fsNodes.some(
@@ -74,14 +64,14 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
   const canConfirm = name.trim().length > 0 && !duplicateName && !colorError;
 
   useEffect(() => {
-    if (!windowId || !rootRef.current) return;
+    if (!win?.id || !rootRef.current) return;
     const el = rootRef.current;
     const observer = new ResizeObserver(() => {
-      resizeWindow(windowId, windowWidth, el.scrollHeight + TITLE_BAR_HEIGHT);
+      resizeWindow(win!.id, windowWidth, el.scrollHeight + TITLE_BAR_HEIGHT);
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [windowId, windowWidth, resizeWindow]);
+  }, [win, windowWidth, resizeWindow]);
 
   const handleConfirm = () => {
     if (!canConfirm) return;
@@ -90,15 +80,11 @@ const CreateItemApp: FC<CreateItemAppProps> = ({
     } else {
       createFile(name.trim(), '', parentId ?? null);
     }
-    if (windowId) {
-      closeWindow(windowId);
-    }
+    closeWindow(win!.id);
   };
 
   const handleCancel = () => {
-    if (windowId) {
-      closeWindow(windowId);
-    }
+    closeWindow(win!.id);
   };
 
   const PreviewIcon = VscIcons[iconName as keyof typeof VscIcons] as React.ElementType | undefined;

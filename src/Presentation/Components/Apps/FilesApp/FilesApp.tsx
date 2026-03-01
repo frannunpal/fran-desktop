@@ -4,20 +4,21 @@ import { useDesktopStore } from '@presentation/Store/desktopStore';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import { useOpenApp } from '@presentation/Hooks/useOpenApp';
 import { getAppIdForMime } from '@/Shared/Utils/getAppIdForMime';
+import type { WindowContentProps } from '@/Shared/Interfaces/IWindowContentProps';
 import FolderTree from './components/FolderTree';
 import FileList from './components/FileList';
 import classes from './FilesApp.module.css';
 
-interface FilesAppProps {
-  initialFolderId?: string | null;
-}
-
-const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
+const FilesApp: FC<WindowContentProps> = ({ window }) => {
+  const win = window;
+  const initialFolderId = win?.contentData?.initialFolderId as string | null | undefined;
   const fsNodes = useDesktopStore(state => state.fsNodes);
   const openContextMenu = useDesktopStore(state => state.openContextMenu);
   const setFilesCurrentFolderId = useDesktopStore(state => state.setFilesCurrentFolderId);
   const openApp = useOpenApp();
-  const [currentFolderId, setCurrentFolderIdLocal] = useState<string | null>(initialFolderId);
+  const [currentFolderId, setCurrentFolderIdLocal] = useState<string | null>(
+    initialFolderId ?? null,
+  );
 
   const setCurrentFolderId = useCallback(
     (id: string | null) => {
@@ -28,7 +29,7 @@ const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
   );
 
   useEffect(() => {
-    setFilesCurrentFolderId(initialFolderId);
+    setFilesCurrentFolderId(initialFolderId ?? null);
   }, [initialFolderId, setFilesCurrentFolderId]);
 
   const currentNodes =
@@ -81,7 +82,6 @@ const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
 
   return (
     <div className={classes.root} onContextMenu={handleContextMenu}>
-      {/* Breadcrumb */}
       <div className={classes.breadcrumbBar}>
         <Breadcrumbs separator="›" classNames={{ separator: classes.breadcrumbSep }}>
           {crumbs.map((crumb, i) => {
@@ -103,7 +103,6 @@ const FilesApp: FC<FilesAppProps> = ({ initialFolderId = null }) => {
         </Breadcrumbs>
       </div>
 
-      {/* Main layout */}
       <div className={classes.body}>
         <aside className={classes.sidebar}>
           <FolderTree

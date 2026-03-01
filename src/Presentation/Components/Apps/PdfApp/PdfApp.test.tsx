@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { renderWithMantine as wrapper } from '@/Shared/Testing/Utils/renderWithMantine';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
 import { buildPdfViewerMenuBar } from './buildPdfViewerMenuBar';
+import { createMockWindowEntity } from '@/Shared/Testing/Utils/makeWindowEntity';
 
 vi.mock('react-icons/vsc', () => ({
   VscFolder: () => <svg data-testid="icon-folder" />,
@@ -50,6 +51,17 @@ vi.mock('@presentation/Store/desktopStore', () => ({
 
 const { default: PdfApp } = await import('./PdfApp');
 
+// Helper: render PdfApp con una ventana mock
+// notifyReady merges the payload back into win.contentData so tests can read it
+const renderPdfApp = (contentData: Record<string, unknown> = {}) => {
+  const win = createMockWindowEntity({ contentData });
+  const notifyReady = vi.fn((payload?: Record<string, unknown>) => {
+    if (payload) win.contentData = { ...(win.contentData ?? {}), ...payload };
+  });
+  render(<PdfApp window={win} notifyReady={notifyReady} />, { wrapper });
+  return { win, notifyReady };
+};
+
 describe('PdfApp', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -58,23 +70,23 @@ describe('PdfApp', () => {
   describe('Display', () => {
     it('should render an iframe', () => {
       // Act
-      render(<PdfApp />, { wrapper });
+      renderPdfApp();
 
       // Assert
       expect(screen.getByTitle('PDF viewer')).toBeInTheDocument();
     });
 
-    it('should have the default PDF src when no prop provided', () => {
+    it('should have the default PDF src when no contentData src provided', () => {
       // Act
-      render(<PdfApp />, { wrapper });
+      renderPdfApp();
 
       // Assert
       expect(screen.getByTitle('PDF viewer')).toHaveAttribute('src', 'Desktop/CV_2026_English.pdf');
     });
 
-    it('should use the provided src prop', () => {
+    it('should use the src from contentData', () => {
       // Act
-      render(<PdfApp src="Documents/report.pdf" />, { wrapper });
+      renderPdfApp({ src: 'Documents/report.pdf' });
 
       // Assert
       expect(screen.getByTitle('PDF viewer')).toHaveAttribute('src', 'Documents/report.pdf');
@@ -82,7 +94,7 @@ describe('PdfApp', () => {
 
     it('should have an accessible label', () => {
       // Act
-      render(<PdfApp />, { wrapper });
+      renderPdfApp();
 
       // Assert
       expect(screen.getByLabelText('PDF viewer')).toBeInTheDocument();
@@ -90,63 +102,63 @@ describe('PdfApp', () => {
   });
 
   describe('File picker modal', () => {
-    it('should not show the picker modal when pickerOpen is false', () => {
+    it('should not show the picker modal on initial render', () => {
       // Act
-      render(<PdfApp pickerOpen={false} />, { wrapper });
+      renderPdfApp();
 
       // Assert
       expect(screen.queryByRole('dialog', { name: 'Open file' })).not.toBeInTheDocument();
     });
 
-    it('should show the picker modal when pickerOpen is true', () => {
-      // Act
-      render(<PdfApp pickerOpen={true} onPickerClose={vi.fn()} />, { wrapper });
+    it('should show the picker modal after calling setPickerOpen', () => {
+      // Arrange
+      const { win } = renderPdfApp();
+
+      // Act — open picker via the contentData callback the app registers
+      act(() => (win.contentData?.setPickerOpen as (() => void) | undefined)?.());
 
       // Assert
       expect(screen.getByRole('dialog', { name: 'Open file' })).toBeInTheDocument();
     });
 
     it('should show the FilePicker inside the modal when open', () => {
-      // Act
-      render(<PdfApp pickerOpen={true} onPickerClose={vi.fn()} />, { wrapper });
+      // Arrange
+      const { win } = renderPdfApp();
 
-      // Assert
+      // Act
+      act(() => (win.contentData?.setPickerOpen as (() => void) | undefined)?.());
+
+      // Assert — FilePicker renders its file grid
       expect(screen.getByRole('listbox', { name: 'Files' })).toBeInTheDocument();
     });
 
-    it('should call onPickerClose when Cancel is clicked inside the picker', () => {
+    it('should close the picker when Cancel is clicked', () => {
       // Arrange
-      const onPickerClose = vi.fn();
-      render(<PdfApp pickerOpen={true} onPickerClose={onPickerClose} />, { wrapper });
+      const { win } = renderPdfApp();
+      act(() => (win.contentData?.setPickerOpen as (() => void) | undefined)?.());
+      expect(screen.getByRole('dialog', { name: 'Open file' })).toBeInTheDocument();
 
       // Act
       fireEvent.click(screen.getByLabelText('Cancel'));
 
       // Assert
-      expect(onPickerClose).toHaveBeenCalledOnce();
+      expect(screen.queryByRole('dialog', { name: 'Open file' })).not.toBeInTheDocument();
     });
 
-    it('should update the displayed PDF and call onPickerClose after a file is selected', () => {
+    it('should update the displayed PDF and close picker after a file is selected', () => {
       // Arrange
-      const onPickerClose = vi.fn();
-      const { rerender } = render(<PdfApp pickerOpen={true} onPickerClose={onPickerClose} />, {
-        wrapper,
-      });
+      const { win } = renderPdfApp();
+      act(() => (win.contentData?.setPickerOpen as (() => void) | undefined)?.());
 
       // Navigate into Desktop and select report.pdf
       fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
-      rerender(<PdfApp pickerOpen={true} onPickerClose={onPickerClose} />);
       fireEvent.click(screen.getByLabelText('Select file report.pdf'));
 
       // Act
       fireEvent.click(screen.getByLabelText('Open selected file'));
 
       // Assert
-      expect(onPickerClose).toHaveBeenCalledOnce();
-      // After closing the picker the new src should be rendered
-      rerender(
-        <PdfApp src="Desktop/report.pdf" pickerOpen={false} onPickerClose={onPickerClose} />,
-      );
+      expect(screen.queryByRole('dialog', { name: 'Open file' })).not.toBeInTheDocument();
       expect(screen.getByTitle('PDF viewer')).toHaveAttribute('src', 'Desktop/report.pdf');
     });
   });
