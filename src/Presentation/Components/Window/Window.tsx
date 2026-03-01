@@ -22,6 +22,7 @@ import {
 } from '@shared/Constants/Animations';
 import AppMenuBar from '@presentation/Components/AppMenuBar/AppMenuBar';
 import classes from './Window.module.css';
+import AppEmptyState from '../Shared/AppEmptyState/AppEmptyState';
 
 const Window: FC<WindowProps> = ({ window: win, menuBar, children }) => {
   const {
@@ -187,7 +188,7 @@ const Window: FC<WindowProps> = ({ window: win, menuBar, children }) => {
               }}
             />
           )}
-          {children}
+          {children || <AppEmptyState />}
         </div>
       </motion.div>
     </Rnd>

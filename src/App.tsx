@@ -26,6 +26,7 @@ import NotesApp, {
   type NotesAppProps,
 } from './Presentation/Components/Apps/NotesApp/NotesApp';
 import { buildNotesMenuBar } from './Presentation/Components/Apps/NotesApp/buildNotesMenuBar';
+import AppEmptyState from './Presentation/Components/Shared/AppEmptyState/AppEmptyState';
 
 let seedStarted = false;
 
@@ -132,6 +133,8 @@ function App() {
     return [...crumbs, ...trail].join('/');
   };
 
+  console.log('windows', windows);
+
   return (
     <WindowButtonRegistryProvider>
       <MantineProvider theme={toMantineTheme(theme)} forceColorScheme={theme.mode}>
@@ -217,6 +220,7 @@ function App() {
                     }}
                   />
                 )}
+                {win.content === 'terminal' && <AppEmptyState />}
               </Window>
             ))}
           </AnimatePresence>
