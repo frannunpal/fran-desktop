@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import Window from '@presentation/Components/Window/Window';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
@@ -8,6 +8,7 @@ import type { FSNode } from '@/Shared/Types/FileSystemTypes';
 export interface AppWithPickerOpenProps {
   win: WindowEntity;
   fsNodes?: FSNode[];
+  children?: ReactNode;
 }
 
 /**
@@ -15,7 +16,7 @@ export interface AppWithPickerOpenProps {
  * (title bar + window controls + menu bar via AppRegistry).
  * Seeds the store with the provided window and optional fs nodes.
  */
-const AppWithPickerOpen = ({ win, fsNodes = [] }: AppWithPickerOpenProps) => {
+const AppWithPickerOpen = ({ win, fsNodes = [], children }: AppWithPickerOpenProps) => {
   useEffect(() => {
     useDesktopStore.setState({ windows: [win], fsNodes });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -24,7 +25,7 @@ const AppWithPickerOpen = ({ win, fsNodes = [] }: AppWithPickerOpenProps) => {
   return (
     <WindowButtonRegistryProvider>
       <div style={{ position: 'relative', width: win.width, height: win.height }}>
-        <Window window={win} />
+        {children ?? <Window window={win} />}
       </div>
     </WindowButtonRegistryProvider>
   );
