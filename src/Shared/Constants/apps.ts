@@ -2,10 +2,10 @@ export type { AppEntry } from '@/Shared/Interfaces/IAppEntry';
 import type { AppEntry } from '@/Shared/Interfaces/IAppEntry';
 
 export const DEFAULT_WINDOW_DIMENSIONS = {
-  defaultWidth: 600,
-  defaultHeight: 400,
-  minWidth: 300,
-  minHeight: 200,
+  defaultWidth: 800,
+  defaultHeight: 600,
+  minWidth: 640,
+  minHeight: 480,
 } as const;
 
 export const APPS: AppEntry[] = [
@@ -44,18 +44,18 @@ export const APPS: AppEntry[] = [
     fcIcon: 'FcDocument',
     defaultWidth: 780,
     defaultHeight: 580,
-    minWidth: 500,
-    minHeight: 400,
+    minWidth: 640,
+    minHeight: 480,
   },
   {
     id: 'calendar',
     name: 'Calendar',
     icon: '📅',
     fcIcon: 'FcCalendar',
-    defaultWidth: 340,
-    defaultHeight: 380,
-    minWidth: 320,
-    minHeight: 360,
+    defaultWidth: 640,
+    defaultHeight: 480,
+    minWidth: 640,
+    minHeight: 480,
     canMaximize: false,
   },
   {
@@ -65,8 +65,8 @@ export const APPS: AppEntry[] = [
     fcIcon: 'FcReading',
     defaultWidth: 1100,
     defaultHeight: 700,
-    minWidth: 600,
-    minHeight: 400,
+    minWidth: 640,
+    minHeight: 480,
   },
   {
     id: 'image-viewer',
@@ -75,7 +75,7 @@ export const APPS: AppEntry[] = [
     fcIcon: 'FcPicture',
     defaultWidth: 700,
     defaultHeight: 520,
-    minWidth: 300,
-    minHeight: 200,
+    minWidth: 640,
+    minHeight: 480,
   },
 ];

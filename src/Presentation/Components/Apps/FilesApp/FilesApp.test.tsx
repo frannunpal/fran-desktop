@@ -251,7 +251,7 @@ describe('FilesApp', () => {
     );
   });
 
-  it('should not open any app on double-click of a file with unknown mimeType', () => {
+  it('should call openWindow with notepad content on double-click of a text file', () => {
     // Arrange
     mockStore.fsNodes = [
       ...mockFsNodes,
@@ -260,7 +260,7 @@ describe('FilesApp', () => {
         name: 'notes.txt',
         type: 'file' as const,
         parentId: 'folder-desktop',
-        content: '',
+        content: 'hello',
         mimeType: 'text/plain',
         url: 'Desktop/notes.txt',
         createdAt: new Date(),
@@ -273,6 +273,37 @@ describe('FilesApp', () => {
 
     // Act
     fireEvent.doubleClick(screen.getByLabelText('Open file notes.txt'));
+
+    // Assert
+    expect(mockStore.openWindow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: 'notepad',
+      }),
+    );
+  });
+
+  it('should not open any app on double-click of a file with unknown mimeType', () => {
+    // Arrange
+    mockStore.fsNodes = [
+      ...mockFsNodes,
+      {
+        id: 'file-zip',
+        name: 'archive.zip',
+        type: 'file' as const,
+        parentId: 'folder-desktop',
+        content: '',
+        mimeType: 'application/zip',
+        url: 'Desktop/archive.zip',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+    const { rerender } = render(<FilesApp />, { wrapper });
+    fireEvent.doubleClick(screen.getByLabelText('Open folder Desktop'));
+    rerender(<FilesApp />);
+
+    // Act
+    fireEvent.doubleClick(screen.getByLabelText('Open file archive.zip'));
 
     // Assert
     expect(mockStore.openWindow).not.toHaveBeenCalled();

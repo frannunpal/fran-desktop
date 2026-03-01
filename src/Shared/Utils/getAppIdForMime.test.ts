@@ -19,8 +19,15 @@ describe('getAppIdForMime', () => {
     expect(getAppIdForMime(mimeType)).toBe('image-viewer');
   });
 
+  it.each(['text/plain', 'text/markdown', 'text/x-markdown', 'text/html'])(
+    'should return "notepad" for %s',
+    mimeType => {
+      expect(getAppIdForMime(mimeType)).toBe('notepad');
+    },
+  );
+
   it('should return "files" for unknown mimeType', () => {
-    expect(getAppIdForMime('text/plain')).toBe('files');
+    expect(getAppIdForMime('application/zip')).toBe('files');
   });
 
   it('should return "files" for undefined', () => {

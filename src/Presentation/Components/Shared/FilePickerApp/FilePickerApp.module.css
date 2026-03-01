@@ -138,6 +138,22 @@
   min-width: 0;
 }
 
+/* ── Save action bar (used by FileSaveApp) ── */
+.saveActionBar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.08));
+  background: light-dark(rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.02));
+}
+
+.fileNameInput {
+  flex: 1;
+  min-width: 0;
+}
+
 /* ── Modal overlay (used by FilePickerModal) ── */
 .overlay {
   position: absolute;

@@ -1,9 +1,10 @@
 import { type FC, useCallback, useState } from 'react';
-import { Text, Breadcrumbs, Anchor, Button, Group, UnstyledButton } from '@mantine/core';
+import { Text, Breadcrumbs, Anchor, Button, Group, UnstyledButton, TextInput } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
 import { sortNodes } from '@/Shared/Utils/sortNodes';
+import { buildBreadcrumbs } from '@/Shared/Utils/buildBreadcrumbs';
 import FileIcon from '@presentation/Components/Apps/FilesApp/components/FileIcon';
 import classes from './FilePickerApp.module.css';
 
@@ -37,19 +38,6 @@ const FilePickerApp: FC<FilePickerAppProps> = ({ acceptedMimeTypes, onConfirm, o
     );
   });
 
-  const buildBreadcrumbs = (): Array<{ id: string | null; name: string }> => {
-    const crumbs: Array<{ id: string | null; name: string }> = [{ id: null, name: 'Home' }];
-    let id: string | null = currentFolderId;
-    const trail: typeof crumbs = [];
-    while (id !== null) {
-      const node = fsNodes.find(n => n.id === id);
-      if (!node) break;
-      trail.unshift({ id: node.id, name: node.name });
-      id = node.parentId;
-    }
-    return [...crumbs, ...trail];
-  };
-
   const rootFolders = fsNodes.filter(
     n => n.parentId === null && n.type === 'folder',
   ) as FolderNode[];
@@ -76,7 +64,7 @@ const FilePickerApp: FC<FilePickerAppProps> = ({ acceptedMimeTypes, onConfirm, o
     [handleNavigate, onConfirm],
   );
 
-  const crumbs = buildBreadcrumbs();
+  const crumbs = buildBreadcrumbs(currentFolderId, fsNodes);
 
   return (
     <div className={classes.root}>
@@ -275,3 +263,180 @@ export const FilePickerModal: FC<FilePickerModalProps> = ({ opened, ...pickerPro
 };
 
 export default FilePickerApp;
+
+/* ── FileSaveApp ──────────────────────────────────────────────────────────
+ * Like FilePickerApp but for saving: lets the user pick a destination folder
+ * and type a filename, then calls onConfirm({ parentId, name }).
+ * ─────────────────────────────────────────────────────────────────────── */
+
+export interface FileSaveResult {
+  parentId: string | null;
+  name: string;
+}
+
+export interface FileSaveAppProps {
+  /** Initial filename shown in the input (e.g. current file name). */
+  initialName?: string;
+  /** Called when the user clicks Save */
+  onConfirm: (result: FileSaveResult) => void;
+  /** Called when the user clicks Cancel */
+  onCancel: () => void;
+}
+
+const FileSaveApp: FC<FileSaveAppProps> = ({
+  initialName = 'untitled.md',
+  onConfirm,
+  onCancel,
+}) => {
+  const fsNodes = useDesktopStore(state => state.fsNodes);
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [fileName, setFileName] = useState(initialName);
+
+  const currentFolderNodes = fsNodes.filter(n => n.parentId === currentFolderId);
+  const visibleNodes = currentFolderNodes.filter(n => n.type === 'folder');
+
+  const rootFolders = fsNodes.filter(
+    n => n.parentId === null && n.type === 'folder',
+  ) as FolderNode[];
+
+  const handleNavigate = useCallback((id: string | null) => {
+    setCurrentFolderId(id);
+  }, []);
+
+  const handleSave = useCallback(() => {
+    const trimmed = fileName.trim();
+    if (!trimmed) return;
+    onConfirm({
+      parentId: currentFolderId,
+      name: trimmed.endsWith('.md') ? trimmed : `${trimmed}.md`,
+    });
+  }, [fileName, currentFolderId, onConfirm]);
+
+  const crumbs = buildBreadcrumbs(currentFolderId, fsNodes);
+
+  return (
+    <div className={classes.root}>
+      {/* Breadcrumb */}
+      <div className={classes.breadcrumbBar}>
+        <Breadcrumbs separator="›" classNames={{ separator: classes.breadcrumbSep }}>
+          {crumbs.map((crumb, i) => {
+            const isLast = i === crumbs.length - 1;
+            return isLast ? (
+              <Text key={crumb.id ?? 'root'} size="xs" fw={500}>
+                {crumb.name}
+              </Text>
+            ) : (
+              <Anchor key={crumb.id ?? 'root'} size="xs" onClick={() => handleNavigate(crumb.id)}>
+                {crumb.name}
+              </Anchor>
+            );
+          })}
+        </Breadcrumbs>
+      </div>
+
+      {/* Main layout */}
+      <div className={classes.body}>
+        {/* Sidebar */}
+        <aside className={classes.sidebar}>
+          <nav className={classes.folderTree} aria-label="Folder tree">
+            <UnstyledButton
+              className={classes.treeItem}
+              data-active={currentFolderId === null || undefined}
+              style={{ paddingLeft: 8 }}
+              onClick={() => handleNavigate(null)}
+              aria-label="Home"
+              aria-current={currentFolderId === null ? 'page' : undefined}
+            >
+              <FileIcon type="folder" size={14} />
+              <Text size="xs" ml={6} fw={500}>
+                Home
+              </Text>
+            </UnstyledButton>
+            {rootFolders.map(folder => (
+              <FolderTreeItem
+                key={folder.id}
+                node={folder}
+                allNodes={fsNodes}
+                currentFolderId={currentFolderId}
+                depth={1}
+                onNavigate={handleNavigate}
+              />
+            ))}
+          </nav>
+        </aside>
+
+        {/* Folder content — only shows subfolders for navigation */}
+        <main className={classes.content}>
+          {visibleNodes.length === 0 ? (
+            <div className={classes.empty}>
+              <Text size="sm" c="dimmed">
+                No subfolders
+              </Text>
+            </div>
+          ) : (
+            <div className={classes.grid} role="listbox" aria-label="Folders">
+              {sortNodes(visibleNodes).map(node => (
+                <UnstyledButton
+                  key={node.id}
+                  className={classes.item}
+                  onDoubleClick={() => handleNavigate(node.id)}
+                  aria-label={`Open folder ${node.name}`}
+                  role="option"
+                >
+                  <div className={classes.icon}>
+                    <FileIcon
+                      type="folder"
+                      name={node.name}
+                      folderNode={node as FolderNode}
+                      size={32}
+                    />
+                  </div>
+                  <Text size="xs" className={classes.name} truncate>
+                    {node.name}
+                  </Text>
+                </UnstyledButton>
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* Action bar with filename input */}
+      <div className={classes.saveActionBar}>
+        <TextInput
+          size="xs"
+          placeholder="filename.md"
+          value={fileName}
+          onChange={e => setFileName(e.currentTarget.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSave()}
+          aria-label="File name"
+          className={classes.fileNameInput}
+        />
+        <Group gap="xs" style={{ flexShrink: 0 }}>
+          <Button variant="default" size="xs" onClick={onCancel} aria-label="Cancel">
+            Cancel
+          </Button>
+          <Button size="xs" disabled={!fileName.trim()} onClick={handleSave} aria-label="Save file">
+            Save
+          </Button>
+        </Group>
+      </div>
+    </div>
+  );
+};
+
+/* ── FileSaveModal ──────────────────────────────────────────────────────── */
+export interface FileSaveModalProps extends FileSaveAppProps {
+  opened: boolean;
+}
+
+export const FileSaveModal: FC<FileSaveModalProps> = ({ opened, ...saveProps }) => {
+  if (!opened) return null;
+  return (
+    <div className={classes.overlay} role="dialog" aria-label="Save file">
+      <div className={classes.panel}>
+        <FileSaveApp {...saveProps} />
+      </div>
+    </div>
+  );
+};

@@ -127,7 +127,7 @@ import YourApp from '@/Presentation/Components/Apps/YourApp/YourApp';
 import { buildYourAppMenuBar } from '@/Presentation/Components/Apps/YourApp/buildYourAppMenuBar';
 
 // Inside the App component:
-const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
+const [myAppPickerOpenId, setMyAppPickerOpenId] = useState<string | null>(null);
 
 // Inside the windows.map():
 <Window
@@ -136,7 +136,7 @@ const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
   menuBar={
     win.content === 'your-app'
       ? buildYourAppMenuBar(
-          () => setPickerOpenId(win.id),   // File > Open
+          () => setMyAppPickerOpenId(win.id),   // File > Open
           () => closeWindow(win.id),        // File > Exit
         )
       : undefined
@@ -147,7 +147,7 @@ const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
       src={win.contentData?.src as string | undefined}
       windowId={win.id}
       pickerOpen={pickerOpenId === win.id}
-      onPickerClose={() => setPickerOpenId(null)}
+      onPickerClose={() => setMyAppPickerOpenId(null)}
     />
   )}
 </Window>

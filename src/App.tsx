@@ -1,5 +1,5 @@
 import '@mantine/core/styles.css';
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { MantineProvider } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
@@ -21,6 +21,11 @@ import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { useAppVersion } from '@presentation/Hooks/useAppVersion';
 import { useOpenApp } from '@presentation/Hooks/useOpenApp';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
+import NotesApp, {
+  type NotesAppActions,
+  type NotesAppProps,
+} from './Presentation/Components/Apps/NotesApp/NotesApp';
+import { buildNotesMenuBar } from './Presentation/Components/Apps/NotesApp/buildNotesMenuBar';
 
 let seedStarted = false;
 
@@ -32,8 +37,11 @@ function App() {
   const fsNodes = useDesktopStore(state => state.fsNodes);
   const closeWindow = useDesktopStore(state => state.closeWindow);
   const openContextMenu = useDesktopStore(state => state.openContextMenu);
-  const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
+  const [pickerOpenId, setImagePickerOpenId] = useState<string | null>(null);
   const [pdfPickerOpenId, setPdfPickerOpenId] = useState<string | null>(null);
+  const [notesPickerOpenId, setNotesPickerOpenId] = useState<string | null>(null);
+  const notesActionsRef = useRef<Record<string, NotesAppActions>>({});
+  const [notesDirty, setNotesDirty] = useState<Record<string, boolean>>({});
   const filesCurrentFolderId = useDesktopStore(state => state.filesCurrentFolderId);
   const desktopFolderId = useDesktopStore(state => state.desktopFolderId);
   const openApp = useOpenApp();
@@ -69,6 +77,23 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Clean up per-window notepad state when windows are closed
+  useEffect(() => {
+    const openIds = new Set(windows.map(w => w.id));
+    for (const id of Object.keys(notesActionsRef.current)) {
+      if (!openIds.has(id)) {
+        delete notesActionsRef.current[id];
+      }
+    }
+    setNotesDirty(prev => {
+      const stale = Object.keys(prev).filter(id => !openIds.has(id));
+      if (stale.length === 0) return prev;
+      const next = { ...prev };
+      for (const id of stale) delete next[id];
+      return next;
+    });
+  }, [windows]);
+
   const handleOpenApp = useCallback(
     (appId: string, nodeId?: string) => {
       let contentData: Record<string, unknown> | undefined;
@@ -77,7 +102,16 @@ function App() {
         if (node?.type === 'folder') {
           contentData = { initialFolderId: nodeId };
         } else if (node?.type === 'file') {
-          contentData = { src: node.url ?? node.name };
+          if (appId === 'notepad') {
+            contentData = {
+              fileId: node.id,
+              initialContent: node.content ?? '',
+              initialName: node.name,
+              url: node.url,
+            };
+          } else {
+            contentData = { src: node.url ?? node.name };
+          }
         }
       }
       openApp(appId, { contentData });
@@ -118,7 +152,7 @@ function App() {
                 menuBar={
                   win.content === 'image-viewer'
                     ? buildImageViewerMenuBar(
-                        () => setPickerOpenId(win.id),
+                        () => setImagePickerOpenId(win.id),
                         () => closeWindow(win.id),
                       )
                     : win.content === 'pdf'
@@ -126,7 +160,16 @@ function App() {
                           () => setPdfPickerOpenId(win.id),
                           () => closeWindow(win.id),
                         )
-                      : undefined
+                      : win.content === 'notepad'
+                        ? buildNotesMenuBar(
+                            () => notesActionsRef.current[win.id]?.new(),
+                            () => setNotesPickerOpenId(win.id),
+                            () => notesActionsRef.current[win.id]?.save(),
+                            () => notesActionsRef.current[win.id]?.saveAs(),
+                            () => closeWindow(win.id),
+                            notesDirty[win.id] ?? false,
+                          )
+                        : undefined
                 }
               >
                 {win.content === 'calendar' && <CalendarApp />}
@@ -157,7 +200,21 @@ function App() {
                     src={win.contentData?.src as string | undefined}
                     windowId={win.id}
                     pickerOpen={pickerOpenId === win.id}
-                    onPickerClose={() => setPickerOpenId(null)}
+                    onPickerClose={() => setImagePickerOpenId(null)}
+                  />
+                )}
+                {win.content === 'notepad' && (
+                  <NotesApp
+                    contentData={win.contentData as NotesAppProps['contentData']}
+                    windowId={win.id}
+                    pickerOpen={notesPickerOpenId === win.id}
+                    onPickerClose={() => setNotesPickerOpenId(null)}
+                    onRegisterActions={actions => {
+                      notesActionsRef.current[win.id] = actions;
+                    }}
+                    onDirtyChange={dirty => {
+                      setNotesDirty(prev => ({ ...prev, [win.id]: dirty }));
+                    }}
                   />
                 )}
               </Window>

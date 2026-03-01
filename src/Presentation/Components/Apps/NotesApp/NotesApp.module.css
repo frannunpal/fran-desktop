@@ -1,0 +1,179 @@
+.container {
+  position: relative; /* required for FilePickerModal overlay */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--mantine-color-body);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--mantine-color-default-border);
+  background-color: var(--mantine-color-default);
+  flex-shrink: 0;
+}
+
+.toolbarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: var(--mantine-radius-sm);
+  background: transparent;
+  color: var(--mantine-color-text);
+  cursor: pointer;
+  font-size: 16px; /* controls SVG icon size — must be here, not on children */
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background-color 80ms ease, border-color 80ms ease;
+}
+
+.toolbarBtn svg {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+.toolbarBtn:hover:not(:disabled) {
+  background-color: var(--mantine-color-default-hover);
+  border-color: var(--mantine-color-default-border);
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.toolbarBtn.active {
+  background-color: var(--mantine-color-blue-light);
+  border-color: var(--mantine-color-blue-light-hover);
+  color: var(--mantine-color-blue-light-color);
+}
+
+.separator {
+  width: 1px;
+  height: 18px;
+  background-color: var(--mantine-color-default-border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.dirtyIndicator {
+  margin-left: auto;
+  color: var(--mantine-color-orange-6);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.editorContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.editorContent :global(.ProseMirror) {
+  outline: none;
+  min-height: 100%;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--mantine-color-text);
+}
+
+.editorContent :global(.ProseMirror p) {
+  margin: 0 0 8px;
+}
+
+.editorContent :global(.ProseMirror h1) {
+  font-size: 1.8em;
+  font-weight: 700;
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+
+.editorContent :global(.ProseMirror h2) {
+  font-size: 1.4em;
+  font-weight: 600;
+  margin: 0 0 10px;
+  line-height: 1.3;
+}
+
+.editorContent :global(.ProseMirror h3) {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.editorContent :global(.ProseMirror ul),
+.editorContent :global(.ProseMirror ol) {
+  padding-left: 24px;
+  margin: 0 0 8px;
+}
+
+.editorContent :global(.ProseMirror li) {
+  margin-bottom: 2px;
+}
+
+.editorContent :global(.ProseMirror blockquote) {
+  border-left: 3px solid var(--mantine-color-blue-4);
+  padding-left: 12px;
+  margin: 0 0 8px;
+  color: var(--mantine-color-dimmed);
+  font-style: italic;
+}
+
+.editorContent :global(.ProseMirror code) {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  background-color: var(--mantine-color-default-hover);
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+
+.editorContent :global(.ProseMirror pre) {
+  background-color: var(--mantine-color-dark-7, #1a1a2e);
+  color: var(--mantine-color-gray-1, #f0f0f0);
+  border-radius: var(--mantine-radius-sm);
+  padding: 12px 16px;
+  margin: 0 0 12px;
+  overflow-x: auto;
+}
+
+.editorContent :global(.ProseMirror pre code) {
+  background: none;
+  padding: 0;
+  font-size: 0.875em;
+}
+
+.editorContent :global(.ProseMirror hr) {
+  border: none;
+  border-top: 2px solid var(--mantine-color-default-border);
+  margin: 16px 0;
+}
+
+.editorContent :global(.ProseMirror strong) {
+  font-weight: 700;
+}
+
+.editorContent :global(.ProseMirror em) {
+  font-style: italic;
+}
+
+.editorContent :global(.ProseMirror s) {
+  text-decoration: line-through;
+}
+
+.editorContent :global(.ProseMirror p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
+  color: var(--mantine-color-dimmed);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
