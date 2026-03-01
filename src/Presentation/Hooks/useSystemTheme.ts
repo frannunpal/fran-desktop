@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
-import { useDesktopStore } from '@presentation/Store/desktopStore';
+import { useSettingsStore } from '@presentation/Store/settingsStore';
 
 const getSystemMode = (): ThemeMode =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -8,8 +8,8 @@ const getSystemMode = (): ThemeMode =>
     : 'light';
 
 export const useSystemTheme = (): void => {
-  const setThemeMode = useDesktopStore(state => state.setThemeMode);
-  const themeSetManually = useDesktopStore(state => state.themeSetManually);
+  const setThemeMode = useSettingsStore(state => state.setThemeMode);
+  const themeSetManually = useSettingsStore(state => state.themeSetManually);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -20,7 +20,7 @@ export const useSystemTheme = (): void => {
 
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = (e: MediaQueryListEvent) => {
-      if (!useDesktopStore.getState().themeSetManually) {
+      if (!useSettingsStore.getState().themeSetManually) {
         setThemeMode(e.matches ? 'dark' : 'light');
       }
     };

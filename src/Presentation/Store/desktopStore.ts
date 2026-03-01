@@ -2,10 +2,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { WindowManagerAdapter } from '@infrastructure/Adapters/WindowManagerAdapter';
 import { LocalStorageFileSystem } from '@infrastructure/Adapters/LocalStorageFileSystem';
-import { DefaultThemeProvider } from '@infrastructure/Adapters/DefaultThemeProvider';
 import { createDesktopIcon } from '@domain/Entities/DesktopIcon';
 import type { DesktopState, NotificationItem } from '@/Shared/Interfaces/IDesktopState';
-import type { ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import { APPS } from '@shared/Constants/apps';
 import { getAppIdForMime } from '@/Shared/Utils/getAppIdForMime';
 import { getFsInitStarted, setFsInitStarted } from './fsInitFlag';
@@ -16,16 +14,6 @@ const windowManager = new WindowManagerAdapter();
 const fileSystem = new LocalStorageFileSystem();
 export const clearFileSystem = () => fileSystem.clear();
 export const resetWindowManager = () => windowManager.reset();
-
-const persistedMode = (() => {
-  try {
-    return (JSON.parse(localStorage.getItem('fran-desktop') ?? '{}')?.state?.theme?.mode ??
-      null) as ThemeMode | null;
-  } catch {
-    return null;
-  }
-})();
-const themeProvider = new DefaultThemeProvider(persistedMode ?? 'light');
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const getDesktopFolderId = (): string | null => {
@@ -292,20 +280,6 @@ export const useDesktopStore = create<DesktopState>()(
         set({ contextMenu: { x: 0, y: 0, owner: null, targetNodeId: undefined } });
       },
 
-      // ── Theme ───────────────────────────────────────────────────────────────
-      theme: themeProvider.getTheme(),
-      themeSetManually: persistedMode !== null,
-
-      setThemeMode: mode => {
-        themeProvider.setMode(mode);
-        set({ theme: themeProvider.getTheme() });
-      },
-
-      toggleTheme: () => {
-        themeProvider.toggle();
-        set({ theme: themeProvider.getTheme(), themeSetManually: true });
-      },
-
       // ── Update ──────────────────────────────────────────────────────────────
       mergeSeed: manifest => {
         fileSystem.mergeSeed(manifest);
@@ -352,8 +326,6 @@ export const useDesktopStore = create<DesktopState>()(
       partialize: state => ({
         windows: state.windows,
         icons: state.icons,
-        theme: state.theme,
-        themeSetManually: state.themeSetManually,
       }),
       merge: (persisted, current) => {
         const p = persisted as Partial<DesktopState>;

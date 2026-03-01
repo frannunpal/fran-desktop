@@ -24,6 +24,7 @@ const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
 
 const { useDesktopStore } = await import('@presentation/Store/desktopStore');
+const { useSettingsStore } = await import('@presentation/Store/settingsStore');
 const { default: Taskbar } = await import('./Taskbar');
 
 const baseInput = makeWindowInput({ title: 'Notepad', width: 600, height: 400 });
@@ -38,6 +39,8 @@ const makeNotification = (overrides: Partial<NotificationItem> = {}): Notificati
 describe('Taskbar component', () => {
   beforeEach(() => {
     resetDesktopStore(useDesktopStore, localStorageMock);
+    useSettingsStore.getState().setThemeMode('light');
+    useSettingsStore.setState({ themeSetManually: false });
   });
 
   it('should render the clock', () => {
@@ -113,7 +116,7 @@ describe('Taskbar component', () => {
 
   it('should render the theme toggle button with moon icon in light mode', () => {
     // Arrange
-    useDesktopStore.getState().setThemeMode('light');
+    useSettingsStore.getState().setThemeMode('light');
 
     // Act
     render(<Taskbar />, { wrapper });
@@ -125,7 +128,7 @@ describe('Taskbar component', () => {
 
   it('should render the theme toggle button with sun icon in dark mode', () => {
     // Arrange
-    useDesktopStore.getState().setThemeMode('dark');
+    useSettingsStore.getState().setThemeMode('dark');
 
     // Act
     render(<Taskbar />, { wrapper });
@@ -137,14 +140,14 @@ describe('Taskbar component', () => {
 
   it('should toggle theme when the theme button is clicked', () => {
     // Arrange
-    useDesktopStore.getState().setThemeMode('light');
+    useSettingsStore.getState().setThemeMode('light');
     render(<Taskbar />, { wrapper });
 
     // Act
     fireEvent.click(screen.getByLabelText('Switch to dark mode'));
 
     // Assert
-    expect(useDesktopStore.getState().theme.mode).toBe('dark');
+    expect(useSettingsStore.getState().theme.mode).toBe('dark');
   });
 
   it('should always render the notification button', () => {

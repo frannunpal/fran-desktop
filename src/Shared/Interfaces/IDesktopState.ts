@@ -3,7 +3,6 @@ import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
 import type { FSNode } from '@/Shared/Types/FileSystemTypes';
 import type { FileNode } from './FileNode';
 import type { FolderNode } from './FolderNode';
-import type { Theme, ThemeMode } from '@/Shared/Interfaces/IThemeProvider';
 import type { DesktopIconInput } from '@/Shared/Types/DesktopIconTypes';
 import type { DesktopIconEntity } from '@/Shared/Interfaces/IDesktopIcon';
 import type { FsManifest } from '@/Infrastructure/Adapters/LocalStorageFileSystem';
@@ -61,12 +60,6 @@ export interface DesktopState {
   // Files app slice
   filesCurrentFolderId: string | null;
   setFilesCurrentFolderId: (id: string | null) => void;
-
-  // Theme slice
-  theme: Theme;
-  themeSetManually: boolean;
-  setThemeMode: (mode: ThemeMode) => void;
-  toggleTheme: () => void;
 
   // Update slice
   mergeSeed: (manifest: FsManifest) => void;

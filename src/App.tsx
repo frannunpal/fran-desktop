@@ -3,6 +3,7 @@ import { useEffect, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { MantineProvider } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
+import { useSettingsStore } from '@presentation/Store/settingsStore';
 import { toMantineTheme } from '@infrastructure/Adapters/MantineThemeAdapter';
 import DesktopArea from '@presentation/Components/DesktopArea/DesktopArea';
 import Window from '@presentation/Components/Window/Window';
@@ -11,13 +12,14 @@ import DesktopIcon from '@presentation/Components/DesktopIcon/DesktopIcon';
 import CreateItemContextMenu from '@presentation/Components/ContextMenu/CreateItemContextMenu';
 import { useSystemTheme } from '@presentation/Hooks/useSystemTheme';
 import { useAppVersion } from '@presentation/Hooks/useAppVersion';
+import { useApplyFont } from '@presentation/Hooks/useApplyFont';
 import { useOpenApp } from '@presentation/Hooks/useOpenApp';
 import { WindowButtonRegistryProvider } from '@presentation/Hooks/useWindowButtonRegistry';
 
 let seedStarted = false;
 
 function App() {
-  const theme = useDesktopStore(state => state.theme);
+  const theme = useSettingsStore(state => state.theme);
   const windows = useDesktopStore(state => state.windows);
   const icons = useDesktopStore(state => state.icons);
   const initFs = useDesktopStore(state => state.initFs);
@@ -46,6 +48,7 @@ function App() {
 
   useSystemTheme();
   useAppVersion();
+  useApplyFont();
 
   useEffect(() => {
     if (seedStarted) return;

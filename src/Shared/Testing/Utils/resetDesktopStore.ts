@@ -12,6 +12,5 @@ export const resetDesktopStore = (
   localStorageMock.clear();
   vi.clearAllMocks();
   extraReset?.();
-  store.getState().setThemeMode('light');
   store.setState({ windows: [], icons: [], fsNodes: [] });
 };

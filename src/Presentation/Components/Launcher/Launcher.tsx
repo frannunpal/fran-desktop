@@ -1,7 +1,7 @@
 import { type FC, useState, useCallback, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@mantine/core';
-import { useDesktopStore } from '@presentation/Store/desktopStore';
+import { useSettingsStore } from '@presentation/Store/settingsStore';
 import { APPS } from '@shared/Constants/apps';
 import type { LauncherProps } from '@/Shared/Interfaces/IComponentProps';
 import { panelVariants } from '@shared/Constants/Animations';
@@ -14,7 +14,7 @@ const Launcher: FC<LauncherProps> = ({ fcIcon = 'FcDebian' }) => {
   const icon = useFcIconElement(fcIcon, { size: 22, style: { display: 'block' } });
   const [open, setOpen] = useState(false);
   const openApp = useOpenApp();
-  const taskbar = useDesktopStore(state => state.theme.taskbar);
+  const taskbar = useSettingsStore(state => state.theme.taskbar);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

@@ -10,6 +10,7 @@ import {
 } from 'react-icons/vsc';
 import { useShallow } from 'zustand/react/shallow';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
+import { useSettingsStore } from '@presentation/Store/settingsStore';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
 import type { WindowProps } from '@/Shared/Interfaces/IComponentProps';
 import type { WindowEntity } from '@/Shared/Interfaces/WindowEntity';
@@ -94,7 +95,7 @@ const Window: FC<WindowProps> = ({ window: winProp }) => {
     })),
   );
 
-  const windowColor = useDesktopStore(state => state.theme.window);
+  const windowColor = useSettingsStore(state => state.theme.window);
   // A window is focused when it has the highest zIndex within its own group
   // (normal windows vs alwaysOnTop windows), ignoring minimized windows.
   // Read this window's zIndex from the store (not the prop) to avoid stale comparisons

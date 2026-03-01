@@ -397,38 +397,6 @@ describe('desktopStore', () => {
     });
   });
 
-  // ── Theme ──────────────────────────────────────────────────────────────────
-  describe('theme', () => {
-    it('should start with light theme', () => {
-      expect(useDesktopStore.getState().theme.mode).toBe('light');
-    });
-
-    it('should switch to dark mode via setThemeMode', () => {
-      // Act
-      useDesktopStore.getState().setThemeMode('dark');
-
-      // Assert
-      expect(useDesktopStore.getState().theme.mode).toBe('dark');
-    });
-
-    it('should toggle from light to dark', () => {
-      // Act
-      useDesktopStore.getState().toggleTheme();
-
-      // Assert
-      expect(useDesktopStore.getState().theme.mode).toBe('dark');
-    });
-
-    it('should toggle back to light after two toggles', () => {
-      // Act
-      useDesktopStore.getState().toggleTheme();
-      useDesktopStore.getState().toggleTheme();
-
-      // Assert
-      expect(useDesktopStore.getState().theme.mode).toBe('light');
-    });
-  });
-
   // ── Clipboard ───────────────────────────────────────────────────────────────
   describe('clipboard', () => {
     it('should start with empty clipboard', () => {

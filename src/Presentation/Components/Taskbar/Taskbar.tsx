@@ -1,6 +1,7 @@
 import { type FC, useState, useRef, useEffect } from 'react';
 import { Text, Popover, Notification } from '@mantine/core';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
+import { useSettingsStore } from '@presentation/Store/settingsStore';
 import { useClock } from '@presentation/Hooks/useClock';
 import { useContextMenu } from '@presentation/Hooks/useContextMenu';
 import { useWindowButtonRegistry } from '@presentation/Hooks/useWindowButtonRegistry';
@@ -47,8 +48,10 @@ const WindowButton: FC<WindowButtonProps> = ({ win, onClick, onContextMenu }) =>
 };
 
 const Taskbar: FC = () => {
-  const taskbar = useDesktopStore(state => state.theme.taskbar);
-  const themeMode = useDesktopStore(state => state.theme.mode);
+  const taskbar = useSettingsStore(state => state.theme.taskbar);
+  const themeMode = useSettingsStore(state => state.theme.mode);
+  const toggleTheme = useSettingsStore(state => state.toggleTheme);
+  const launcherIcon = useSettingsStore(state => state.launcherIcon);
   const notifications = useDesktopStore(state => state.notifications);
   const removeNotification = useDesktopStore(state => state.removeNotification);
   const windows = useDesktopStore(state => state.windows);
@@ -57,7 +60,6 @@ const Taskbar: FC = () => {
   const focusWindow = useDesktopStore(state => state.focusWindow);
   const closeWindow = useDesktopStore(state => state.closeWindow);
   const maximizeWindow = useDesktopStore(state => state.maximizeWindow);
-  const toggleTheme = useDesktopStore(state => state.toggleTheme);
   const time = useClock();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -97,7 +99,7 @@ const Taskbar: FC = () => {
         aria-label="Taskbar"
         onContextMenu={panelMenu.open}
       >
-        <Launcher fcIcon="FcElectronics" />
+        <Launcher fcIcon={launcherIcon} />
         {openWindows.map(win => (
           <WindowButton
             key={win.id}

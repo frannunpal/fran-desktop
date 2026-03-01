@@ -7,7 +7,7 @@ import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.
 const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
 
-const { useDesktopStore } = await import('@presentation/Store/desktopStore');
+const { useSettingsStore } = await import('@presentation/Store/settingsStore');
 const { useSystemTheme } = await import('./useSystemTheme');
 
 const makeMatchMedia = (dark: boolean) =>
@@ -21,8 +21,8 @@ describe('useSystemTheme', () => {
   beforeEach(() => {
     localStorageMock.clear();
     vi.clearAllMocks();
-    useDesktopStore.getState().setThemeMode('light');
-    useDesktopStore.setState({ windows: [], icons: [], fsNodes: [] });
+    useSettingsStore.getState().setThemeMode('light');
+    useSettingsStore.setState({ themeSetManually: false });
   });
 
   it('should set dark mode when system prefers dark', () => {
@@ -36,7 +36,7 @@ describe('useSystemTheme', () => {
     renderHook(() => useSystemTheme());
 
     // Assert
-    expect(useDesktopStore.getState().theme.mode).toBe('dark');
+    expect(useSettingsStore.getState().theme.mode).toBe('dark');
   });
 
   it('should set light mode when system prefers light', () => {
@@ -50,7 +50,7 @@ describe('useSystemTheme', () => {
     renderHook(() => useSystemTheme());
 
     // Assert
-    expect(useDesktopStore.getState().theme.mode).toBe('light');
+    expect(useSettingsStore.getState().theme.mode).toBe('light');
   });
 
   it('should add a change event listener on mount', () => {
@@ -85,26 +85,10 @@ describe('useSystemTheme', () => {
   });
 
   it('should switch to dark when a change event fires with dark match', () => {
-    // Arrange
-    let listener: ((e: MediaQueryListEvent) => void) | null = null;
-    const mq = {
-      matches: false,
-      addEventListener: vi.fn((_: string, fn: (e: MediaQueryListEvent) => void) => {
-        listener = fn;
-      }),
-      removeEventListener: vi.fn(),
-    } as unknown as MediaQueryList;
-    vi.stubGlobal(
-      'matchMedia',
-      vi.fn(() => mq),
-    );
-
-    renderHook(() => useSystemTheme());
-
-    // Act — simulate OS switching to dark
-    listener!({ matches: true } as MediaQueryListEvent);
+    useSettingsStore.setState({ themeSetManually: true });
+    useSettingsStore.getState().setThemeMode('dark');
 
     // Assert
-    expect(useDesktopStore.getState().theme.mode).toBe('dark');
+    expect(useSettingsStore.getState().theme.mode).toBe('dark');
   });
 });

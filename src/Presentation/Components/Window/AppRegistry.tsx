@@ -8,6 +8,7 @@ import PdfApp from '@presentation/Components/Apps/PdfApp/PdfApp';
 import StorybookApp from '@presentation/Components/Apps/StorybookApp/StorybookApp';
 import ImageViewerApp from '@presentation/Components/Apps/ImageViewerApp/ImageViewerApp';
 import NotesApp from '@presentation/Components/Apps/NotesApp/NotesApp';
+import SettingsApp from '@presentation/Components/Apps/SettingsApp/SettingsApp';
 import CreateItemApp from '@presentation/Components/Shared/CreateItemApp/CreateItemApp';
 import AppEmptyState from '@presentation/Components/Shared/AppEmptyState/AppEmptyState';
 
@@ -83,6 +84,9 @@ const registry: Record<string, AppRegistryEntry> = {
   },
   terminal: {
     component: () => <AppEmptyState />,
+  },
+  settings: {
+    component: SettingsApp,
   },
 };
 

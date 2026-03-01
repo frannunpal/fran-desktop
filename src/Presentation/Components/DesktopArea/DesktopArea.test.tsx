@@ -9,11 +9,14 @@ const localStorageMock = createLocalStorageMock();
 vi.stubGlobal('localStorage', localStorageMock);
 
 const { useDesktopStore } = await import('@presentation/Store/desktopStore');
+const { useSettingsStore } = await import('@presentation/Store/settingsStore');
 const { default: DesktopArea } = await import('./DesktopArea');
 
 describe('DesktopArea', () => {
   beforeEach(() => {
     resetDesktopStore(useDesktopStore, localStorageMock);
+    useSettingsStore.getState().setThemeMode('light');
+    useSettingsStore.setState({ themeSetManually: false, wallpaper: null });
   });
 
   it('should render its children', () => {
@@ -30,7 +33,7 @@ describe('DesktopArea', () => {
 
   it('should apply the wallpaper and desktop color from the store theme in light mode', () => {
     // Arrange
-    useDesktopStore.getState().setThemeMode('light');
+    useSettingsStore.getState().setThemeMode('light');
 
     // Act
     const { container } = render(<DesktopArea />);
@@ -43,7 +46,7 @@ describe('DesktopArea', () => {
 
   it('should apply the wallpaper and desktop color from the store theme in dark mode', () => {
     // Arrange
-    useDesktopStore.getState().setThemeMode('dark');
+    useSettingsStore.getState().setThemeMode('dark');
 
     // Act
     const { container } = render(<DesktopArea />);
