@@ -7,6 +7,8 @@ import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import type { FolderNode } from '@/Shared/Interfaces/FolderNode';
 import { buildImageViewerMenuBar } from './buildImageViewerMenuBar';
 
+vi.mock('framer-motion', async () => await import('@/Shared/Testing/__mocks__/framer-motion.mock'));
+
 vi.mock('react-icons/vsc', () => ({
   VscFolder: () => <svg data-testid="icon-folder" />,
   VscFolderOpened: () => <svg />,
@@ -61,7 +63,7 @@ describe('ImageViewerApp', () => {
       render(<ImageViewerApp />, { wrapper });
 
       // Assert
-      expect(screen.getByText('No image to display')).toBeInTheDocument();
+      expect(screen.getByText('No image to display. Please open one.')).toBeInTheDocument();
     });
 
     it('should render an img element when src is provided', () => {

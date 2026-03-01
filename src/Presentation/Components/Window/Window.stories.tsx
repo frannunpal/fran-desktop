@@ -58,6 +58,7 @@ const meta: Meta<typeof Window> = {
       id: 'win-story',
       title: 'My Window',
       icon: '📝',
+      content: 'AppEmptyState',
       fcIcon: 'FcEditImage',
       x: 60,
       y: 60,

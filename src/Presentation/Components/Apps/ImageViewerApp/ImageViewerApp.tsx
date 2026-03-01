@@ -1,7 +1,7 @@
 import { type FC, useState } from 'react';
-import { Text } from '@mantine/core';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import { FilePickerModal } from '@presentation/Components/Shared/FilePickerApp/FilePickerApp';
+import AppEmptyState from '@presentation/Components/Shared/AppEmptyState/AppEmptyState';
 import classes from './ImageViewerApp.module.css';
 import { IMAGE_MIME_TYPES } from '@/Shared/Utils/getAppIdForMime';
 
@@ -30,7 +30,7 @@ const ImageViewerApp: FC<ImageViewerAppProps> = ({
   const content = src ? (
     <img src={src} alt={src.split('/').pop()} className={classes.image} />
   ) : (
-    <Text className={classes.placeholder}>No image to display</Text>
+    <AppEmptyState label="No image to display. Please open one." />
   );
 
   return (
