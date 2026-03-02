@@ -15,8 +15,14 @@ interface MenuDropdownElementProps {
   label: string;
   icon?: string;
   items: MenuItem[];
+  rightSection?: React.ReactNode;
 }
-const MenuDropdownElement: FC<MenuDropdownElementProps> = ({ label, icon, items }) => {
+const MenuDropdownElement: FC<MenuDropdownElementProps> = ({
+  label,
+  icon,
+  items,
+  rightSection,
+}) => {
   const [opened, setOpened] = useState(false);
   const TriggerIcon: FC = () => useFcIconElement(icon ?? '', ICON_PROPS);
   return (
@@ -34,6 +40,7 @@ const MenuDropdownElement: FC<MenuDropdownElementProps> = ({ label, icon, items 
         <button className={classes.menuTrigger} onClick={() => setOpened(o => !o)}>
           {icon && <TriggerIcon />}
           <span>{label}</span>
+          {rightSection && <span style={{ marginLeft: 'auto' }}>{rightSection}</span>}
         </button>
       </Menu.Target>
       <Menu.Dropdown>

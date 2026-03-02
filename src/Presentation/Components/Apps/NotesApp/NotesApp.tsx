@@ -16,6 +16,7 @@ import {
   VscHorizontalRule,
 } from 'react-icons/vsc';
 import { BiStrikethrough } from 'react-icons/bi';
+import { FcSynchronize } from 'react-icons/fc';
 import type { FileNode } from '@/Shared/Interfaces/FileNode';
 import {
   FilePickerModal,
@@ -335,7 +336,7 @@ const NotesApp: FC<WindowContentProps> = ({ window, notifyReady }) => {
 
         {isDirty && (
           <span className={classes.dirtyIndicator} title="Unsaved changes">
-            ●
+            <FcSynchronize />
           </span>
         )}
       </div>

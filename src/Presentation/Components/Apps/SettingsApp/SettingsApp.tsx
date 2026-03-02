@@ -1,6 +1,7 @@
 import { type FC, useCallback, useState, useRef, useEffect } from 'react';
 import { Card, SimpleGrid, Stack, Text } from '@mantine/core';
 import AppIcon from '@presentation/Components/Shared/AppIcon/AppIcon';
+import { DiscardChangesModal } from '@presentation/Components/Shared/DiscardChangesModal/DiscardChangesModal';
 import { useSettingsStore } from '@presentation/Store/settingsStore';
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 import { useCloseInterceptor } from '@presentation/Hooks/useCloseInterceptor';
@@ -29,8 +30,11 @@ interface SettingsSnapshot {
   customThemeColors: { taskbar: string; window: string; accent: string } | null;
 }
 
-const SettingsApp: FC<WindowContentProps> = ({ window }) => {
+const SettingsApp: FC<WindowContentProps> = ({ window, notifyReady }) => {
   const [activeSectionId, setActiveSectionId] = useState<SectionId | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [discardModalOpen, setDiscardModalOpen] = useState(false);
+  const pendingCloseRef = useRef(false);
 
   const windows = useDesktopStore(state => state.windows);
   const windowId = window?.id ?? windows.find(w => w.content === 'settings')?.id;
@@ -47,19 +51,42 @@ const SettingsApp: FC<WindowContentProps> = ({ window }) => {
   const setCustomThemeColors = useSettingsStore(state => state.setCustomThemeColors);
   const setThemeAutomatic = useSettingsStore(state => state.setThemeAutomatic);
 
+  // Initialize snapshot once with current values
   const snapshotRef = useRef<SettingsSnapshot | null>(null);
+  if (snapshotRef.current === null) {
+    snapshotRef.current = {
+      wallpaper,
+      themeMode: theme.mode,
+      font,
+      launcherIcon,
+      customThemeColors,
+    };
+  }
 
+  // Update isDirty state when settings change
   useEffect(() => {
-    if (snapshotRef.current === null) {
-      snapshotRef.current = {
-        wallpaper,
-        themeMode: theme.mode,
-        font,
-        launcherIcon,
-        customThemeColors,
-      };
-    }
-  }, []);
+    if (!snapshotRef.current) return;
+    const current: SettingsSnapshot = {
+      wallpaper: useSettingsStore.getState().wallpaper,
+      themeMode: useSettingsStore.getState().theme.mode,
+      font: useSettingsStore.getState().font,
+      launcherIcon: useSettingsStore.getState().launcherIcon,
+      customThemeColors: useSettingsStore.getState().customThemeColors,
+    };
+    const dirty = JSON.stringify(current) !== JSON.stringify(snapshotRef.current);
+    setIsDirty(dirty);
+  }, [wallpaper, theme.mode, font, launcherIcon, customThemeColors]);
+
+  // Notify parent component with actions and isDirty state
+  useEffect(() => {
+    notifyReady?.({
+      ...(window?.contentData ?? {}),
+      actions: {
+        discard: () => setDiscardModalOpen(true),
+      },
+      isDirty,
+    });
+  }, [window, notifyReady, isDirty]);
 
   const isDirtyGetter = useCallback(() => {
     if (!snapshotRef.current) return false;
@@ -73,7 +100,7 @@ const SettingsApp: FC<WindowContentProps> = ({ window }) => {
     return JSON.stringify(current) !== JSON.stringify(snapshotRef.current);
   }, []);
 
-  const handleDiscard = useCallback(() => {
+  const handleDiscardConfirm = useCallback(() => {
     const snapshot = snapshotRef.current;
     if (!snapshot) return;
     setWallpaper(snapshot.wallpaper);
@@ -86,6 +113,11 @@ const SettingsApp: FC<WindowContentProps> = ({ window }) => {
       setThemeAutomatic();
     }
     setThemeMode(snapshot.themeMode);
+    setDiscardModalOpen(false);
+    if (pendingCloseRef.current) {
+      const closeWindow = useDesktopStore.getState().closeWindow;
+      closeWindow(windowId!);
+    }
   }, [
     setWallpaper,
     setFont,
@@ -93,7 +125,20 @@ const SettingsApp: FC<WindowContentProps> = ({ window }) => {
     setThemeMode,
     setCustomThemeColors,
     setThemeAutomatic,
+    windowId,
   ]);
+
+  const handleDiscardCancel = useCallback(() => {
+    setDiscardModalOpen(false);
+    pendingCloseRef.current = false;
+  }, []);
+
+  const handleDiscard = useCallback(() => {
+    if (isDirty) {
+      setDiscardModalOpen(true);
+      pendingCloseRef.current = true;
+    }
+  }, [isDirty]);
 
   useCloseInterceptor({ isDirtyGetter, windowId, onDiscard: handleDiscard });
 
@@ -176,6 +221,12 @@ const SettingsApp: FC<WindowContentProps> = ({ window }) => {
           </div>
         )}
       </main>
+
+      <DiscardChangesModal
+        opened={discardModalOpen}
+        onConfirm={handleDiscardConfirm}
+        onCancel={handleDiscardCancel}
+      />
     </div>
   );
 };

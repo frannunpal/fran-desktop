@@ -15,6 +15,7 @@ import AppEmptyState from '@presentation/Components/Shared/AppEmptyState/AppEmpt
 import { buildImageViewerMenuBar } from '@presentation/Components/Apps/ImageViewerApp/buildImageViewerMenuBar';
 import { buildPdfViewerMenuBar } from '@presentation/Components/Apps/PdfApp/buildPdfViewerMenuBar';
 import { buildNotesMenuBar } from '@presentation/Components/Apps/NotesApp/buildNotesMenuBar';
+import { buildSettingsMenuBar } from '@presentation/Components/Apps/SettingsApp/buildSettingsMenuBar';
 
 import { useDesktopStore } from '@presentation/Store/desktopStore';
 
@@ -57,6 +58,17 @@ const buildNotesMenuBarFn: MenuBarBuilder = (window: WindowEntity) => {
   );
 };
 
+const buildSettingsMenuBarFn: MenuBarBuilder = (window: WindowEntity) => {
+  const closeWindow = useDesktopStore.getState().closeWindow;
+  const actions = window.contentData?.actions as { discard: () => void } | undefined;
+  const isDirty = window.contentData?.isDirty as boolean | undefined;
+  return buildSettingsMenuBar(
+    () => actions?.discard(),
+    () => closeWindow(window.id),
+    isDirty ?? false,
+  );
+};
+
 const registry: Record<string, AppRegistryEntry> = {
   calendar: {
     component: CalendarApp,
@@ -87,6 +99,7 @@ const registry: Record<string, AppRegistryEntry> = {
   },
   settings: {
     component: SettingsApp,
+    buildMenuBar: buildSettingsMenuBarFn,
   },
 };
 

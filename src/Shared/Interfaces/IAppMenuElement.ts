@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export interface MenuItemAction {
   type: 'item';
   label: string;
@@ -17,6 +19,7 @@ export interface AppMenuDropdown {
   label: string;
   icon?: string;
   items: MenuItem[];
+  rightSection?: ReactNode;
 }
 
 export interface AppMenuCombobox {

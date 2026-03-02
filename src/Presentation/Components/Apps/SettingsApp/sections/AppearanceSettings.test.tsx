@@ -43,7 +43,10 @@ describe('AppearanceSettings', () => {
   });
 
   it('selects Light when themeSetManually is true and mode is light', () => {
-    useSettingsStore.setState({ themeSetManually: true, theme: { mode: 'light' } as any });
+    useSettingsStore.setState({
+      themeSetManually: true,
+      theme: { mode: 'light', desktop: '', taskbar: '', window: '', accent: '' },
+    });
 
     render(<AppearanceSettings />, { wrapper });
 
@@ -51,7 +54,10 @@ describe('AppearanceSettings', () => {
   });
 
   it('selects Dark when themeSetManually is true and mode is dark', () => {
-    useSettingsStore.setState({ themeSetManually: true, theme: { mode: 'dark' } as any });
+    useSettingsStore.setState({
+      themeSetManually: true,
+      theme: { mode: 'dark', desktop: '', taskbar: '', window: '', accent: '' },
+    });
 
     render(<AppearanceSettings />, { wrapper });
 
@@ -61,7 +67,7 @@ describe('AppearanceSettings', () => {
   it('calls setThemeAutomatic when System is selected', () => {
     useSettingsStore.setState({
       themeSetManually: true,
-      theme: { mode: 'light' } as any,
+      theme: { mode: 'light', desktop: '', taskbar: '', window: '', accent: '' },
     });
 
     render(<AppearanceSettings />, { wrapper });
@@ -131,7 +137,7 @@ describe('AppearanceSettings', () => {
     useSettingsStore.setState({
       setCustomThemeColors,
       themeSetManually: true,
-      theme: { mode: 'light' } as any,
+      theme: { mode: 'light', desktop: '', taskbar: '', window: '', accent: '' },
     });
 
     render(<AppearanceSettings />, { wrapper });

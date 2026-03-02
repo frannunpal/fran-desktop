@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
 import '@/Shared/Testing/__mocks__/jsdom-setup';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { createLocalStorageMock } from '@/Shared/Testing/__mocks__/localStorage.mock';
 import { resetDesktopStore } from '@/Shared/Testing/Utils/resetDesktopStore';
 import { makeWindow } from '@/Shared/Testing/Utils/makeWindow';
-import { makeWindowInput } from '@/Shared/Testing/Utils/makeWindowInput';
 
 const localStorageMock = createLocalStorageMock();
 
@@ -13,7 +12,7 @@ vi.stubGlobal('localStorage', localStorageMock);
 
 const { useDesktopStore, resetWindowManager } = await import('@presentation/Store/desktopStore');
 const { useCloseModalStore } = await import('@presentation/Store/closeModalStore');
-const { useCloseInterceptor, registerCloseInterceptor, getCloseInterceptor } =
+const { useCloseInterceptor, getCloseInterceptor } =
   await import('@presentation/Hooks/useCloseInterceptor');
 
 describe('useCloseInterceptor with modal store', () => {
@@ -50,7 +49,6 @@ describe('useCloseInterceptor with modal store', () => {
     useDesktopStore.getState().openWindow(win);
     const windowId = win.id;
     const isDirtyGetter = vi.fn(() => true);
-    const handleSave = vi.fn();
     const handleDiscard = vi.fn();
 
     renderHook(() =>

@@ -56,3 +56,20 @@
 .sectionCard:hover {
   background: light-dark(rgba(0, 0, 0, 0.03), rgba(255, 255, 255, 0.04));
 }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 12px;
+  border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.08));
+  background-color: light-dark(#f8f9fa, #1a1b1e);
+  flex-shrink: 0;
+}
+
+.dirtyIndicator {
+  color: var(--mantine-color-orange-6);
+  font-size: 10px;
+  line-height: 1;
+  margin-left: auto;
+}
